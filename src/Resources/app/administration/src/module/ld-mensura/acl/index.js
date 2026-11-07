@@ -64,3 +64,28 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         },
     },
 });
+
+/**
+ * Logistikanteil (KONZEPT 3d) als Zusatzrecht: Die Entity-Rechte gehören bewusst nicht zu ld_mensura.viewer,
+ * damit Rollen ohne dieses Recht den unsichtbaren Anteil auch über die Admin-API nicht sehen.
+ */
+const LOGISTICS_ENTITIES = ['ld_mensura_logistics_rule'];
+const logisticsPrivileges = (...actions) => LOGISTICS_ENTITIES.flatMap(
+    (entity) => actions.map((action) => `${entity}:${action}`),
+);
+
+Shopware.Service('privileges').addPrivilegeMappingEntry({
+    category: 'additional_permissions',
+    parent: null,
+    key: 'ld_mensura',
+    roles: {
+        logistics: {
+            privileges: [...logisticsPrivileges('read')],
+            dependencies: ['ld_mensura.viewer'],
+        },
+        logistics_edit: {
+            privileges: [...logisticsPrivileges('read', 'create', 'update', 'delete')],
+            dependencies: ['ld_mensura.viewer', 'ld_mensura.logistics'],
+        },
+    },
+});

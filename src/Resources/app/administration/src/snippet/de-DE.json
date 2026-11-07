@@ -38,6 +38,13 @@
             "ld_mensura": {
                 "label": "Mensura – Konfigurator & Kalkulation"
             }
+        },
+        "additional_permissions": {
+            "ld_mensura": {
+                "label": "Mensura",
+                "logistics": "Logistikanteil ansehen (unsichtbarer Versandanteil im Preis)",
+                "logistics_edit": "Logistikanteil pflegen und Vectura-Vorschläge übernehmen"
+            }
         }
     }
 }

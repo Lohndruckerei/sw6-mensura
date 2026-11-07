@@ -87,6 +87,14 @@
             <tag name="shopware.entity.definition" entity="ld_mensura_accessory_rule_translation"/>
         </service>
 
+        <!-- Logistikanteil (KONZEPT 3d): eigene Tabelle, nur mit Zusatzrecht ld_mensura.logistics -->
+        <service id="Lohndruckerei\Mensura\Core\Content\Logistics\LogisticsRuleDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_logistics_rule"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\Logistics\LogisticsRuleValidator">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Lohndruckerei\Mensura\Core\Checkout\OrderLineItem\MensuraOrderLineItemDefinition">
             <tag name="shopware.entity.definition" entity="ld_mensura_order_line_item"/>
         </service>

@@ -38,6 +38,13 @@
             "ld_mensura": {
                 "label": "Mensura – Configurator & calculation"
             }
+        },
+        "additional_permissions": {
+            "ld_mensura": {
+                "label": "Mensura",
+                "logistics": "View logistics share (hidden shipping share in the price)",
+                "logistics_edit": "Maintain logistics share and apply Vectura suggestions"
+            }
         }
     }
 }

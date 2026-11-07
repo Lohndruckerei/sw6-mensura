@@ -508,11 +508,12 @@ Grundpreis → Optionen → Staffelrabatt/% → Produktprofil-Aufschlag → Logi
 | `note` | LONGTEXT NULL | |
 | `created_at`, `updated_at` | DATETIME(3) | |
 
-Prüfungen (CHECK bzw. Validierung beim Speichern): genau ein Ziel (Kalkulation allein, Material oder Optionswert);
-`ramp_to ≥ ramp_from + 100`; Schwelle vollständig oder leer; `minimum_scope` nur zusammen mit `minimum_amount`. Indizes
-auf (`material_id`, `cost_type`, `valid_from`) und entsprechend für die anderen Ziele. Die Assoziationen
-`logisticsRules` an Kalkulation, Material und Optionswert sind **nicht** ApiAware. Der Admin lädt sie nur mit
-`ld_mensura.logistics`.
+Prüfungen: genau ein Ziel (Kalkulation allein, Material oder Optionswert) und gültige Werte der Auswahlfelder prüft der
+`LogisticsRuleValidator` beim Schreiben, weil MySQL kein CHECK auf Spalten mit FK-CASCADE erlaubt. Die Datenbank prüft
+`ramp_to ≥ ramp_from + 100`, Schwelle vollständig oder leer und `minimum_scope` nur zusammen mit `minimum_amount`.
+Indizes auf (`material_id`, `cost_type`, `valid_from`) und entsprechend für die anderen Ziele. **Keine Rück-Assoziation**
+an Kalkulation, Material und Optionswert: Die Regel wird nie versehentlich mitgeladen. Der Admin sucht sie mit einem
+Filter auf das Ziel, und nur mit `ld_mensura.logistics` (umgesetzt in Schritt 1).
 
 **Neue Tabelle `ld_mensura_order_line_item_logistics`** (1:1 zum Schnappschuss, Extension
 `orderLineItem.extensions.ldMensuraLogistics`, nur Admin-API, nur mit `ld_mensura.logistics`):
