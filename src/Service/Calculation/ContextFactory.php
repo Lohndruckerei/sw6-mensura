@@ -29,6 +29,11 @@ class ContextFactory
         $holidays = array_values(array_filter(array_map('trim', preg_split('/[\s,;]+/', (string) ($get('holidays') ?? '')) ?: []), static fn (string $d) => preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) === 1));
         $cutoff = $get('orderCutoff');
         $layout = $get('storefrontLayout');
+        $display = [];
+        foreach (CalculationContext::DISPLAY_DEFAULTS as $key => $default) {
+            $value = $get($key);
+            $display[$key] = $value === null ? $default : (bool) $value;
+        }
 
         return new CalculationContext(
             customerGroupId: $context->getCurrentCustomerGroup()->getId(),
@@ -41,6 +46,7 @@ class ContextFactory
             storefrontLayout: \in_array($layout, ['compact', 'guided'], true) ? $layout : 'compact',
             allowLayoutSwitch: (bool) ($get('allowLayoutSwitch') ?? true),
             layoutTestShare: (int) ($get('layoutTestShare') ?? 0),
+            display: $display,
         );
     }
 }

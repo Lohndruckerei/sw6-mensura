@@ -314,6 +314,22 @@ final class PriceEngineTest extends TestCase
         self::assertSame(20.4, $larger->getSaleTotal()); // 2 m² × 10 + 2 × 0,20 – Mindestpreis greift nicht mehr
     }
 
+    public function testDisplaySwitchesFromPluginProfileAndGroup(): void
+    {
+        // Fokus auf den Gesamtpreis: Plugin blendet Aufpreise aus, Profil zusätzlich den Preis je m²,
+        // Optionsgruppe Veredelung ohne Aufpreise
+        $data = DemoCatalog::catalog();
+        $data['profile']['display'] = ['showPerSqm' => false];
+        $data['groups'][DemoCatalog::id('group.veredelung')]['showPriceHint'] = false;
+        $context = new CalculationContext(display: ['showPriceHints' => false] + CalculationContext::DISPLAY_DEFAULTS);
+        $out = self::plain((new \Lohndruckerei\Mensura\Service\Calculation\ConfiguratorBuilder())->build(new Catalog($data), $context));
+
+        self::assertSame(['showPriceHints' => false, 'showArea' => true, 'showPerSqm' => false, 'showPerPiece' => true, 'showFromPrice' => true], $out['display']);
+        $groups = array_column($out['groups'], null, 'technicalName');
+        self::assertFalse($groups['veredelung']['showPriceHint']);
+        self::assertArrayNotHasKey('showPriceHint', $groups['farbigkeit']);
+    }
+
     public function testEnglishTexts(): void
     {
         $api = self::plain((new PriceEngine())->calculate($this->config([]), new Catalog(DemoCatalog::catalog('en')), ContractTest::context(null, 'en'))->toStoreApi());

@@ -126,7 +126,7 @@ final class ConfiguratorBuilder
             }
 
             $generalRule = $catalog->profileRule($groupId, null);
-            $groups[] = [
+            $groupOut = [
                 'technicalName' => (string) $group['technicalName'],
                 'name' => (string) ($group['name'] ?? $group['technicalName']),
                 'helpText' => $group['helpText'] ?? null,
@@ -137,6 +137,11 @@ final class ConfiguratorBuilder
                 'mode' => (string) ($generalRule['mode'] ?? 'inherit'),
                 'values' => $values,
             ];
+            // Aufpreise dieser Gruppe ausblenden (Fokus auf den Gesamtpreis); fehlt = anzeigen
+            if (($group['showPriceHint'] ?? true) === false) {
+                $groupOut['showPriceHint'] = false;
+            }
+            $groups[] = $groupOut;
         }
 
         $sets = [];
@@ -182,7 +187,27 @@ final class ConfiguratorBuilder
             'defaults' => $normalized->toArray($catalog),
             'quantitySteps' => array_values(array_map('intval', $quantitySteps)),
             'orderCutoff' => $context->orderCutoff,
+            'display' => $this->display($profile, $context),
         ];
+    }
+
+    /**
+     * Anzeige-Schalter: Plugin-Einstellung, je Schalter vom Produktprofil überschreibbar.
+     *
+     * @param array<string, mixed> $profile
+     *
+     * @return array<string, bool>
+     */
+    private function display(array $profile, CalculationContext $context): array
+    {
+        $display = [];
+        $override = \is_array($profile['display'] ?? null) ? $profile['display'] : [];
+        foreach (CalculationContext::DISPLAY_DEFAULTS as $key => $default) {
+            $value = $override[$key] ?? $context->display[$key] ?? $default;
+            $display[$key] = (bool) $value;
+        }
+
+        return $display;
     }
 
     /**

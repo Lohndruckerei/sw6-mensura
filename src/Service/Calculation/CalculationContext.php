@@ -25,8 +25,18 @@ final class CalculationContext
         public readonly string $storefrontLayout = 'compact',
         public readonly bool $allowLayoutSwitch = true,
         public readonly int $layoutTestShare = 0,
+        /** Anzeige im Shop (Plugin-Einstellung), je Schalter true = anzeigen; das Produktprofil kann überschreiben */
+        public readonly array $display = self::DISPLAY_DEFAULTS,
     ) {
     }
+
+    public const DISPLAY_DEFAULTS = [
+        'showPriceHints' => true,
+        'showArea' => true,
+        'showPerSqm' => true,
+        'showPerPiece' => true,
+        'showFromPrice' => true,
+    ];
 
     public static function languageFromLocale(?string $locale): string
     {

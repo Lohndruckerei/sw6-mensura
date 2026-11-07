@@ -340,6 +340,11 @@ Darstellung. Optionssets, Produktprofile, Abhängigkeiten und das Verhalten beim
 Datenmodell (v0.4.0): Feld `layout` am Produktprofil (`compact`/`guided`/leer = Standard) und Plugin-Einstellungen
 `storefrontLayout`, `allowLayoutSwitch`, `layoutTestShare` (%).
 
+**Anzeige-Schalter** (Freigabe 07.11.2026, „Fokus auf den Gesamtpreis, nicht auf den Aufpreis“): Plugin-Einstellungen
+`showPriceHints`, `showArea`, `showPerSqm`, `showPerPiece`, `showFromPrice` (Standard: alles anzeigen), je Produktprofil
+überschreibbar (`display`), dazu je Optionsgruppe `showPriceHint` (Aufpreise der Werte ausblenden). Die Store-API liefert sie
+im Konfigurator (`display`, `groups[].showPriceHint`); der Preis selbst wird unverändert berechnet.
+
 ## 3b. Benutzerrechte je Rolle (für alle Plugins der Familie)
 
 Alle Plugins (LieferLotse, Mensura, künftige) melden ihre Rechte bei der **Shopware-Rollenverwaltung** an

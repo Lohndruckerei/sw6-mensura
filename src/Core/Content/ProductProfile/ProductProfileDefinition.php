@@ -82,6 +82,8 @@ class ProductProfileDefinition extends EntityDefinition
             new StringField('layout', 'layout', 16),
             // Zeilen der Preismatrix; leer = aus der Kalkulation
             new JsonField('quantity_steps', 'quantitySteps'),
+            // Anzeige im Shop, überschreibt die Plugin-Einstellung: {showPriceHints, showArea, showPerSqm, showPerPiece, showFromPrice}
+            new JsonField('display', 'display'),
 
             new OneToOneAssociationField('product', 'product_id', 'id', ProductDefinition::class, false),
             (new OneToManyAssociationField('materials', ProductProfileMaterialDefinition::class, 'product_profile_id'))->addFlags(new CascadeDelete()),

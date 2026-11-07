@@ -61,6 +61,8 @@ class OptionGroupDefinition extends EntityDefinition
             (new StringField('scope', 'scope', 16))->addFlags(new Required()),
             (new StringField('display_type', 'displayType', 16))->addFlags(new Required()),
             new BoolField('required', 'required'),
+            // Aufpreise der Werte im Shop anzeigen (false = Fokus auf den Gesamtpreis)
+            new BoolField('show_price_hint', 'showPriceHint'),
             new IntField('position', 'position'),
 
             new TranslatedField('name'),
@@ -77,6 +79,6 @@ class OptionGroupDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return ['type' => 'standard', 'scope' => 'position', 'displayType' => 'select', 'required' => true, 'position' => 0];
+        return ['type' => 'standard', 'scope' => 'position', 'displayType' => 'select', 'required' => true, 'showPriceHint' => true, 'position' => 0];
     }
 }

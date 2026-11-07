@@ -80,6 +80,52 @@
     </card>
 
     <card>
+        <title>Display in the shop</title>
+        <title lang="de-DE">Anzeige im Shop</title>
+
+        <input-field type="bool">
+            <name>showPriceHints</name>
+            <label>Show surcharges on options</label>
+            <label lang="de-DE">Aufpreise an Optionen anzeigen</label>
+            <helpText>Shows e.g. "+ 9.00 €/m²" next to an option. Off = the customer only sees the total price. Can be switched off per option group and per product profile.</helpText>
+            <helpText lang="de-DE">Zeigt z. B. „+ 9,00 €/m²“ neben einer Option. Aus = der Kunde sieht nur den Gesamtpreis. Zusätzlich je Optionsgruppe und je Produktprofil abschaltbar.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+        <input-field type="bool">
+            <name>showArea</name>
+            <label>Show area</label>
+            <label lang="de-DE">Fläche anzeigen</label>
+            <helpText>Area (width × height × pieces) and billed area, e.g. "1.23 m², billed 1.30 m²".</helpText>
+            <helpText lang="de-DE">Fläche (Breite × Höhe × Stück) und abgerechnete Fläche, z. B. „1,23 m², abgerechnet 1,30 m²“.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+        <input-field type="bool">
+            <name>showPerSqm</name>
+            <label>Show price per m²</label>
+            <label lang="de-DE">Preis je m² anzeigen</label>
+            <helpText>Example: "70.60 €/m²" below the total price.</helpText>
+            <helpText lang="de-DE">Beispiel: „70,60 €/m²“ unter dem Gesamtpreis.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+        <input-field type="bool">
+            <name>showPerPiece</name>
+            <label>Show price per piece</label>
+            <label lang="de-DE">Preis je Stück anzeigen</label>
+            <helpText>Example: "35.30 € per piece" below the total price.</helpText>
+            <helpText lang="de-DE">Beispiel: „35,30 € je Stück“ unter dem Gesamtpreis.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+        <input-field type="bool">
+            <name>showFromPrice</name>
+            <label>Show "from" price on material tiles</label>
+            <label lang="de-DE">„ab“-Preis an Material-Kacheln anzeigen</label>
+            <helpText>Example: "from 29.00 €/m²" on the tile "Aluminium composite 3 mm".</helpText>
+            <helpText lang="de-DE">Beispiel: „ab 29,00 €/m²“ auf der Kachel „Aluverbund 3 mm“.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
         <title>Production and delivery times</title>
         <title lang="de-DE">Produktions- und Lieferzeiten</title>
 

@@ -21,6 +21,7 @@ class OptionGroupEntity extends Entity
     protected string $scope;
     protected string $displayType;
     protected ?bool $required = null;
+    protected ?bool $showPriceHint = null;
     protected ?int $position = null;
     protected ?string $name = null;
     protected ?string $description = null;
@@ -86,6 +87,16 @@ class OptionGroupEntity extends Entity
     public function setRequired(?bool $required): void
     {
         $this->required = $required;
+    }
+
+    public function getShowPriceHint(): ?bool
+    {
+        return $this->showPriceHint;
+    }
+
+    public function setShowPriceHint(?bool $showPriceHint): void
+    {
+        $this->showPriceHint = $showPriceHint;
     }
 
     public function getPosition(): ?int

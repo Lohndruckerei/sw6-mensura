@@ -29,7 +29,7 @@ class CatalogLoader
         'minimumPriceSale', 'minArea', 'areaRounding', 'tierBasis', 'tiers', 'priceComponents', 'optionSetId', 'widthMax', 'heightMax',
         'name', 'description', 'badges', 'supplierId', 'weightPerSqm',
     ];
-    private const GROUP_FIELDS = ['id', 'technicalName', 'name', 'helpText', 'type', 'scope', 'displayType', 'required', 'position'];
+    private const GROUP_FIELDS = ['id', 'technicalName', 'name', 'helpText', 'type', 'scope', 'displayType', 'required', 'showPriceHint', 'position'];
     private const VALUE_FIELDS = [
         'id', 'optionGroupId', 'technicalName', 'name', 'description', 'badges', 'position', 'widthAdd', 'heightAdd',
         'widthFactor', 'heightFactor', 'deliveryDays', 'width', 'height', 'optionSetId', 'exclusions', 'availability',
@@ -37,7 +37,7 @@ class CatalogLoader
     private const ASSIGNMENT_FIELDS = ['id', 'optionValueId', 'materialId', 'active', 'isDefault', 'position', 'priceComponents', 'tiers', 'conditions'];
     private const PROFILE_FIELDS = [
         'id', 'productId', 'type', 'active', 'layout', 'widthMin', 'widthMax', 'heightMin', 'heightMax', 'minQuantity',
-        'maxQuantity', 'minimumPriceSale', 'surchargePercent', 'priceComponents', 'quantitySteps', 'steps', 'defaults',
+        'maxQuantity', 'minimumPriceSale', 'surchargePercent', 'priceComponents', 'quantitySteps', 'steps', 'defaults', 'display',
     ];
 
     public function __construct(private readonly DefinitionInstanceRegistry $registry)

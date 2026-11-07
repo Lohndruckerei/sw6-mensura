@@ -37,6 +37,7 @@ class ProductProfileEntity extends Entity
     protected ?ProductProfileOptionCollection $options = null;
     protected ?string $layout = null;
     protected ?array $quantitySteps = null;
+    protected ?array $display = null;
     protected ?FeatureValueCollection $featureValues = null;
     protected ?UseCaseAssignmentCollection $useCaseAssignments = null;
 
@@ -248,6 +249,16 @@ class ProductProfileEntity extends Entity
     public function setQuantitySteps(?array $quantitySteps): void
     {
         $this->quantitySteps = $quantitySteps;
+    }
+
+    public function getDisplay(): ?array
+    {
+        return $this->display;
+    }
+
+    public function setDisplay(?array $display): void
+    {
+        $this->display = $display;
     }
 
     public function getFeatureValues(): ?FeatureValueCollection
