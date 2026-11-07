@@ -135,6 +135,11 @@ class DemoSeedCommand extends Command
             'SELECT LOWER(HEX(id)) FROM sales_channel WHERE type_id = UNHEX(?)',
             [Defaults::SALES_CHANNEL_TYPE_STOREFRONT],
         );
+        // in die Hauptkategorie jeder Storefront, damit das Produkt in der Navigation erscheint
+        $categories = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE type_id = UNHEX(?)',
+            [Defaults::SALES_CHANNEL_TYPE_STOREFRONT],
+        );
         $product = [
             'id' => DemoCatalog::PRODUCT_ID,
             'productNumber' => DemoCatalog::PRODUCT_NUMBER,
@@ -146,6 +151,7 @@ class DemoSeedCommand extends Command
                 'de-DE' => ['name' => 'Aluverbund (Mensura-Demo)', 'description' => 'Demo-Produkt für den Mensura-Konfigurator: Aluverbund 3 mm und Acrylglas 5 mm.'],
                 'en-GB' => ['name' => 'Aluminium composite (Mensura demo)', 'description' => 'Demo product for the Mensura configurator.'],
             ],
+            'categories' => array_map(static fn (string $id) => ['id' => $id], $categories),
             'visibilities' => array_map(static fn (string $id) => [
                 'id' => md5('ld-mensura-demo:visibility:' . $id),
                 'salesChannelId' => $id,
