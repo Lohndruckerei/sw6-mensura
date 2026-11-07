@@ -4,11 +4,39 @@
             "mainMenuItem": "Mensura",
             "description": "Produkt-Konfigurator und Flächen-/Preiskalkulation",
             "statusSetup": "Im Aufbau",
-            "comingSoon": "Folgt als Nächstes"
+            "comingSoon": "Folgt als Nächstes",
+            "showExplanation": "Erklärung anzeigen",
+            "viewTiles": "Kacheln",
+            "viewList": "Liste",
+            "duplicate": "Kopieren",
+            "duplicated": "Kopie angelegt – bitte technischen Namen prüfen und aktivieren.",
+            "duplicateError": "Kopieren ist fehlgeschlagen.",
+            "deleted": "Gelöscht.",
+            "noResultsTitle": "Nichts gefunden",
+            "noResultsSubline": "Zu „{term}“ gibt es keinen Eintrag. Suchbegriff ändern oder Filter zurücksetzen.",
+            "emptyFilterTitle": "Kein Eintrag für diesen Filter",
+            "emptyFilterSubline": "Wähle oben „Alle“, um wieder alles zu sehen.",
+            "columnStatus": "Status",
+            "labelTechnicalName": "Technischer Name",
+            "labelPosition": "Reihenfolge",
+            "helpPosition": "Kleinere Zahl steht weiter vorne, z. B. 1 = erstes Material im Konfigurator.",
+            "labelActive": "Aktiv",
+            "labelImage": "Bild",
+            "labelSupplier": "Lieferant",
+            "labelSupplierId": "Lieferanten-ID",
+            "helpSupplierId": "ID des Lieferanten aus dem LieferLotse (32 Zeichen), z. B. für Comdatek. Ohne LieferLotse leer lassen.",
+            "groupConnection": "Anbindung",
+            "errorDuplicateTechnicalName": "Dieser technische Name ist schon vergeben – bitte einen anderen wählen."
         },
         "groups": {
             "start": "Start",
             "setup": "Einrichtung"
+        },
+        "filter": {
+            "all": "Alle",
+            "active": "Aktiv",
+            "noPrice": "Ohne Preis",
+            "inactive": "Inaktiv"
         },
         "overview": {
             "title": "Konfigurator & Kalkulation",
@@ -31,6 +59,158 @@
                 "title": "Optionen",
                 "description": "Optionsgruppen wie Farbigkeit, Schnitt oder Veredelung mit Werten und Aufschlägen (€/m², €/Stk, %, pauschal)."
             }
+        },
+        "price": {
+            "purchase": "EK",
+            "sale": "VK",
+            "margin": "Marge",
+            "helpPurchase": "Einkaufspreis netto, z. B. 26,00 € je m² laut Comdatek-Preisliste. Nur mit dem Recht „Einkaufspreise“ sichtbar.",
+            "helpSale": "Verkaufspreis netto für Wiederverkäufer, z. B. 29,00 € je m². Andere Kundengruppen bekommen ihren Aufschlag darauf.",
+            "marginLine": "Marge {margin} % · Aufschlag {markup} %",
+            "applySuggestion": "VK-Vorschlag übernehmen: {price}",
+            "marginOk": "Marge im Ziel",
+            "marginLow": "Marge zu niedrig",
+            "marginNegative": "VK ≤ EK"
+        },
+        "saleRule": {
+            "margin": "Zielmarge %",
+            "markup": "Aufschlag %",
+            "factor": "Faktor",
+            "free": "frei"
+        },
+        "components": {
+            "empty": "Noch keine Preisanteile.",
+            "type": "Art",
+            "remove": "Preisanteil entfernen",
+            "add": "Preisanteil hinzufügen",
+            "hint": "Mehrere Anteile werden addiert, z. B. Konturschnitt = 3,00 €/m² + 0,50 €/Stk. Abschläge mit Minus, z. B. −8,00 €/m² für unbedruckt.",
+            "types": {
+                "per_area": "€ je m²",
+                "per_piece": "€ je Stück",
+                "per_motif": "€ je Motiv",
+                "per_order": "€ je Position (pauschal)",
+                "per_perimeter": "€ je lfm Umfang",
+                "percent": "% auf die Zwischensumme",
+                "factor": "Faktor auf den Satz je m²",
+                "base_area": "ersetzt den Materialpreis je m²"
+            }
+        },
+        "tiers": {
+            "sale": "Staffel VK",
+            "purchase": "Staffel EK",
+            "basis": "Staffel nach",
+            "helpBasis": "Woran die Staffel gemessen wird, z. B. „Gesamtfläche“: 5 Banner à 3 m² = 15 m² → Stufe „ab 10 m²“.",
+            "from": "ab",
+            "mode": "Art",
+            "value": "Wert",
+            "remove": "Stufe entfernen",
+            "add": "Stufe hinzufügen",
+            "warnOrder": "Staffelsprung: Schwellen nicht aufsteigend oder höhere Stufe teurer – bitte prüfen.",
+            "modePrice": "Preis ersetzt",
+            "modeDiscount": "Rabatt %",
+            "bases": {
+                "none": "keine Staffel",
+                "quantity": "Stückzahl",
+                "total_area": "Gesamtfläche (m²)",
+                "piece_area": "Fläche je Stück (m²)",
+                "total_price": "Zwischensumme (€)"
+            }
+        },
+        "supplierCodes": {
+            "title": "Lieferantencodes",
+            "help": "Daraus setzt Mensura die Artikelnummer beim Lieferanten zusammen, z. B. Comdatek „29.1“ für Aluverbund 3 mm.",
+            "code": "Code",
+            "placeholder": "z. B. 29.1",
+            "add": "Code hinzufügen"
+        },
+        "material": {
+            "info": {
+                "title": "Was ist ein Material?",
+                "text": "Ein Material ist der Träger, auf den gedruckt wird – z. B. Aluverbund 3 mm oder Folie A. Es hat einen Preis je m² (EK und VK), optional Mindestpreis, Mindestfläche und Staffeln. Welche Optionen der Kunde danach sieht, steuert das Folge-Set. Gerechnet wird in der Kalkulation, der das Material zugeordnet ist."
+            },
+            "state": {
+                "noPrice": "Ohne Preis"
+            },
+            "list": {
+                "placeholderSearch": "Materialien durchsuchen …",
+                "buttonAdd": "Material anlegen",
+                "columnName": "Material",
+                "columnLabel": "Bezeichnung",
+                "columnPrice": "VK je m²",
+                "columnMargin": "Marge",
+                "columnCalculations": "Kalkulationen",
+                "emptyTitle": "Noch kein Material",
+                "emptySubline": "Lege das erste Material an, z. B. „Aluverbund 3 mm“ mit 29,00 € je m².",
+                "confirmDelete": "Material „{name}“ wirklich löschen? Preise je Material in Kalkulationen werden mitgelöscht.",
+                "deleteRestricted": "Löschen nicht möglich: Das Material wird noch in einem Produktprofil verwendet. Erst dort entfernen oder das Material deaktivieren."
+            },
+            "detail": {
+                "newTitle": "Neues Material",
+                "statPrice": "VK je m²",
+                "tabBase": "Grunddaten",
+                "tabPrices": "Preise",
+                "tabFormat": "Format & Gewicht",
+                "tabSupplier": "Lieferant",
+                "cardBase": "Grunddaten",
+                "labelName": "Bezeichnung",
+                "helpName": "So sieht der Kunde das Material, z. B. „Aluverbund 3 mm“.",
+                "helpTechnicalName": "Eindeutiger Schlüssel ohne Leerzeichen, z. B. „alu-3mm“. Wird in Links und Schnittstellen verwendet – später möglichst nicht mehr ändern.",
+                "labelCode": "Kürzel",
+                "helpCode": "Kurzzeichen für die Artikelnummer, z. B. „ALU3“ → ALU3-1000x500.",
+                "labelDescription": "Beschreibung",
+                "helpDescription": "Ein, zwei Sätze für die Material-Kachel, z. B. „Der Klassiker für Schilder innen und außen.“",
+                "labelBadges": "Badges",
+                "helpBadges": "Kurze Merkmale auf der Kachel, z. B. „außen“, „Bestseller“. Eingabe mit Enter bestätigen.",
+                "placeholderBadges": "Badge eingeben und Enter drücken …",
+                "helpActive": "Inaktive Materialien erscheinen nicht im Konfigurator, bleiben aber in alten Bestellungen erhalten.",
+                "cardAssignment": "Zuordnung",
+                "helpCalculations": "In welcher Kalkulation das Material gerechnet wird, z. B. „Aluverbund“. Optionspreise und Formatgrenzen kommen von dort.",
+                "labelOptionSet": "Folge-Set",
+                "helpOptionSet": "Welche Optionsgruppen nach Wahl dieses Materials erscheinen, z. B. „Plattenveredelung Aluverbund“ mit Farbigkeit, Veredelung, Bohrung und Schnitt.",
+                "cardPrice": "Preis je m²",
+                "introPrice": "Der VK-Vorschlag folgt der VK-Regel ({rule}). Gespeichert wird immer, was im VK-Feld steht.",
+                "labelPrice": "Preis je m²",
+                "helpPricePurchase": "Einkaufspreis je m², z. B. 26,00 € (Comdatek-EK Aluverbund 3 mm).",
+                "helpPriceSale": "Verkaufspreis je m² für Wiederverkäufer, z. B. 29,00 €.",
+                "labelMinimumPrice": "Mindestpreis je Position",
+                "helpMinimumPrice": "Eine Position kostet nie weniger, z. B. 12,50 € bei Aluverbund, auch wenn nur ein kleines Schild bestellt wird. Leer = Mindestpreis der Kalkulation.",
+                "labelMinArea": "Mindestfläche (m²)",
+                "helpMinArea": "Kleinere Flächen werden wie diese Fläche berechnet, z. B. Folie A ab 1 m²: 0,5 m² kosten wie 1 m². Leer = Wert der Kalkulation.",
+                "labelAreaRounding": "Schrittweite (m²)",
+                "helpAreaRounding": "Auf diese Schritte wird aufgerundet, z. B. 0,1: 1,23 m² werden als 1,30 m² berechnet. Leer = Wert der Kalkulation.",
+                "cardComponents": "Weitere Preisanteile des Materials",
+                "introComponents": "Kommen zu den Grundpreisen der Kalkulation dazu, z. B. Mesh-Banner 0,20 € je Stück.",
+                "cardTiers": "Staffeln",
+                "introTiers": "Eine Staffel ersetzt den Preis je m² ab einer Schwelle oder gibt Rabatt. EK und VK können verschiedene Grundlagen haben, z. B. VK nach Gesamtfläche, EK nach Fläche je Stück.",
+                "cardFormat": "Format und Gewicht",
+                "labelWidthMax": "Breite max. (mm)",
+                "helpWidthMax": "Nur nötig, wenn das Material schmaler ist als die Kalkulation erlaubt, z. B. Rollenbreite 1.370 mm.",
+                "labelHeightMax": "Höhe max. (mm)",
+                "helpHeightMax": "Nur nötig, wenn das Material kürzer ist als die Kalkulation erlaubt, z. B. Plattenlänge 2.000 mm.",
+                "labelSheetWidth": "Rohformat Breite (mm)",
+                "labelSheetHeight": "Rohformat Höhe (mm)",
+                "helpSheet": "Größe der Rohplatte bzw. Rolle, z. B. 1.500 × 3.050 mm – für spätere Nutzen-/Verschnittberechnung.",
+                "labelWeight": "Gewicht je m² (kg)",
+                "helpWeight": "Für Versand und Verpackung, z. B. 3,8 kg für Aluverbund 3 mm. Mensura rechnet daraus das Gewicht jeder Position.",
+                "cardSupplier": "Lieferant",
+                "introSupplier": "Optionaler Vorschlag, wer das Material fertigt. Der Vorschlag am Material geht vor dem der Kalkulation.",
+                "helpSupplier": "Lieferant aus dem LieferLotse, z. B. Comdatek. Entscheiden tut später die Auftragsverteilung.",
+                "ruleDefault": "Vorgabe: Zielmarge 25 %"
+            },
+            "warnings": {
+                "noPrice": "Das Material hat noch keinen VK je m² – im Shop gibt es dafür keinen Preis.",
+                "saleBelowPurchase": "Der VK liegt nicht über dem EK – bitte Preise prüfen.",
+                "noCalculation": "Das Material ist keiner Kalkulation zugeordnet und kann so nicht verkauft werden."
+            }
+        }
+    },
+    "global": {
+        "entities": {
+            "ld_mensura_material": "Material | Materialien",
+            "ld_mensura_calculation": "Kalkulation | Kalkulationen",
+            "ld_mensura_option_group": "Optionsgruppe | Optionsgruppen",
+            "ld_mensura_option_set": "Optionsset | Optionssets",
+            "ld_mensura_product_profile": "Produktprofil | Produktprofile"
         }
     },
     "sw-privileges": {

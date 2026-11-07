@@ -95,3 +95,149 @@ $lm-sunken: var(--color-background-tertiary-default, #f0f2f5);
 .lm-design--c .lm-areas {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
+
+// ---------- Listen: eigene Elemente mit 24 px Rand über der randlosen Liste (DESIGN.md 5) ----------
+.lm-page__content > .lm-list > .lm-info-card,
+.lm-page__content > .lm-list > .lm-kpis,
+.lm-page__content > .lm-list > .lm-filters,
+.lm-page__content > .lm-list > .lm-toolbar,
+.lm-page__content > .lm-list > .lm-tiles,
+.lm-page__main > .lm-list > .lm-info-card {
+    margin-left: 24px;
+    margin-right: 24px;
+}
+
+.lm-design--a.lm-page__content > .lm-list {
+    padding-top: 24px;
+}
+
+.lm-list > .lm-info-card {
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.lm-info-card__reopen {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: $lm-text2;
+    font-size: 13px;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--lm-brand-ink);
+    }
+}
+
+.lm-num {
+    font-variant-numeric: tabular-nums;
+}
+
+// ---------- Detailseiten ----------
+.lm-card-intro {
+    margin: 0 0 16px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.lm-detail__panels {
+    min-width: 0;
+}
+
+// EK/VK nebeneinander mit Margenzeile
+.lm-price-pair {
+    margin-bottom: 8px;
+
+    &__fields {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0 30px;
+
+        &.is--single {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    &__margin {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        align-items: center;
+        margin: -8px 0 16px;
+        font-size: 13px;
+    }
+}
+
+// Zeilen-Editoren (Preisanteile, Staffeln, Lieferantencodes)
+.lm-components__row,
+.lm-tiers__row,
+.lm-codes__row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 0 12px;
+    align-items: end;
+
+    > .mt-button {
+        margin-bottom: 22px;
+    }
+}
+
+.lm-components__row.is--single {
+    grid-template-columns: 2fr 1fr auto;
+}
+
+.lm-tiers__row {
+    grid-template-columns: 1fr 1fr 1fr auto;
+}
+
+.lm-codes__row {
+    grid-template-columns: 2fr 1fr auto;
+}
+
+.lm-components__empty {
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+.lm-components__hint {
+    margin: 12px 0 0;
+    font-size: 12px;
+}
+
+.lm-tiers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+    gap: 24px;
+}
+
+.lm-tiers__title {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.lm-tiers__warn {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin: 8px 0 0;
+    color: var(--lm-warn);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.lm-codes {
+    margin-top: 16px;
+}
+
+@media (max-width: 1000px) {
+    .lm-price-pair__fields,
+    .lm-components__row,
+    .lm-tiers__row,
+    .lm-codes__row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

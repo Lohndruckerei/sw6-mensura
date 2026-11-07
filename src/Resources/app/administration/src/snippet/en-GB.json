@@ -3,40 +3,220 @@
         "general": {
             "mainMenuItem": "Mensura",
             "description": "Product configurator and area/price calculation",
-            "statusSetup": "In progress",
-            "comingSoon": "Coming next"
+            "statusSetup": "In setup",
+            "comingSoon": "Coming next",
+            "showExplanation": "Show explanation",
+            "viewTiles": "Tiles",
+            "viewList": "List",
+            "duplicate": "Copy",
+            "duplicated": "Copy created – please check the technical name and activate it.",
+            "duplicateError": "Copying failed.",
+            "deleted": "Deleted.",
+            "noResultsTitle": "Nothing found",
+            "noResultsSubline": "There is no entry for “{term}”. Change the search term or reset the filter.",
+            "emptyFilterTitle": "No entry for this filter",
+            "emptyFilterSubline": "Choose “All” above to see everything again.",
+            "columnStatus": "Status",
+            "labelTechnicalName": "Technical name",
+            "labelPosition": "Order",
+            "helpPosition": "Smaller numbers come first, e.g. 1 = first material in the configurator.",
+            "labelActive": "Active",
+            "labelImage": "Image",
+            "labelSupplier": "Supplier",
+            "labelSupplierId": "Supplier ID",
+            "helpSupplierId": "ID of the supplier in LieferLotse (32 characters), e.g. for Comdatek. Leave empty without LieferLotse.",
+            "groupConnection": "Connection",
+            "errorDuplicateTechnicalName": "This technical name is already in use – please choose another one."
         },
         "groups": {
             "start": "Start",
             "setup": "Setup"
         },
+        "filter": {
+            "all": "All",
+            "active": "Active",
+            "noPrice": "Without price",
+            "inactive": "Inactive"
+        },
         "overview": {
             "title": "Configurator & calculation",
-            "subline": "Set up how films, boards and other products are priced: calculations with their own formula, materials with prices per m² and options with surcharges."
+            "subline": "Set up how films, boards and other articles are calculated: calculations with their own formula, materials with prices per m² and options with surcharges."
         },
         "areas": {
             "overview": {
                 "title": "Overview",
-                "description": "All Mensura areas at a glance."
+                "description": "All areas of Mensura at a glance."
             },
             "calculation": {
                 "title": "Calculations",
-                "description": "Calculation templates per product type: format limits, base price per piece, minimum price, price tiers and formula."
+                "description": "Calculation templates per article type: format limits, base price per piece, minimum price, price tiers and formula."
             },
             "material": {
                 "title": "Materials",
-                "description": "Boards and films with price per m², price tiers, raw sheet sizes and properties."
+                "description": "Boards and films with price per m², tiers, raw formats and properties."
             },
             "option": {
                 "title": "Options",
                 "description": "Option groups such as colours, cutting or finishing with values and surcharges (€/m², €/pc, %, flat)."
             }
+        },
+        "price": {
+            "purchase": "Purchase",
+            "sale": "Sale",
+            "margin": "Margin",
+            "helpPurchase": "Net purchase price, e.g. €26.00 per m² according to the Comdatek price list. Only visible with the permission “Purchase prices”.",
+            "helpSale": "Net sale price for resellers, e.g. €29.00 per m². Other customer groups get their surcharge on top.",
+            "marginLine": "Margin {margin} % · Markup {markup} %",
+            "applySuggestion": "Apply suggested sale price: {price}",
+            "marginOk": "Margin on target",
+            "marginLow": "Margin too low",
+            "marginNegative": "Sale ≤ purchase"
+        },
+        "saleRule": {
+            "margin": "Target margin %",
+            "markup": "Markup %",
+            "factor": "Factor",
+            "free": "free"
+        },
+        "components": {
+            "empty": "No price components yet.",
+            "type": "Type",
+            "remove": "Remove price component",
+            "add": "Add price component",
+            "hint": "Several components are added up, e.g. contour cut = €3.00/m² + €0.50/pc. Discounts with minus, e.g. −€8.00/m² for unprinted.",
+            "types": {
+                "per_area": "€ per m²",
+                "per_piece": "€ per piece",
+                "per_motif": "€ per motif",
+                "per_order": "€ per item (flat)",
+                "per_perimeter": "€ per running metre of perimeter",
+                "percent": "% on the subtotal",
+                "factor": "factor on the rate per m²",
+                "base_area": "replaces the material price per m²"
+            }
+        },
+        "tiers": {
+            "sale": "Sale tiers",
+            "purchase": "Purchase tiers",
+            "basis": "Tiers by",
+            "helpBasis": "What the tier is measured on, e.g. “Total area”: 5 banners of 3 m² = 15 m² → tier “from 10 m²”.",
+            "from": "from",
+            "mode": "Type",
+            "value": "Value",
+            "remove": "Remove tier",
+            "add": "Add tier",
+            "warnOrder": "Tier jump: thresholds not ascending or a higher tier is more expensive – please check.",
+            "modePrice": "Price replaces",
+            "modeDiscount": "Discount %",
+            "bases": {
+                "none": "no tiers",
+                "quantity": "Quantity",
+                "total_area": "Total area (m²)",
+                "piece_area": "Area per piece (m²)",
+                "total_price": "Subtotal (€)"
+            }
+        },
+        "supplierCodes": {
+            "title": "Supplier codes",
+            "help": "Mensura builds the supplier's article number from these, e.g. Comdatek “29.1” for aluminium composite 3 mm.",
+            "code": "Code",
+            "placeholder": "e.g. 29.1",
+            "add": "Add code"
+        },
+        "material": {
+            "info": {
+                "title": "What is a material?",
+                "text": "A material is the carrier that is printed on – e.g. aluminium composite 3 mm or film A. It has a price per m² (purchase and sale), optionally a minimum price, minimum area and tiers. The follow-up set controls which options the customer sees next. The calculation the material is assigned to does the maths."
+            },
+            "state": {
+                "noPrice": "Without price"
+            },
+            "list": {
+                "placeholderSearch": "Search materials …",
+                "buttonAdd": "Add material",
+                "columnName": "Material",
+                "columnLabel": "Name",
+                "columnPrice": "Sale per m²",
+                "columnMargin": "Margin",
+                "columnCalculations": "Calculations",
+                "emptyTitle": "No material yet",
+                "emptySubline": "Add the first material, e.g. “Aluminium composite 3 mm” at €29.00 per m².",
+                "confirmDelete": "Really delete material “{name}”? Prices per material in calculations are deleted as well.",
+                "deleteRestricted": "Cannot delete: the material is still used in a product profile. Remove it there first or deactivate the material."
+            },
+            "detail": {
+                "newTitle": "New material",
+                "statPrice": "Sale per m²",
+                "tabBase": "General",
+                "tabPrices": "Prices",
+                "tabFormat": "Format & weight",
+                "tabSupplier": "Supplier",
+                "cardBase": "General",
+                "labelName": "Name",
+                "helpName": "How the customer sees the material, e.g. “Aluminium composite 3 mm”.",
+                "helpTechnicalName": "Unique key without spaces, e.g. “alu-3mm”. Used in links and interfaces – avoid changing it later.",
+                "labelCode": "Code",
+                "helpCode": "Short code for the article number, e.g. “ALU3” → ALU3-1000x500.",
+                "labelDescription": "Description",
+                "helpDescription": "One or two sentences for the material tile, e.g. “The classic for signs indoors and outdoors.”",
+                "labelBadges": "Badges",
+                "helpBadges": "Short features on the tile, e.g. “outdoor”, “Bestseller”. Confirm each with Enter.",
+                "placeholderBadges": "Type a badge and press Enter …",
+                "helpActive": "Inactive materials do not appear in the configurator but remain in old orders.",
+                "cardAssignment": "Assignment",
+                "helpCalculations": "The calculation the material is calculated in, e.g. “Aluminium composite”. Option prices and format limits come from there.",
+                "labelOptionSet": "Follow-up set",
+                "helpOptionSet": "Which option groups appear after choosing this material, e.g. “Board finishing aluminium composite” with colours, finishing, drilling and cutting.",
+                "cardPrice": "Price per m²",
+                "introPrice": "The suggested sale price follows the sale rule ({rule}). What is in the sale field is always saved.",
+                "labelPrice": "Price per m²",
+                "helpPricePurchase": "Purchase price per m², e.g. €26.00 (Comdatek purchase price aluminium composite 3 mm).",
+                "helpPriceSale": "Sale price per m² for resellers, e.g. €29.00.",
+                "labelMinimumPrice": "Minimum price per item",
+                "helpMinimumPrice": "An item never costs less, e.g. €12.50 for aluminium composite, even for a small sign. Empty = minimum price of the calculation.",
+                "labelMinArea": "Minimum area (m²)",
+                "helpMinArea": "Smaller areas are charged as this area, e.g. film A from 1 m²: 0.5 m² costs the same as 1 m². Empty = value of the calculation.",
+                "labelAreaRounding": "Step size (m²)",
+                "helpAreaRounding": "The area is rounded up to these steps, e.g. 0.1: 1.23 m² is charged as 1.30 m². Empty = value of the calculation.",
+                "cardComponents": "Further price components of the material",
+                "introComponents": "Added to the base prices of the calculation, e.g. mesh banner €0.20 per piece.",
+                "cardTiers": "Tiers",
+                "introTiers": "A tier replaces the price per m² from a threshold or gives a discount. Purchase and sale can use different bases, e.g. sale by total area, purchase by area per piece.",
+                "cardFormat": "Format and weight",
+                "labelWidthMax": "Max. width (mm)",
+                "helpWidthMax": "Only needed if the material is narrower than the calculation allows, e.g. roll width 1,370 mm.",
+                "labelHeightMax": "Max. height (mm)",
+                "helpHeightMax": "Only needed if the material is shorter than the calculation allows, e.g. board length 2,000 mm.",
+                "labelSheetWidth": "Raw format width (mm)",
+                "labelSheetHeight": "Raw format height (mm)",
+                "helpSheet": "Size of the raw board or roll, e.g. 1,500 × 3,050 mm – for later nesting/waste calculation.",
+                "labelWeight": "Weight per m² (kg)",
+                "helpWeight": "For shipping and packaging, e.g. 3.8 kg for aluminium composite 3 mm. Mensura calculates the weight of every item from it.",
+                "cardSupplier": "Supplier",
+                "introSupplier": "Optional suggestion who produces the material. The suggestion on the material wins over the calculation.",
+                "helpSupplier": "Supplier from LieferLotse, e.g. Comdatek. Order distribution decides later.",
+                "ruleDefault": "Default: target margin 25 %"
+            },
+            "warnings": {
+                "noPrice": "The material has no sale price per m² yet – the shop cannot show a price for it.",
+                "saleBelowPurchase": "The sale price is not above the purchase price – please check the prices.",
+                "noCalculation": "The material is not assigned to any calculation and cannot be sold this way."
+            }
+        }
+    },
+    "global": {
+        "entities": {
+            "ld_mensura_material": "Material | Materials",
+            "ld_mensura_calculation": "Calculation | Calculations",
+            "ld_mensura_option_group": "Option group | Option groups",
+            "ld_mensura_option_set": "Option set | Option sets",
+            "ld_mensura_product_profile": "Product profile | Product profiles"
         }
     },
     "sw-privileges": {
         "permissions": {
             "ld_mensura": {
-                "label": "Mensura – Configurator & calculation"
+                "label": "Mensura – Configurator & Calculation"
             }
         }
     }

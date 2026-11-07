@@ -10,8 +10,15 @@ import { NAV_ITEMS } from '../../constants';
 export default {
     template: `
 <sw-page class="lm-page" :class="lmDesignClass">
+    <template v-if="$slots['search-bar']" #search-bar>
+        <slot name="search-bar" />
+    </template>
+
     <template #smart-bar-header>
-        <h2>{{ title }}</h2>
+        <h2>
+            {{ title }}
+            <span v-if="amount !== null" class="sw-page__smart-bar-amount">({{ amount }})</span>
+        </h2>
     </template>
 
     <template #smart-bar-actions>
@@ -59,6 +66,12 @@ export default {
         active: {
             type: String,
             required: true,
+        },
+
+        amount: {
+            type: Number,
+            required: false,
+            default: null,
         },
     },
 

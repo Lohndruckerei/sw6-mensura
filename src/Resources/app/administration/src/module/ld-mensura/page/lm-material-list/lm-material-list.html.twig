@@ -1,0 +1,270 @@
+{% block lm_material_list %}
+<lm-page
+    :title="$tc('ld-mensura.areas.material.title')"
+    active="material"
+    :amount="isLoading ? null : total"
+>
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="ld_mensura_material"
+            :placeholder="$tc('ld-mensura.material.list.placeholderSearch')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+
+    <template #actions>
+        <mt-button
+            v-tooltip.bottom="{ message: $tc('sw-privileges.tooltip.warning'), disabled: acl.can('ld_mensura.creator'), showOnDisabledElements: true }"
+            :disabled="!acl.can('ld_mensura.creator') || undefined"
+            variant="primary"
+            size="default"
+            @click="$router.push({ name: 'ld.mensura.materialCreate' })"
+        >
+            {{ $tc('ld-mensura.material.list.buttonAdd') }}
+        </mt-button>
+    </template>
+
+    <div class="lm-list">
+        <lm-info-card name="material" :title="$tc('ld-mensura.material.info.title')">
+            {{ $tc('ld-mensura.material.info.text') }}
+        </lm-info-card>
+
+        {% block lm_material_list_kpis %}
+        <div v-if="lmDesign === 'c'" class="lm-kpis">
+            <button
+                v-for="kpi in kpiItems"
+                :key="kpi.name"
+                type="button"
+                class="lm-kpi"
+                :class="['lm-kpi--' + kpi.variant, { 'is--active': filter === kpi.name && kpi.name !== 'all' }]"
+                @click="setFilter(kpi.name)"
+            >
+                <mt-icon :name="kpi.icon" size="20px" />
+                <span>
+                    <b>{{ kpi.count }}</b>
+                    <small>{{ kpi.label }}</small>
+                </span>
+            </button>
+        </div>
+        {% endblock %}
+
+        {% block lm_material_list_filters %}
+        <div v-if="lmDesign === 'b'" class="lm-filters" role="group">
+            <button
+                v-for="item in filterItems"
+                :key="item.name"
+                type="button"
+                class="lm-filter"
+                :class="{ 'is--active': filter === item.name }"
+                :aria-pressed="filter === item.name ? 'true' : 'false'"
+                @click="setFilter(item.name)"
+            >
+                {{ item.label }}
+                <b v-if="item.count !== null">{{ item.count }}</b>
+            </button>
+        </div>
+        {% endblock %}
+
+        {% block lm_material_list_toolbar %}
+        <div v-if="lmDesign === 'c'" class="lm-toolbar">
+            <span class="lm-muted">{{ $tc('ld-mensura.filter.' + filter) }}</span>
+            <div class="lm-seg">
+                <button
+                    v-tooltip="$tc('ld-mensura.general.viewTiles')"
+                    type="button"
+                    :class="{ 'is--active': tileView }"
+                    :aria-label="$tc('ld-mensura.general.viewTiles')"
+                    :aria-pressed="tileView ? 'true' : 'false'"
+                    @click="tileView = true"
+                >
+                    <mt-icon name="regular-view-grid" size="15px" />
+                </button>
+                <button
+                    v-tooltip="$tc('ld-mensura.general.viewList')"
+                    type="button"
+                    :class="{ 'is--active': !tileView }"
+                    :aria-label="$tc('ld-mensura.general.viewList')"
+                    :aria-pressed="!tileView ? 'true' : 'false'"
+                    @click="tileView = false"
+                >
+                    <mt-icon name="regular-list" size="15px" />
+                </button>
+            </div>
+        </div>
+        {% endblock %}
+
+        {% block lm_material_list_tiles %}
+        <template v-if="showTiles && total > 0">
+            <sw-skeleton v-if="isLoading" />
+            <div v-else class="lm-tiles">
+                <router-link
+                    v-for="item in materials"
+                    :key="item.id"
+                    class="lm-tile"
+                    :class="{ 'is--inactive': !item.active }"
+                    :to="{ name: 'ld.mensura.materialDetail', params: { id: item.id } }"
+                >
+                    <div class="lm-tile__top">
+                        <span class="lm-sicon" :class="{ 'is--off': !item.active }">
+                            <mt-icon name="regular-layer-group" size="18px" />
+                        </span>
+                        <span>
+                            <b>{{ item.translated?.name || item.name || item.technicalName }}</b>
+                            <small>{{ item.technicalName }}</small>
+                        </span>
+                        <lm-status class="lm-tile__status" v-bind="status(item)" />
+                    </div>
+                    <div>
+                        <lm-chip
+                            v-for="calculation in item.calculations"
+                            :key="calculation.id"
+                            color="c1"
+                            icon="regular-euro"
+                            :label="calculation.name"
+                        />
+                    </div>
+                    <div class="lm-tile__meta">
+                        <span>{{ priceLabel(item) }}</span>
+                        <span v-if="item.weightPerSqm">{{ fmt(item.weightPerSqm, 2) }} kg/m²</span>
+                    </div>
+                </router-link>
+            </div>
+            <sw-pagination :page="page" :limit="limit" :total="total" :total-visible="7" @page-change="onPageChange" />
+        </template>
+        {% endblock %}
+
+        {% block lm_material_list_grid %}
+        <sw-entity-listing
+            v-if="!showTiles"
+            class="lm-material-list__grid"
+            detail-route="ld.mensura.materialDetail"
+            identifier="lm-material-list"
+            :is-loading="isLoading"
+            :columns="columns"
+            :repository="materialRepository"
+            :items="materials"
+            :criteria-limit="limit"
+            :sort-by="currentSortBy"
+            :sort-direction="sortDirection"
+            :disable-data-fetching="true"
+            :allow-inline-edit="false"
+            :allow-edit="acl.can('ld_mensura.editor') || undefined"
+            :allow-delete="acl.can('ld_mensura.deleter') || undefined"
+            :show-selections="acl.can('ld_mensura.deleter') || undefined"
+            @update-records="updateTotal"
+            @page-change="onPageChange"
+            @column-sort="onSortColumn"
+        >
+            <template v-if="lmDesign !== 'a'" #column-technicalName="{ item }">
+                <div class="lm-namecell">
+                    <span class="lm-sicon" :class="{ 'is--off': !item.active }">
+                        <mt-icon name="regular-layer-group" size="16px" />
+                    </span>
+                    <span>
+                        <router-link :to="{ name: 'ld.mensura.materialDetail', params: { id: item.id } }">
+                            {{ item.translated?.name || item.technicalName }}
+                        </router-link>
+                        <small>{{ item.technicalName }}</small>
+                    </span>
+                </div>
+            </template>
+
+            <template #column-priceSale="{ item }">
+                <span class="lm-num">{{ priceLabel(item) }}</span>
+            </template>
+
+            <template #column-margin="{ item }">
+                <lm-status v-if="marginOf(item)" :state="marginOf(item).state" :label="fmt(marginOf(item).margin, 1) + ' %'" />
+                <span v-else class="lm-muted">–</span>
+            </template>
+
+            <template #column-calculations="{ item }">
+                <lm-chip
+                    v-for="calculation in item.calculations"
+                    :key="calculation.id"
+                    color="c1"
+                    icon="regular-euro"
+                    :label="calculation.name"
+                />
+                <span v-if="!item.calculations || item.calculations.length === 0" class="lm-muted">–</span>
+            </template>
+
+            <template #column-active="{ item }">
+                <lm-status v-bind="status(item)" />
+            </template>
+
+            <template #actions="{ item }">
+                <sw-context-menu-item
+                    :disabled="!acl.can('ld_mensura.editor') || undefined"
+                    @click="$router.push({ name: 'ld.mensura.materialDetail', params: { id: item.id } })"
+                >
+                    {{ $tc('global.default.edit') }}
+                </sw-context-menu-item>
+                <sw-context-menu-item
+                    :disabled="!acl.can('ld_mensura.creator') || undefined"
+                    @click="onDuplicate(item)"
+                >
+                    {{ $tc('ld-mensura.general.duplicate') }}
+                </sw-context-menu-item>
+                <sw-context-menu-divider />
+                <sw-context-menu-item
+                    variant="danger"
+                    :disabled="!acl.can('ld_mensura.deleter') || undefined"
+                    @click="onDelete(item)"
+                >
+                    {{ $tc('global.default.delete') }}
+                </sw-context-menu-item>
+            </template>
+        </sw-entity-listing>
+        {% endblock %}
+
+        {% block lm_material_list_empty %}
+        <sw-empty-state
+            v-if="!isLoading && !total && term"
+            :title="$tc('ld-mensura.general.noResultsTitle')"
+            :subline="$tc('ld-mensura.general.noResultsSubline', { term }, 0)"
+            icon="regular-search"
+            :absolute="false"
+        />
+        <sw-empty-state
+            v-else-if="!isLoading && !total && filter !== 'all'"
+            :title="$tc('ld-mensura.general.emptyFilterTitle')"
+            :subline="$tc('ld-mensura.general.emptyFilterSubline')"
+            icon="regular-filter"
+            :absolute="false"
+        />
+        <sw-empty-state
+            v-else-if="!isLoading && !total"
+            :title="$tc('ld-mensura.material.list.emptyTitle')"
+            :subline="$tc('ld-mensura.material.list.emptySubline')"
+            icon="regular-layer-group"
+            :absolute="false"
+        >
+            <template #actions>
+                <mt-button
+                    variant="primary"
+                    :disabled="!acl.can('ld_mensura.creator') || undefined"
+                    @click="$router.push({ name: 'ld.mensura.materialCreate' })"
+                >
+                    {{ $tc('ld-mensura.material.list.buttonAdd') }}
+                </mt-button>
+            </template>
+        </sw-empty-state>
+        {% endblock %}
+
+        <sw-modal
+            v-if="deleteItem"
+            :title="$tc('global.default.warning')"
+            variant="small"
+            @modal-close="deleteItem = null"
+        >
+            <p>{{ $tc('ld-mensura.material.list.confirmDelete', { name: deleteItem.translated?.name || deleteItem.technicalName }, 0) }}</p>
+            <template #modal-footer>
+                <mt-button size="small" variant="secondary" @click="deleteItem = null">{{ $tc('global.default.cancel') }}</mt-button>
+                <mt-button size="small" variant="critical" @click="confirmDelete">{{ $tc('global.default.delete') }}</mt-button>
+            </template>
+        </sw-modal>
+    </div>
+</lm-page>
+{% endblock %}

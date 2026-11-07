@@ -1,4 +1,4 @@
-import{A as t}from"./ld-mensura-z8Pk-lci.js";const i={template:`
+import{A as t}from"./ld-mensura-sRn5qiHD.js";const i={template:`
 <lm-page
     :title="$tc('ld-mensura.areas.' + area + '.title')"
     :active="area"
@@ -10,4 +10,3 @@ import{A as t}from"./ld-mensura-z8Pk-lci.js";const i={template:`
         :absolute="false"
     />
 </lm-page>`,props:{area:{type:String,required:!0}},computed:{icon(){var e;return((e=t.find(a=>a.name===this.area))==null?void 0:e.icon)??"regular-crop"}}};export{i as default};
-//# sourceMappingURL=index-C8syIM4j.js.map
