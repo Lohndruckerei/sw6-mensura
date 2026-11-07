@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Lohndruckerei\Mensura\Core\Content\ProductProfile;
 
+use Lohndruckerei\Mensura\Core\Content\Feature\Aggregate\FeatureValue\FeatureValueDefinition;
 use Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileMaterial\ProductProfileMaterialDefinition;
+use Lohndruckerei\Mensura\Core\Content\UseCase\Aggregate\UseCaseAssignment\UseCaseAssignmentDefinition;
 use Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileOption\ProductProfileOptionDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -39,6 +41,7 @@ class ProductProfileDefinition extends EntityDefinition
     public const ENTITY_NAME = 'ld_mensura_product_profile';
 
     public const TYPES = ['general', 'special'];
+    public const LAYOUTS = ['compact', 'guided'];
 
     public function getEntityName(): string
     {
@@ -75,10 +78,16 @@ class ProductProfileDefinition extends EntityDefinition
             new JsonField('defaults', 'defaults'),
             new JsonField('steps', 'steps'),
             new IdField('template_profile_id', 'templateProfileId'),
+            // Darstellung im Shop: compact, guided oder leer (= Plugin-Einstellung storefrontLayout)
+            new StringField('layout', 'layout', 16),
+            // Zeilen der Preismatrix; leer = aus der Kalkulation
+            new JsonField('quantity_steps', 'quantitySteps'),
 
             new OneToOneAssociationField('product', 'product_id', 'id', ProductDefinition::class, false),
             (new OneToManyAssociationField('materials', ProductProfileMaterialDefinition::class, 'product_profile_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('options', ProductProfileOptionDefinition::class, 'product_profile_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('featureValues', FeatureValueDefinition::class, 'product_profile_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('useCaseAssignments', UseCaseAssignmentDefinition::class, 'product_profile_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 

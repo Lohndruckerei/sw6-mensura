@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lohndruckerei\Mensura\Core\Content\Option;
 
+use Lohndruckerei\Mensura\Core\Content\AccessoryRule\AccessoryRuleCollection;
+use Lohndruckerei\Mensura\Core\Content\Feature\Aggregate\FeatureValue\FeatureValueCollection;
 use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationOptionValue\CalculationOptionValueCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -39,6 +41,10 @@ class OptionValueEntity extends Entity
     protected ?MediaEntity $media = null;
     protected ?CalculationOptionValueCollection $calculationAssignments = null;
     protected $translations;
+    protected ?array $availability = null;
+    protected ?array $badges = null;
+    protected ?FeatureValueCollection $featureValues = null;
+    protected ?AccessoryRuleCollection $accessoryRules = null;
 
     public function getOptionGroupId(): string
     {
@@ -258,5 +264,45 @@ class OptionValueEntity extends Entity
     public function setHeight(?int $height): void
     {
         $this->height = $height;
+    }
+
+    public function getAvailability(): ?array
+    {
+        return $this->availability;
+    }
+
+    public function setAvailability(?array $availability): void
+    {
+        $this->availability = $availability;
+    }
+
+    public function getBadges(): ?array
+    {
+        return $this->badges;
+    }
+
+    public function setBadges(?array $badges): void
+    {
+        $this->badges = $badges;
+    }
+
+    public function getFeatureValues(): ?FeatureValueCollection
+    {
+        return $this->featureValues;
+    }
+
+    public function setFeatureValues(FeatureValueCollection $featureValues): void
+    {
+        $this->featureValues = $featureValues;
+    }
+
+    public function getAccessoryRules(): ?AccessoryRuleCollection
+    {
+        return $this->accessoryRules;
+    }
+
+    public function setAccessoryRules(AccessoryRuleCollection $accessoryRules): void
+    {
+        $this->accessoryRules = $accessoryRules;
     }
 }

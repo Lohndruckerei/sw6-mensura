@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Lohndruckerei\Mensura\Core\Content\ProductProfile;
 
+use Lohndruckerei\Mensura\Core\Content\UseCase\Aggregate\UseCaseAssignment\UseCaseAssignmentCollection;
+use Lohndruckerei\Mensura\Core\Content\Feature\Aggregate\FeatureValue\FeatureValueCollection;
 use Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileMaterial\ProductProfileMaterialCollection;
 use Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileOption\ProductProfileOptionCollection;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -33,6 +35,10 @@ class ProductProfileEntity extends Entity
     protected ?ProductEntity $product = null;
     protected ?ProductProfileMaterialCollection $materials = null;
     protected ?ProductProfileOptionCollection $options = null;
+    protected ?string $layout = null;
+    protected ?array $quantitySteps = null;
+    protected ?FeatureValueCollection $featureValues = null;
+    protected ?UseCaseAssignmentCollection $useCaseAssignments = null;
 
     public function getProductId(): string
     {
@@ -222,5 +228,45 @@ class ProductProfileEntity extends Entity
     public function setOptions(ProductProfileOptionCollection $options): void
     {
         $this->options = $options;
+    }
+
+    public function getLayout(): ?string
+    {
+        return $this->layout;
+    }
+
+    public function setLayout(?string $layout): void
+    {
+        $this->layout = $layout;
+    }
+
+    public function getQuantitySteps(): ?array
+    {
+        return $this->quantitySteps;
+    }
+
+    public function setQuantitySteps(?array $quantitySteps): void
+    {
+        $this->quantitySteps = $quantitySteps;
+    }
+
+    public function getFeatureValues(): ?FeatureValueCollection
+    {
+        return $this->featureValues;
+    }
+
+    public function setFeatureValues(FeatureValueCollection $featureValues): void
+    {
+        $this->featureValues = $featureValues;
+    }
+
+    public function getUseCaseAssignments(): ?UseCaseAssignmentCollection
+    {
+        return $this->useCaseAssignments;
+    }
+
+    public function setUseCaseAssignments(UseCaseAssignmentCollection $useCaseAssignments): void
+    {
+        $this->useCaseAssignments = $useCaseAssignments;
     }
 }

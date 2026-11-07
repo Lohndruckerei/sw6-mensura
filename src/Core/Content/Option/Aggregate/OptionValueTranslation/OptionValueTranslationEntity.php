@@ -16,6 +16,7 @@ class OptionValueTranslationEntity extends TranslationEntity
     protected ?string $name = null;
     protected ?string $description = null;
     protected ?OptionValueEntity $ldMensuraOptionValue = null;
+    protected ?array $badges = null;
 
     public function getLdMensuraOptionValueId(): string
     {
@@ -55,5 +56,15 @@ class OptionValueTranslationEntity extends TranslationEntity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getBadges(): ?array
+    {
+        return $this->badges;
+    }
+
+    public function setBadges(?array $badges): void
+    {
+        $this->badges = $badges;
     }
 }

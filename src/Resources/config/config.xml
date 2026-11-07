@@ -32,4 +32,90 @@
             </options>
         </input-field>
     </card>
+
+    <card>
+        <title>Configurator in the shop</title>
+        <title lang="de-DE">Konfigurator im Shop</title>
+
+        <input-field type="single-select">
+            <name>storefrontLayout</name>
+            <label>Default layout</label>
+            <label lang="de-DE">Standard-Darstellung</label>
+            <helpText>Used when the product profile does not choose a layout. Example: "Compact" for regular customers who know what they want (one page like Comdatek).</helpText>
+            <helpText lang="de-DE">Gilt, wenn das Produktprofil keine Darstellung festlegt. Beispiel: „Kompakt“ für Stammkunden, die wissen, was sie wollen (eine Seite wie bei Comdatek).</helpText>
+            <defaultValue>compact</defaultValue>
+            <options>
+                <option>
+                    <id>compact</id>
+                    <name>Compact – one page, numbered sections</name>
+                    <name lang="de-DE">Kompakt – eine Seite, nummerierte Abschnitte</name>
+                </option>
+                <option>
+                    <id>guided</id>
+                    <name>Guided – tabs per step, price matrix</name>
+                    <name lang="de-DE">Geführt – Reiter je Schritt, Preismatrix</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="bool">
+            <name>allowLayoutSwitch</name>
+            <label>Customers may switch the layout</label>
+            <label lang="de-DE">Kunde darf die Darstellung umschalten</label>
+            <helpText>Shows "Compact view" / "Guided" in the configurator. Example: a regular customer switches to compact once, the choice is remembered.</helpText>
+            <helpText lang="de-DE">Zeigt „Kompaktansicht“ / „Geführt“ im Konfigurator. Beispiel: Ein Stammkunde schaltet einmal auf kompakt, die Wahl wird gemerkt.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>layoutTestShare</name>
+            <label>Test share of the other layout (%)</label>
+            <label lang="de-DE">Testanteil der anderen Darstellung (%)</label>
+            <helpText>Share of new visitors who randomly get the other layout. Example: 20 = every fifth new visitor. 0 = no test.</helpText>
+            <helpText lang="de-DE">Anteil neuer Besucher, die zufällig die andere Darstellung bekommen. Beispiel: 20 = jeder fünfte neue Besucher. 0 = kein Test.</helpText>
+            <min>0</min>
+            <max>100</max>
+            <defaultValue>0</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Production and delivery times</title>
+        <title lang="de-DE">Produktions- und Lieferzeiten</title>
+
+        <input-field type="text">
+            <name>orderCutoff</name>
+            <label>Order cut-off (HH:MM)</label>
+            <label lang="de-DE">Annahmeschluss (HH:MM)</label>
+            <helpText>Orders with artwork until this time count for today. Example: 11:30 – an order at 11:45 starts on the next working day.</helpText>
+            <helpText lang="de-DE">Bestellungen mit Druckdaten bis zu dieser Uhrzeit zählen für heute. Beispiel: 11:30 – eine Bestellung um 11:45 beginnt am nächsten Arbeitstag.</helpText>
+            <defaultValue>11:30</defaultValue>
+        </input-field>
+
+        <input-field type="multi-select">
+            <name>workingDays</name>
+            <label>Working days</label>
+            <label lang="de-DE">Arbeitstage</label>
+            <helpText>Days on which production and shipping run. Example: Monday to Friday.</helpText>
+            <helpText lang="de-DE">Tage, an denen produziert und versendet wird. Beispiel: Montag bis Freitag.</helpText>
+            <defaultValue>["1","2","3","4","5"]</defaultValue>
+            <options>
+                <option><id>1</id><name>Monday</name><name lang="de-DE">Montag</name></option>
+                <option><id>2</id><name>Tuesday</name><name lang="de-DE">Dienstag</name></option>
+                <option><id>3</id><name>Wednesday</name><name lang="de-DE">Mittwoch</name></option>
+                <option><id>4</id><name>Thursday</name><name lang="de-DE">Donnerstag</name></option>
+                <option><id>5</id><name>Friday</name><name lang="de-DE">Freitag</name></option>
+                <option><id>6</id><name>Saturday</name><name lang="de-DE">Samstag</name></option>
+                <option><id>7</id><name>Sunday</name><name lang="de-DE">Sonntag</name></option>
+            </options>
+        </input-field>
+
+        <input-field type="textarea">
+            <name>holidays</name>
+            <label>Holidays and company closures</label>
+            <label lang="de-DE">Feiertage und Betriebsruhe</label>
+            <helpText>One date per line (YYYY-MM-DD); these days do not count as working days. Example: 2026-12-24</helpText>
+            <helpText lang="de-DE">Ein Datum je Zeile (JJJJ-MM-TT); diese Tage zählen nicht als Arbeitstage. Beispiel: 2026-12-24</helpText>
+        </input-field>
+    </card>
 </config>

@@ -6,7 +6,11 @@ namespace Lohndruckerei\Mensura\Core\Content\Material;
 
 use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationMaterial\CalculationMaterialDefinition;
 use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationOptionValue\CalculationOptionValueDefinition;
+use Lohndruckerei\Mensura\Core\Content\AccessoryRule\AccessoryRuleDefinition;
+use Lohndruckerei\Mensura\Core\Content\Feature\Aggregate\FeatureValue\FeatureValueDefinition;
 use Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetDefinition;
+use Lohndruckerei\Mensura\Core\Content\PriceTable\PriceTableDefinition;
+use Lohndruckerei\Mensura\Core\Content\UseCase\Aggregate\UseCaseAssignment\UseCaseAssignmentDefinition;
 use Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileMaterial\ProductProfileMaterialDefinition;
 use Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileOption\ProductProfileOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -88,8 +92,15 @@ class MaterialDefinition extends EntityDefinition
 
             new TranslatedField('name'),
             new TranslatedField('description'),
+            // Badges für Kacheln, z. B. ["außen", "Bestseller"]
+            new TranslatedField('badges'),
             new TranslatedField('customFields'),
             (new TranslationsAssociationField(MaterialTranslationDefinition::class, 'ld_mensura_material_id'))->addFlags(new Required()),
+
+            (new OneToManyAssociationField('priceTables', PriceTableDefinition::class, 'material_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('featureValues', FeatureValueDefinition::class, 'material_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('useCaseAssignments', UseCaseAssignmentDefinition::class, 'material_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('accessoryRules', AccessoryRuleDefinition::class, 'material_id'))->addFlags(new CascadeDelete()),
 
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             new ManyToManyAssociationField('calculations', CalculationDefinition::class, CalculationMaterialDefinition::class, 'material_id', 'calculation_id'),

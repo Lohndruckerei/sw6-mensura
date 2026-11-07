@@ -25,14 +25,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  * - `materialId` gesetzt → nur für dieses Material bzw. abweichender Preis dafür.
  *   Gibt es für einen Wert nur Zeilen mit Material, ist er nur bei diesen Materialien wählbar
  *   (z. B. Material A: Veredelung A + B, Material B: nur C + D).
- * - `priceComponents`: [{type: per_area|per_piece|per_motif|per_order|per_perimeter|percent|factor, purchase, sale}]
+ * - `priceComponents`: [{type: per_area|per_piece|per_motif|per_order|per_perimeter|percent|factor|base_area, purchase, sale}]
+ *   `base_area` (v0.4.0): ersetzt den Materialpreis je m² samt Material-Staffel (Sticker-Zuschnitt: Bogen 7 €/m² fest);
+ *   eine eigene Staffel am Wert (`tiers`) gilt dann für diesen Preis.
+ * - `tiers`: Staffel des Werts, altes Format [{from, purchase, sale}|{from, discount}] oder getrennt
+ *   {purchase: {basis, steps}, sale: {basis, steps}} (siehe Service\Calculation\Tiers)
  * - `conditions`: {requires: [optionValueId…], excludes: [optionValueId…]}
  */
 class CalculationOptionValueDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'ld_mensura_calculation_option_value';
 
-    public const PRICE_COMPONENT_TYPES = ['per_area', 'per_piece', 'per_motif', 'per_order', 'per_perimeter', 'percent', 'factor'];
+    public const PRICE_COMPONENT_TYPES = ['per_area', 'per_piece', 'per_motif', 'per_order', 'per_perimeter', 'percent', 'factor', 'base_area'];
 
     public function getEntityName(): string
     {

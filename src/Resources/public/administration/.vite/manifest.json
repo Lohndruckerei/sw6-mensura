@@ -1,6 +1,6 @@
 {
   "design/component/lm-design-switch/index.js": {
-    "file": "assets/index-Bh2WZXMc.js",
+    "file": "assets/index-B2pfL9NL.js",
     "name": "index",
     "src": "design/component/lm-design-switch/index.js",
     "isDynamicEntry": true,
@@ -21,7 +21,7 @@
     "isDynamicEntry": true
   },
   "main.js": {
-    "file": "assets/ld-mensura-CL8XZtc5.js",
+    "file": "assets/ld-mensura-Dheoe78c.js",
     "name": "ld-mensura",
     "src": "main.js",
     "isEntry": true,
@@ -38,7 +38,7 @@
     ]
   },
   "module/ld-mensura/component/lm-page/index.js": {
-    "file": "assets/index-DiRlkUbd.js",
+    "file": "assets/index-Cei6m4R0.js",
     "name": "index",
     "src": "module/ld-mensura/component/lm-page/index.js",
     "isDynamicEntry": true,
@@ -47,7 +47,7 @@
     ]
   },
   "module/ld-mensura/page/lm-area-placeholder/index.js": {
-    "file": "assets/index-BJEbOl5R.js",
+    "file": "assets/index-CVfHt6Sm.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-area-placeholder/index.js",
     "isDynamicEntry": true,
@@ -56,7 +56,7 @@
     ]
   },
   "module/ld-mensura/page/lm-overview/index.js": {
-    "file": "assets/index-BWBSTzu1.js",
+    "file": "assets/index-CX7grjuR.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-overview/index.js",
     "isDynamicEntry": true,

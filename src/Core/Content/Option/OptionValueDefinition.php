@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Lohndruckerei\Mensura\Core\Content\Option;
 
+use Lohndruckerei\Mensura\Core\Content\AccessoryRule\AccessoryRuleDefinition;
 use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationOptionValue\CalculationOptionValueDefinition;
+use Lohndruckerei\Mensura\Core\Content\Feature\Aggregate\FeatureValue\FeatureValueDefinition;
 use Lohndruckerei\Mensura\Core\Content\Option\Aggregate\OptionValueTranslation\OptionValueTranslationDefinition;
 use Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -70,18 +72,24 @@ class OptionValueDefinition extends EntityDefinition
             new FkField('option_set_id', 'optionSetId', OptionSetDefinition::class),
             new ManyToOneAssociationField('optionSet', 'option_set_id', OptionSetDefinition::class, 'id', false),
             new JsonField('exclusions', 'exclusions'),
+            // Lieferzeit-Verfügbarkeit (Gruppe vom Typ `delivery`):
+            // {"maxQuantity": 50, "maxArea": 20.0, "materialIds": ["…"]} – leer = immer verfügbar
+            new JsonField('availability', 'availability'),
 
             new JsonField('supplier_codes', 'supplierCodes'),
             new FkField('media_id', 'mediaId', MediaDefinition::class),
 
             new TranslatedField('name'),
             new TranslatedField('description'),
+            new TranslatedField('badges'),
             new TranslatedField('customFields'),
             (new TranslationsAssociationField(OptionValueTranslationDefinition::class, 'ld_mensura_option_value_id'))->addFlags(new Required()),
 
             new ManyToOneAssociationField('optionGroup', 'option_group_id', OptionGroupDefinition::class, 'id', false),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             (new OneToManyAssociationField('calculationAssignments', CalculationOptionValueDefinition::class, 'option_value_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('featureValues', FeatureValueDefinition::class, 'option_value_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('accessoryRules', AccessoryRuleDefinition::class, 'option_value_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 

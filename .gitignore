@@ -6,3 +6,5 @@ src/Resources/app/storefront/node_modules/
 .vscode/
 *.log
 .DS_Store
+/.cache/
+/build/

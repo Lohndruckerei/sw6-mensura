@@ -35,7 +35,7 @@ class OptionGroupDefinition extends EntityDefinition
     /** format = Festformate (Werte mit Breite/Höhe, z. B. DIN A0–A2) */
     public const TYPES = ['standard', 'delivery', 'format'];
     public const SCOPES = ['position', 'supplier'];
-    public const DISPLAY_TYPES = ['select', 'tiles', 'radio', 'checkbox', 'number'];
+    public const DISPLAY_TYPES = ['select', 'tiles', 'radio', 'checkbox', 'number', 'multi'];
 
     public function getEntityName(): string
     {

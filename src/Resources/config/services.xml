@@ -55,6 +55,38 @@
         <service id="Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileOption\ProductProfileOptionDefinition">
             <tag name="shopware.entity.definition" entity="ld_mensura_product_profile_option"/>
         </service>
+        <!-- v0.4.0: Preistabellen, Produktberater (Merkmale, Anwendungsfälle, Zubehör) -->
+        <service id="Lohndruckerei\Mensura\Core\Content\PriceTable\PriceTableDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_price_table"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\PriceTable\Aggregate\PriceTableRow\PriceTableRowDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_price_table_row"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\Feature\FeatureDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_feature"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\Feature\Aggregate\FeatureTranslation\FeatureTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_feature_translation"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\Feature\Aggregate\FeatureValue\FeatureValueDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_feature_value"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\UseCase\UseCaseDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_use_case"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\UseCase\Aggregate\UseCaseTranslation\UseCaseTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_use_case_translation"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\UseCase\Aggregate\UseCaseAssignment\UseCaseAssignmentDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_use_case_assignment"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\AccessoryRule\AccessoryRuleDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_accessory_rule"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\AccessoryRule\Aggregate\AccessoryRuleTranslation\AccessoryRuleTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_accessory_rule_translation"/>
+        </service>
+
         <service id="Lohndruckerei\Mensura\Core\Checkout\OrderLineItem\MensuraOrderLineItemDefinition">
             <tag name="shopware.entity.definition" entity="ld_mensura_order_line_item"/>
         </service>

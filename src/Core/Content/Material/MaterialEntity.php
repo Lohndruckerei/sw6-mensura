@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Lohndruckerei\Mensura\Core\Content\Material;
 
+use Lohndruckerei\Mensura\Core\Content\AccessoryRule\AccessoryRuleCollection;
+use Lohndruckerei\Mensura\Core\Content\UseCase\Aggregate\UseCaseAssignment\UseCaseAssignmentCollection;
+use Lohndruckerei\Mensura\Core\Content\Feature\Aggregate\FeatureValue\FeatureValueCollection;
+use Lohndruckerei\Mensura\Core\Content\PriceTable\PriceTableCollection;
 use Lohndruckerei\Mensura\Core\Content\Calculation\CalculationCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -49,6 +53,11 @@ class MaterialEntity extends Entity
     protected ?\Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationOptionValue\CalculationOptionValueCollection $calculationOptionValues = null;
     /** @var \Shopware\Core\Framework\DataAbstractionLayer\EntityCollection<TranslationEntity>|null */
     protected $translations;
+    protected ?array $badges = null;
+    protected ?PriceTableCollection $priceTables = null;
+    protected ?FeatureValueCollection $featureValues = null;
+    protected ?UseCaseAssignmentCollection $useCaseAssignments = null;
+    protected ?AccessoryRuleCollection $accessoryRules = null;
 
     public function getTechnicalName(): string
     {
@@ -348,5 +357,55 @@ class MaterialEntity extends Entity
     public function setProfileOptions(\Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileOption\ProductProfileOptionCollection $profileOptions): void
     {
         $this->profileOptions = $profileOptions;
+    }
+
+    public function getBadges(): ?array
+    {
+        return $this->badges;
+    }
+
+    public function setBadges(?array $badges): void
+    {
+        $this->badges = $badges;
+    }
+
+    public function getPriceTables(): ?PriceTableCollection
+    {
+        return $this->priceTables;
+    }
+
+    public function setPriceTables(PriceTableCollection $priceTables): void
+    {
+        $this->priceTables = $priceTables;
+    }
+
+    public function getFeatureValues(): ?FeatureValueCollection
+    {
+        return $this->featureValues;
+    }
+
+    public function setFeatureValues(FeatureValueCollection $featureValues): void
+    {
+        $this->featureValues = $featureValues;
+    }
+
+    public function getUseCaseAssignments(): ?UseCaseAssignmentCollection
+    {
+        return $this->useCaseAssignments;
+    }
+
+    public function setUseCaseAssignments(UseCaseAssignmentCollection $useCaseAssignments): void
+    {
+        $this->useCaseAssignments = $useCaseAssignments;
+    }
+
+    public function getAccessoryRules(): ?AccessoryRuleCollection
+    {
+        return $this->accessoryRules;
+    }
+
+    public function setAccessoryRules(AccessoryRuleCollection $accessoryRules): void
+    {
+        $this->accessoryRules = $accessoryRules;
     }
 }

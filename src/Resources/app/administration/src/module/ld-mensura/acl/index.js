@@ -18,6 +18,16 @@ const MASTER_DATA = [
     'ld_mensura_product_profile',
     'ld_mensura_product_profile_material',
     'ld_mensura_product_profile_option',
+    'ld_mensura_price_table',
+    'ld_mensura_price_table_row',
+    'ld_mensura_feature',
+    'ld_mensura_feature_translation',
+    'ld_mensura_feature_value',
+    'ld_mensura_use_case',
+    'ld_mensura_use_case_translation',
+    'ld_mensura_use_case_assignment',
+    'ld_mensura_accessory_rule',
+    'ld_mensura_accessory_rule_translation',
 ];
 
 const privileges = (action) => MASTER_DATA.map((entity) => `${entity}:${action}`);

@@ -9,6 +9,7 @@ use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationMaterial
 use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationOptionValue\CalculationOptionValueDefinition;
 use Lohndruckerei\Mensura\Core\Content\Material\MaterialDefinition;
 use Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetDefinition;
+use Lohndruckerei\Mensura\Core\Content\PriceTable\PriceTableDefinition;
 use Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileMaterial\ProductProfileMaterialDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -101,6 +102,11 @@ class CalculationDefinition extends EntityDefinition
             (new StringField('tier_basis', 'tierBasis', 16))->addFlags(new Required()),
             new JsonField('tiers', 'tiers'),
             new FloatField('price_rounding', 'priceRounding'),
+            // Einrichtepauschale je Position (Rüstkosten), Teil der Zwischensumme vor dem Mindestpreis
+            new FloatField('setup_price_purchase', 'setupPricePurchase'),
+            new FloatField('setup_price_sale', 'setupPriceSale'),
+            // Zeilen der Preismatrix (geführte Darstellung), z. B. [1, 2, 5, 10, 25, 50, 100]
+            new JsonField('quantity_steps', 'quantitySteps'),
             new LongTextField('formula', 'formula'),
 
             // Margenrechner (Vorschlag EK → VK)
@@ -118,6 +124,7 @@ class CalculationDefinition extends EntityDefinition
             new ManyToManyAssociationField('materials', MaterialDefinition::class, CalculationMaterialDefinition::class, 'calculation_id', 'material_id'),
             (new OneToManyAssociationField('optionValues', CalculationOptionValueDefinition::class, 'calculation_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('customerGroups', CalculationCustomerGroupDefinition::class, 'calculation_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('priceTables', PriceTableDefinition::class, 'calculation_id'))->addFlags(new CascadeDelete()),
             // Kalkulation, die noch in Produktprofilen verwendet wird, kann nicht gelöscht werden
             (new OneToManyAssociationField('profileMaterials', ProductProfileMaterialDefinition::class, 'calculation_id'))->addFlags(new RestrictDelete()),
         ]);

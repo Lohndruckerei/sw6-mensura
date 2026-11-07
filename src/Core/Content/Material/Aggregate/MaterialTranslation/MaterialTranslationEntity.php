@@ -16,6 +16,7 @@ class MaterialTranslationEntity extends TranslationEntity
     protected ?string $name = null;
     protected ?string $description = null;
     protected ?MaterialEntity $ldMensuraMaterial = null;
+    protected ?array $badges = null;
 
     public function getLdMensuraMaterialId(): string
     {
@@ -55,5 +56,15 @@ class MaterialTranslationEntity extends TranslationEntity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getBadges(): ?array
+    {
+        return $this->badges;
+    }
+
+    public function setBadges(?array $badges): void
+    {
+        $this->badges = $badges;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lohndruckerei\Mensura\Core\Content\Calculation;
 
+use Lohndruckerei\Mensura\Core\Content\PriceTable\PriceTableCollection;
 use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationCustomerGroup\CalculationCustomerGroupCollection;
 use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationOptionValue\CalculationOptionValueCollection;
 use Lohndruckerei\Mensura\Core\Content\Material\MaterialCollection;
@@ -63,6 +64,10 @@ class CalculationEntity extends Entity
     protected ?MaterialCollection $materials = null;
     protected ?CalculationOptionValueCollection $optionValues = null;
     protected ?CalculationCustomerGroupCollection $customerGroups = null;
+    protected ?float $setupPricePurchase = null;
+    protected ?float $setupPriceSale = null;
+    protected ?array $quantitySteps = null;
+    protected ?PriceTableCollection $priceTables = null;
 
     public function getTechnicalName(): string
     {
@@ -442,5 +447,45 @@ class CalculationEntity extends Entity
     public function setProfileMaterials(\Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileMaterial\ProductProfileMaterialCollection $profileMaterials): void
     {
         $this->profileMaterials = $profileMaterials;
+    }
+
+    public function getSetupPricePurchase(): ?float
+    {
+        return $this->setupPricePurchase;
+    }
+
+    public function setSetupPricePurchase(?float $setupPricePurchase): void
+    {
+        $this->setupPricePurchase = $setupPricePurchase;
+    }
+
+    public function getSetupPriceSale(): ?float
+    {
+        return $this->setupPriceSale;
+    }
+
+    public function setSetupPriceSale(?float $setupPriceSale): void
+    {
+        $this->setupPriceSale = $setupPriceSale;
+    }
+
+    public function getQuantitySteps(): ?array
+    {
+        return $this->quantitySteps;
+    }
+
+    public function setQuantitySteps(?array $quantitySteps): void
+    {
+        $this->quantitySteps = $quantitySteps;
+    }
+
+    public function getPriceTables(): ?PriceTableCollection
+    {
+        return $this->priceTables;
+    }
+
+    public function setPriceTables(PriceTableCollection $priceTables): void
+    {
+        $this->priceTables = $priceTables;
     }
 }
