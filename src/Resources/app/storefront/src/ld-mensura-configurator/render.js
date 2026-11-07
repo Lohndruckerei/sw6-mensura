@@ -60,8 +60,17 @@ function messageList(ctx, state, list, cls) {
     return `<ul class="lm-msgs ${cls} ${cls === 'lm-msgs--error' ? 'invalid-feedback d-block' : 'form-text'}" role="${cls === 'lm-msgs--error' ? 'alert' : 'status'}">${list.map((e) => `<li data-lm-code="${esc(e.code)}"><span>${esc(errorText(ctx, state, e))}</span> ${fixButton(ctx, e)}</li>`).join('')}</ul>`;
 }
 
-function valueLabel(v) {
-    return v.priceHint ? `${v.name} · ${v.priceHint}` : v.name;
+/** Anzeige-Schalter aus den Konfigurator-Daten (display, Vertrag); fehlt einer = anzeigen */
+export const shows = (state, key) => state.data.display?.[key] !== false;
+
+/** Aufpreis-Hinweis eines Werts – abschaltbar global (display.showPriceHints) und je Gruppe (showPriceHint), damit der Gesamtpreis im Fokus steht */
+export function priceHintOf(state, group, value) {
+    if (!value?.priceHint || !shows(state, 'showPriceHints') || group?.showPriceHint === false) return null;
+    return value.priceHint;
+}
+
+function valueLabel(v, hint) {
+    return hint ? `${v.name} · ${hint}` : v.name;
 }
 
 /* ---------- Hinweis-Box beim Materialwechsel (KONZEPT 3.7) ---------- */
@@ -101,7 +110,7 @@ function formatFields(ctx, state) {
     const bad = (dim) => errs.some((e) => e.field === `format.${dim}`);
     const fg = formatGroup(data, state);
     const fgSelect = fg ? `<div class="lm-field"><label class="form-label" for="${fieldId(ctx, 'fmt')}">${esc(fg.name)} ${help(ctx, fg.helpText || ctx.t('help.formatGroup'), fieldId(ctx, 'fmt-h'))}</label>
-        <select class="form-select" id="${fieldId(ctx, 'fmt')}" data-lm-field="formatValue" data-lm-group="${esc(fg.technicalName)}">${allowedValues(fg, material).map((v) => `<option value="${esc(v.technicalName)}" ${config.options[fg.technicalName] === v.technicalName ? 'selected' : ''}>${esc(valueLabel(v))}</option>`).join('')}</select></div>` : '';
+        <select class="form-select" id="${fieldId(ctx, 'fmt')}" data-lm-field="formatValue" data-lm-group="${esc(fg.technicalName)}">${allowedValues(fg, material).map((v) => `<option value="${esc(v.technicalName)}" ${config.options[fg.technicalName] === v.technicalName ? 'selected' : ''}>${esc(valueLabel(v, priceHintOf(state, fg, v)))}</option>`).join('')}</select></div>` : '';
     const range = (min, max) => `${ctx.fmt.int(min ?? 1)}–${max != null ? ctx.fmt.int(max) : '∞'}`;
     const possible = ctx.t.html('format.possible', { material: esc(material?.name || ''), width: range(l.widthMin, l.widthMax), height: range(l.heightMin, l.heightMax) });
     const rotate = l.allowRotation !== false ? `<button type="button" class="lm-rotate btn btn-outline-secondary" data-lm-action="rotate" title="${esc(ctx.t('field.rotateHelp'))}" aria-label="${esc(ctx.t('field.rotate'))}">⇄</button>` : '';
@@ -143,9 +152,12 @@ function areaInfo(ctx, state) {
     const material = materialById(data, config.materialId);
     const qty = material?.calculation?.motifMode === 'split' ? config.perMotif : config.motifs * config.perMotif;
     const piece = (config.format.width * config.format.height) / 1e6;
-    const backendArea = isFresh(state) ? state.result?.price?.area : null;
-    const total = backendArea ?? piece * qty;
-    return `<div class="lm-area" data-lm-area="${total}">${ctx.t.html('area.summary', { piece: esc(ctx.fmt.num(piece)), count: esc(ctx.fmt.int(qty)), total: `<b>${esc(ctx.fmt.num(total))}</b>` })} ${help(ctx, ctx.t('help.area'), fieldId(ctx, 'area-h'))}</div>`;
+    if (!shows(state, 'showArea')) return '';
+    const price = isFresh(state) ? state.result?.price : null;
+    const total = price?.area ?? piece * qty;
+    const billed = price?.billedArea != null && price.billedArea > total + 1e-9
+        ? ` <span class="lm-area__billed">${ctx.t.html('area.billed', { area: esc(ctx.fmt.num(price.billedArea)) })}</span>` : '';
+    return `<div class="lm-area" data-lm-area="${total}">${ctx.t.html('area.summary', { piece: esc(ctx.fmt.num(piece)), count: esc(ctx.fmt.int(qty)), total: `<b>${esc(ctx.fmt.num(total))}</b>` })}${billed} ${help(ctx, ctx.t('help.area'), fieldId(ctx, 'area-h'))}</div>`;
 }
 
 /** Format und Stückzahl gehören zusammen (ergibt die Gesamtfläche) */
@@ -160,7 +172,8 @@ function deliveryTiles(ctx, state) {
     return `<div class="lm-tiles">${allowedValues(dg, material).map((v) => {
         const info = deliveryInfo(state, v.technicalName);
         const text = [v.deliveryDays != null ? ctx.t('delivery.days', { days: v.deliveryDays }) : null, info?.date ? ctx.fmt.date(info.date) : null].filter(Boolean).join(' · ');
-        const extra = `${v.priceHint ? `<span class="lm-tile__price">${esc(v.priceHint)}</span>` : ''}${info && info.available === false ? `<small>${esc(info.reason || ctx.t('delivery.unavailable'))}</small>` : ''}`;
+        const hint = priceHintOf(state, dg, v);
+        const extra = `${hint ? `<span class="lm-tile__price">${esc(hint)}</span>` : ''}${info && info.available === false ? `<small>${esc(info.reason || ctx.t('delivery.unavailable'))}</small>` : ''}`;
         return tile({ action: 'delivery', attrs: `data-lm-value="${esc(v.technicalName)}"`, pressed: state.config.deliveryValue === v.technicalName, title: v.name, text, extra, disabled: info?.available === false });
     }).join('')}</div>`;
 }
@@ -180,7 +193,8 @@ function deliveryOptionText(ctx, state, v) {
     const parts = [v.name];
     if (v.deliveryDays != null) parts.push(ctx.t('delivery.days', { days: v.deliveryDays }));
     if (info?.date) parts.push(ctx.fmt.date(info.date));
-    if (v.priceHint) parts.push(v.priceHint);
+    const hint = priceHintOf(state, deliveryGroup(state.data), v);
+    if (hint) parts.push(hint);
     let text = parts.join(' · ');
     if (info && info.available === false) text += ` (${info.reason || ctx.t('delivery.unavailable')})`;
     return text;
@@ -218,7 +232,7 @@ export function renderCompact(ctx, state) {
         const empty = !g.required ? `<option value="" ${!config.options[g.technicalName] ? 'selected' : ''}>${esc(ctx.t('option.none'))}</option>` : '';
         const ctrl = g.mode === 'fixed'
             ? `<div class="lm-fixed" id="${id}">${esc(findValue(g, config.options[g.technicalName])?.name || '')}</div>`
-            : `<select class="form-select" id="${id}" data-lm-field="option" data-lm-group="${esc(g.technicalName)}">${empty}${values.map((v) => `<option value="${esc(v.technicalName)}" ${config.options[g.technicalName] === v.technicalName ? 'selected' : ''}>${esc(valueLabel(v))}</option>`).join('')}</select>`;
+            : `<select class="form-select" id="${id}" data-lm-field="option" data-lm-group="${esc(g.technicalName)}">${empty}${values.map((v) => `<option value="${esc(v.technicalName)}" ${config.options[g.technicalName] === v.technicalName ? 'selected' : ''}>${esc(valueLabel(v, priceHintOf(state, g, v)))}</option>`).join('')}</select>`;
         const errs = errorsFor(state, `options.${g.technicalName}`);
         return `<div class="lm-field ${errs.length ? 'is-bad' : ''}" data-lm-group-field="${esc(g.technicalName)}"><label class="form-label" for="${id}">${esc(g.name)} ${help(ctx, g.helpText || ctx.t('help.option'), `${id}-h`)}</label>${ctrl}${messageList(ctx, state, errs, 'lm-msgs--error')}</div>`;
     }).join('');
@@ -252,7 +266,7 @@ function renderMatrix(ctx, state) {
     const blocked = currentErrors(state).some((e) => (e.field || '').startsWith('format'));
     const head = deliveries.map((d) => {
         const info = deliveryInfo(state, d.technicalName);
-        const sub = [d.deliveryDays != null ? ctx.t('delivery.daysShort', { days: d.deliveryDays }) : null, info?.date ? ctx.fmt.date(info.date) : null, d.priceHint].filter(Boolean).join(' · ');
+        const sub = [d.deliveryDays != null ? ctx.t('delivery.daysShort', { days: d.deliveryDays }) : null, info?.date ? ctx.fmt.date(info.date) : null, priceHintOf(state, dg, d)].filter(Boolean).join(' · ');
         return `<th scope="col">${esc(d.name)}${sub ? `<small>${esc(sub)}</small>` : ''}</th>`;
     }).join('');
     const rows = steps.map((q) => `<tr><th scope="row">${ctx.fmt.int(q)} ${esc(ctx.t(config.motifs > 1 ? 'guided.piecesPerMotif' : 'guided.pieces'))}</th>${deliveries.map((d) => {
@@ -290,7 +304,7 @@ export function renderGuided(ctx, state) {
         }
         body = `<h3 class="lm-g-title">${esc(ctx.t('guided.materialTitle'))} ${help(ctx, ctx.t('help.material'), fieldId(ctx, 'gm-h'))}</h3>` + [...byCalc.values()].map((c) => `<div class="lm-g-group"><h4>${esc(c.name)}</h4><div class="lm-tiles">${c.items.map((m) => tile({
             action: 'material', attrs: `data-lm-value="${esc(m.id)}"`, pressed: m.id === config.materialId, title: m.name, text: m.description, image: m.image,
-            extra: `${badges(m.badges)}${m.fromPricePerSqm != null ? `<span class="lm-tile__price">${esc(ctx.t('guided.fromPrice', { price: ctx.fmt.money(m.fromPricePerSqm) }))}</span>` : ''}`,
+            extra: `${badges(m.badges)}${m.fromPricePerSqm != null && shows(state, 'showFromPrice') ? `<span class="lm-tile__price">${esc(ctx.t('guided.fromPrice', { price: ctx.fmt.money(m.fromPricePerSqm) }))}</span>` : ''}`,
         })).join('')}</div></div>`).join('');
     } else if (step.kind === 'format') {
         const l = material?.limits || {};
@@ -310,7 +324,7 @@ export function renderGuided(ctx, state) {
           <div class="lm-tiles">${none}${values.map((v) => tile({
             action: 'option', attrs: `data-lm-group="${esc(g.technicalName)}" data-lm-value="${esc(v.technicalName)}"`, pressed: config.options[g.technicalName] === v.technicalName,
             title: v.name, text: v.description, image: v.image, disabled: g.mode === 'fixed' && config.options[g.technicalName] !== v.technicalName,
-            extra: `${badges(v.badges)}${v.priceHint ? `<span class="lm-tile__price">${esc(v.priceHint)}</span>` : ''}`,
+            extra: `${badges(v.badges)}${priceHintOf(state, g, v) ? `<span class="lm-tile__price">${esc(priceHintOf(state, g, v))}</span>` : ''}`,
         })).join('')}</div>${messageList(ctx, state, errorsFor(state, `options.${g.technicalName}`), 'lm-msgs--error')}`;
     } else {
         // Lieferzeit: Kacheln mit Termin; Staffelpreise (Menge × Lieferzeit) nur noch zum Vergleichen, Klick übernimmt beides
@@ -355,10 +369,11 @@ export function renderPrice(ctx, state) {
         const other = hints.filter((h) => h.code !== 'price.minimum_applied' && !/^option\./.test(h.code));
         body = `<div class="lm-total ${state.pending || !fresh ? 'is-stale' : ''}" data-lm-total="${price.total}"><span class="lm-total__value">${ctx.fmt.money(price.total * factor)}</span> <small>${esc(ctx.t(state.gross ? 'price.grossLabel' : 'price.netLabel'))}</small></div>
           <dl class="lm-kv">
-            <dt>${esc(ctx.t('price.perPiece'))}</dt><dd>${ctx.fmt.money4(price.perPiece * factor)}</dd>
-            <dt>${esc(ctx.t('price.perSqm'))}</dt><dd>${ctx.fmt.money(price.perSqm * factor)}</dd>
+            ${shows(state, 'showPerPiece') ? `<dt>${esc(ctx.t('price.perPiece'))}</dt><dd>${ctx.fmt.money4(price.perPiece * factor)}</dd>` : ''}
+            ${shows(state, 'showPerSqm') ? `<dt>${esc(ctx.t('price.perSqm'))}</dt><dd>${ctx.fmt.money(price.perSqm * factor)}</dd>` : ''}
             <dt>${esc(ctx.t('price.quantity'))}</dt><dd>${ctx.fmt.int(price.quantity)}</dd>
-            <dt>${esc(ctx.t('price.area'))}</dt><dd>${ctx.fmt.num(price.area)} m²</dd>
+            ${shows(state, 'showArea') ? `<dt>${esc(ctx.t('price.area'))}</dt><dd>${ctx.fmt.num(price.area)} m²</dd>` : ''}
+            ${shows(state, 'showArea') && price.billedArea != null && price.billedArea > price.area + 1e-9 ? `<dt>${esc(ctx.t('price.billedArea'))}</dt><dd data-lm-billed="${price.billedArea}">${ctx.fmt.num(price.billedArea)} m²${price.minimumArea ? ` <small>(${esc(ctx.t('price.minimumArea', { area: ctx.fmt.num(price.minimumArea) }))})</small>` : ''}</dd>` : ''}
           </dl>
           ${minimum ? `<p class="lm-minimum alert alert-info py-2 px-3 mb-0 small" data-lm-code="price.minimum_applied">${esc(minimum.message)}</p>` : ''}
           ${other.length ? `<ul class="lm-msgs lm-msgs--hint">${other.map((h) => `<li data-lm-code="${esc(h.code)}">${esc(h.message)} ${fixButton(ctx, h)}</li>`).join('')}</ul>` : ''}`;

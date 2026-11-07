@@ -211,6 +211,39 @@ test('brutto umschaltbar, wenn das Backend totalGross liefert; sonst kein Schalt
     assert.ok(text.includes('inkl. MwSt.'));
 });
 
+test('abgerechnete Fläche (billedArea/minimumArea) im Live-Preis und beim Format, nur wenn größer als die echte Fläche', async () => {
+    const c = await controller();
+    const r = structuredClone(c.state.result);
+    r.price.billedArea = 1;
+    r.price.minimumArea = 1;
+    const s = S.apply(c.state, { type: 'result', result: r });
+    const price = textOf(R.renderPrice(ctx, s));
+    assert.ok(price.includes('abgerechnete Fläche 1 m² (Mindestfläche 1 m²)'), price);
+    assert.ok(textOf(R.renderCompact(ctx, s)).includes('= 0,24 m² gesamt (abgerechnet 1 m²)'));
+    // ohne Vertragsfeld bzw. gleich der Fläche: keine Zeile
+    assert.ok(!textOf(R.renderPrice(ctx, c.state)).includes('abgerechnete Fläche'));
+});
+
+test('Anzeige-Schalter: Aufpreise, Fläche, je m²/je Stück, ab-Preis abschaltbar – Gesamtpreis bleibt', async () => {
+    const data = structuredClone(alu);
+    data.display = { showPriceHints: false, showArea: false, showPerSqm: false, showPerPiece: false, showFromPrice: false };
+    const c = new MensuraController({ data, client: client(), debounceMs: 0 });
+    await c.calculateNow();
+    const html = R.renderConfigurator(ctx, c.state);
+    const text = textOf(html);
+    assert.ok(text.includes('12,50 €'), 'Gesamtpreis sichtbar');
+    for (const hidden of ['+ 9,00 €/m²', 'je m²', 'je Stück', 'Fläche gesamt', 'Fläche: ']) assert.ok(!text.includes(hidden), `sichtbar: ${hidden}`);
+    const guided = textOf(R.renderGuided(ctx, S.apply(c.state, { type: 'step', key: 'material' })));
+    assert.ok(!guided.includes('ab 29,00 €/m²'));
+    // je Gruppe: nur Veredelung ohne Aufpreis
+    const perGroup = structuredClone(alu);
+    perGroup.groups.find((g) => g.technicalName === 'veredelung').showPriceHint = false;
+    const s = S.createState(perGroup);
+    const compact = textOf(R.renderCompact(ctx, s));
+    assert.ok(!compact.includes('+ 29,00 €/m²'), 'Veredelung ohne Aufpreis');
+    assert.ok(compact.includes('+ 9,00 €/m²'), 'Farbigkeit weiter mit Aufpreis');
+});
+
 test('Netzfehler: Hinweis mit „Erneut versuchen“, kein Warenkorb', async () => {
     const failing = { calculate: async () => { throw new Error('offline'); }, addToCart: async () => ({ ok: false }) };
     const c = await controller({ client: failing });

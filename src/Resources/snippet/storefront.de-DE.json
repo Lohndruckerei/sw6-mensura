@@ -122,7 +122,9 @@
         "retry": "Erneut versuchen",
         "blocked": "Bitte zuerst die markierten Angaben anpassen – dann sehen Sie den Preis.",
         "pending": "Preis wird berechnet …",
-        "none": "Für diese Auswahl liegt noch kein Preis vor."
+        "none": "Für diese Auswahl liegt noch kein Preis vor.",
+        "billedArea": "abgerechnete Fläche",
+        "minimumArea": "Mindestfläche %area% m²"
       },
       "cart": {
         "add": "In den Warenkorb",
@@ -153,7 +155,8 @@
         "hint": "Der Preis hängt von Material, Format und Ausführung ab."
       },
       "area": {
-        "summary": "Fläche: %piece% m² je Stück × %count% Stück = %total% m² gesamt"
+        "summary": "Fläche: %piece% m² je Stück × %count% Stück = %total% m² gesamt",
+        "billed": "(abgerechnet %area% m²)"
       }
     },
     "lineItem": {

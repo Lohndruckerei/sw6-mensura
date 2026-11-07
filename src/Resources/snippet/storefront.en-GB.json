@@ -122,7 +122,9 @@
         "retry": "Try again",
         "blocked": "Please adjust the highlighted entries first – then you will see the price.",
         "pending": "Calculating price …",
-        "none": "There is no price for this selection yet."
+        "none": "There is no price for this selection yet.",
+        "billedArea": "billed area",
+        "minimumArea": "minimum area %area% m²"
       },
       "cart": {
         "add": "Add to cart",
@@ -153,7 +155,8 @@
         "hint": "The price depends on material, size and finish."
       },
       "area": {
-        "summary": "Area: %piece% m² per piece × %count% pieces = %total% m² in total"
+        "summary": "Area: %piece% m² per piece × %count% pieces = %total% m² in total",
+        "billed": "(billed %area% m²)"
       }
     },
     "lineItem": {

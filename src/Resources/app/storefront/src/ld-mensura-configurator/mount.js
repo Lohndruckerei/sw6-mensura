@@ -64,8 +64,16 @@ export async function mountConfigurator(el, options = {}) {
         layout: preferred,
         step: fromHash?.step || null,
         onChange: () => {
+            // gebündelt neu zeichnen; requestAnimationFrame pausiert in verdeckten Tabs, daher Zeitgeber als Rückfall
             if (frame) return;
-            frame = requestAnimationFrame(() => { frame = null; draw(); });
+            const run = () => {
+                if (!frame) return;
+                cancelAnimationFrame(frame.raf);
+                clearTimeout(frame.timer);
+                frame = null;
+                draw();
+            };
+            frame = { raf: requestAnimationFrame(run), timer: setTimeout(run, 100) };
         },
     });
 
