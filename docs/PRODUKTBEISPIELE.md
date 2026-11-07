@@ -103,6 +103,7 @@ kommen Umschlag (Material und Farbigkeit) als zweite Material-/Optionsebene und 
 | 7 | Grundpreis je Stück hängt am Material (Mesh 0,20 €, PVC 510 g 0 €) | `priceComponents` auch am Material (heute nur über Optionspreis je Material möglich) |
 | 7a | **Zweidimensionale Staffel** (Stückfläche × Menge, DIN-Formate Hohlkammer) | Staffelschritte mit zwei Schwellen (`fromPieceArea`, `fromQuantity`) oder Preistabelle (Lücke 2) je Formatwert |
 | 9 | **Option ersetzt die Preisbasis** (Sticker-Zuschnitt: Rolle mit Staffel, Bogen/Einzelzuschnitt fester €/m²) | Preisanteil `base_area` an einem Optionswert, der den Materialpreis samt Staffel ersetzt (eigene Staffel am Optionswert möglich) |
+| 10 | **Spezialprodukte** (Duschrückwände: nur bestimmte Materialien aus mehreren Kalkulationen, Optionen fest/ausgeblendet/eingeschränkt). Comdatek 402/400: Laminat nur Glaslaminat, Lochbohrung nur „Nein“, Optionen je Material verschieden | Produktprofil statt `ld_mensura_product_calculation`: Materialien über Kalkulationen hinweg, Optionsregeln `inherit`/`restrict`/`fixed`/`hidden` je Gruppe und optional je Material (KONZEPT 3.6) |
 | 8 | Zweite Materialebene (Umschlag bei Broschüren) | Optionsgruppe mit Material-Bezug oder Kalkulation mit `coverMaterial`; klären, wenn Broschüren kommen |
 
 Rechenart A ist mit 1, 6 und 7 vollständig abgebildet. Für B und C braucht es 2, 3 und 4. Die eigene Formel bleibt die

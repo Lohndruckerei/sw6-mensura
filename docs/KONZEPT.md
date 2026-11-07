@@ -128,7 +128,7 @@ Das Verhältnis ist nicht einheitlich (×1,12 bis ×2) → EK und VK müssen get
 | `ld_mensura_option_value` (+ `_translation`) | Wert: Kürzel, Formatzugabe/-faktor, Werktage, Ausschlüsse, Lieferantencodes, Bild |
 | `ld_mensura_calculation_option_value` | Wert in einer Kalkulation, optional je Material: Preisanteile EK/VK, Staffeln, Bedingungen (`requires`/`excludes`), Standardwert |
 | `ld_mensura_customer_group_rule` | VK-Aufschlag % je Kundengruppe, global oder je Kalkulation |
-| `ld_mensura_product_calculation` | Produkt ↔ Kalkulation (`product.extensions.ldMensura`), festes Material, eingeschränkte Auswahl, Vorbelegung |
+| `ld_mensura_product_calculation` | Produkt ↔ Kalkulation (`product.extensions.ldMensura`), festes Material, eingeschränkte Auswahl, Vorbelegung. **Wird in v0.3.0 durch Produktprofile ersetzt** (3.6), weil Spezialprodukte Materialien aus mehreren Kalkulationen brauchen |
 | `ld_mensura_order_line_item` | Rechenweg-Schnappschuss je Bestellposition (`orderLineItem.extensions.ldMensura`), nur Admin-API |
 
 Die folgenden Unterabschnitte beschreiben die fachliche Bedeutung der Felder.
@@ -206,10 +206,44 @@ schlägt den VK nur vor, er rechnet nicht still im Hintergrund.
 - Der Testrechner zeigt für eine Beispielkonfiguration EK gesamt, VK gesamt, Deckungsbeitrag in € und die Marge in %.
   Bei einer Position mit Mindestpreis ist die Marge oft deutlich höher; das wird dort sichtbar.
 
-### 3.6 Produktzuordnung
-Shopware-Produkt bekommt per Extension eine Kalkulation und die erlaubten Materialien/Optionen.
-Warenkorb: eigener Line-Item-Typ bzw. Preis über CartProcessor, Konfiguration als Payload
-(Material, Format, Motive, Menge, Optionen) – erscheint so auch in Bestellung und für LieferLotse.
+### 3.6 Produktprofile: allgemeine und spezielle Produkte
+
+**Grundidee: Kalkulationen rechnen, Produkte wählen aus.** Preise, Optionen und Abhängigkeiten werden nur
+einmal gepflegt, in der Kalkulation je Materialgruppe (Aluverbund, Hartschaum, Acryl …). Ein Shopware-Produkt
+bekommt ein **Produktprofil**, das daraus auswählt und einschränkt. Es erweitert nie: Was die Kalkulation nicht
+kann, kann auch kein Produkt. So bleiben Preise an einer Stelle gepflegt.
+
+| Produkt | Profil |
+|---|---|
+| **Plattendirektdruck** (allgemein) | alle Materialien aus den Kalkulationen Aluverbund, Hartschaum, Acryl, PVC …, alle Optionen |
+| **Aluverbundplatten** | alle Materialien der Kalkulation Aluverbund, alle Optionen |
+| **Alu 3 mm** | festes Material (Schritt „Material“ entfällt) |
+| **Duschrückwände** (speziell) | nur Hartschaum 5 mm, Aluverbund 3 mm, Acryl 5 mm (aus drei Kalkulationen); Laminat **fest** „Glaslaminat“; Lochbohrung **ausgeblendet** (= Nein); Schnitt nur rechteckig; Format max. 1.500 × 2.550 mm |
+
+Tabellen (ersetzen `ld_mensura_product_calculation` aus v0.2.0, die noch keine Daten enthält):
+
+| Tabelle | Inhalt |
+|---|---|
+| `ld_mensura_product_profile` | 1:1 zum Produkt (`product.extensions.ldMensura`): Art (`general`/`special`, nur zur Übersicht), Formatgrenzen enger als die Kalkulation, Mindestmenge/-preis, Preisaufschlag des Produkts (% und/oder €/m², z. B. Spezialprodukt +10 %), Vorbelegung, Schritte/Texte im Konfigurator, Vorlage (`templateProfileId`) |
+| `ld_mensura_product_profile_material` | erlaubte Materialien **über Kalkulationen hinweg**: Kalkulation + Material (oder „alle Materialien der Kalkulation“), Reihenfolge, Anzeigename im Produkt, Aufschlag je Material |
+| `ld_mensura_product_profile_option` | Regel je Optionsgruppe, optional nur für ein Material: Modus `inherit` (alles aus der Kalkulation) / `restrict` (nur diese Werte) / `fixed` (ein Wert, Gruppe nur als Info sichtbar) / `hidden` (Gruppe entfällt, fester Wert wird trotzdem berechnet und an den Lieferanten übermittelt), erlaubte Werte, Standardwert, Anzeigename, Reihenfolge |
+
+**Welche Kalkulation rechnet?** Die des gewählten Materials. Wechselt der Kunde bei den Duschrückwänden von
+Hartschaum auf Acryl, gelten sofort die Acryl-Preise, -Optionen und -Formatgrenzen. Das Profil schränkt sie
+weiter ein. Optionsgruppen gibt es nur einmal in der Bibliothek, deshalb kann eine Regel wie „Laminat fest Glaslaminat“
+für alle drei Materialien gleichzeitig gelten.
+
+**Reihenfolge der Regeln:** Kalkulation (Grundmenge und Abhängigkeiten je Material) → Profil des Produkts →
+Bedingungen der gewählten Werte (`requires`/`excludes`). Bleibt in einer Pflichtgruppe kein Wert übrig, ist die
+Kombination nicht bestellbar. Die Administration warnt beim Speichern des Profils, und der Konfigurator bietet sie nicht an.
+
+**Kategorisierung:** Die Kategorien im Shop sind normale Shopware-Kategorien. Ein Produkt kann in vielen Kategorien stehen
+(„Plattendirektdruck“, „Küche & Bad“, „Gastronomie“). Mensura erfindet hier nichts Eigenes. In der Administration
+lassen sich Kalkulationen, Materialien und Profile zusätzlich mit **Shopware-Tags** gruppieren und filtern
+(z. B. „Platten“, „Folien“, „Banner“, „Papier“). Neue Spezialprodukte entstehen schnell durch **„Profil kopieren“**
+aus einer Vorlage.
+
+Warenkorb: normale Produktposition mit Konfiguration im Payload, Preis über CartProcessor (siehe INTEGRATION.md).
 
 ## 4. Standardformel (Engine)
 
