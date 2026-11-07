@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>Administration</title>
+        <title lang="de-DE">Administration</title>
+
+        <input-field type="single-select">
+            <name>adminDesign</name>
+            <label>Default admin design</label>
+            <label lang="de-DE">Standard-Design der Administration</label>
+            <helpText>Applies to all users. Each user can switch the design for themselves in Mensura (button group „Design“).</helpText>
+            <helpText lang="de-DE">Gilt für alle Benutzer. Jeder Benutzer kann das Design in Mensura für sich selbst umschalten (Schalter „Design“).</helpText>
+            <defaultValue>b</defaultValue>
+            <options>
+                <option>
+                    <id>a</id>
+                    <name>A · Harbour – close to Shopware</name>
+                    <name lang="de-DE">A · Hafen – nah am Shopware-Standard</name>
+                </option>
+                <option>
+                    <id>b</id>
+                    <name>B · Print sheet – brand colour and CMYK</name>
+                    <name lang="de-DE">B · Druckbogen – Markenfarbe und CMYK</name>
+                </option>
+                <option>
+                    <id>c</id>
+                    <name>C · Compass – cockpit with side navigation</name>
+                    <name lang="de-DE">C · Kompass – Cockpit mit Seitennavigation</name>
+                </option>
+            </options>
+        </input-field>
+    </card>
+</config>

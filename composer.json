@@ -1,0 +1,36 @@
+{
+    "name": "lohndruckerei/ld-mensura",
+    "description": "Mensura – Produkt-Konfigurator und Flächen-/Preiskalkulation für Folien und Platten",
+    "type": "shopware-platform-plugin",
+    "version": "0.1.0",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Lohndruckerei"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "shopware/core": "~6.7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lohndruckerei\\Mensura\\": "src/"
+        }
+    },
+    "extra": {
+        "shopware-plugin-class": "Lohndruckerei\\Mensura\\LdMensura",
+        "label": {
+            "de-DE": "Mensura – Konfigurator & Kalkulation",
+            "en-GB": "Mensura – Configurator & Calculation"
+        },
+        "description": {
+            "de-DE": "Produkt-Konfigurator für Folien und Platten mit flexibler Flächen- und Preiskalkulation (Stückzahl, Fläche, Staffeln, Mindestpreise, Optionen).",
+            "en-GB": "Product configurator for films and boards with flexible area and price calculation (quantity, area, price tiers, minimum prices, options)."
+        },
+        "manufacturerLink": {
+            "de-DE": "https://www.lohndruckerei.eu",
+            "en-GB": "https://www.lohndruckerei.eu"
+        }
+    }
+}

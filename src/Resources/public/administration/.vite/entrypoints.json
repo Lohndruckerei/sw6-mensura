@@ -1,0 +1,32 @@
+{
+  "base": "/bundles/ldmensura/administration/",
+  "entryPoints": {
+    "ld-mensura": {
+      "css": [
+        "/bundles/ldmensura/administration/assets/ld-mensura-CdQMXNej.css"
+      ],
+      "dynamic": [
+        "/bundles/ldmensura/administration/assets/index-h7iFNOzo.js",
+        "/bundles/ldmensura/administration/assets/index-DiLywElE.js",
+        "/bundles/ldmensura/administration/assets/index-DTj9rShN.js",
+        "/bundles/ldmensura/administration/assets/index-B9E0zCwl.js",
+        "/bundles/ldmensura/administration/assets/index-CDale5wJ.js",
+        "/bundles/ldmensura/administration/assets/index-DRGlQyNJ.js"
+      ],
+      "js": [
+        "/bundles/ldmensura/administration/assets/ld-mensura-DRVPV6e8.js"
+      ],
+      "legacy": false,
+      "preload": []
+    }
+  },
+  "legacy": false,
+  "metadatas": {},
+  "version": [
+    "7.1.0",
+    7,
+    1,
+    0
+  ],
+  "viteServer": null
+}

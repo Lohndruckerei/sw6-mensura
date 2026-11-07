@@ -1,0 +1,67 @@
+{
+  "design/component/lm-design-switch/index.js": {
+    "file": "assets/index-h7iFNOzo.js",
+    "name": "index",
+    "src": "design/component/lm-design-switch/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "main.js"
+    ]
+  },
+  "design/component/lm-status/index.js": {
+    "file": "assets/index-DiLywElE.js",
+    "name": "index",
+    "src": "design/component/lm-status/index.js",
+    "isDynamicEntry": true
+  },
+  "design/component/lm-tabs/index.js": {
+    "file": "assets/index-DTj9rShN.js",
+    "name": "index",
+    "src": "design/component/lm-tabs/index.js",
+    "isDynamicEntry": true
+  },
+  "main.js": {
+    "file": "assets/ld-mensura-DRVPV6e8.js",
+    "name": "ld-mensura",
+    "src": "main.js",
+    "isEntry": true,
+    "dynamicImports": [
+      "design/component/lm-design-switch/index.js",
+      "design/component/lm-status/index.js",
+      "design/component/lm-tabs/index.js",
+      "module/ld-mensura/component/lm-page/index.js",
+      "module/ld-mensura/page/lm-overview/index.js",
+      "module/ld-mensura/page/lm-area-placeholder/index.js"
+    ],
+    "css": [
+      "assets/ld-mensura-CdQMXNej.css"
+    ]
+  },
+  "module/ld-mensura/component/lm-page/index.js": {
+    "file": "assets/index-B9E0zCwl.js",
+    "name": "index",
+    "src": "module/ld-mensura/component/lm-page/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "main.js"
+    ]
+  },
+  "module/ld-mensura/page/lm-area-placeholder/index.js": {
+    "file": "assets/index-DRGlQyNJ.js",
+    "name": "index",
+    "src": "module/ld-mensura/page/lm-area-placeholder/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "main.js"
+    ]
+  },
+  "module/ld-mensura/page/lm-overview/index.js": {
+    "file": "assets/index-CDale5wJ.js",
+    "name": "index",
+    "src": "module/ld-mensura/page/lm-overview/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "main.js"
+    ]
+  }
+}

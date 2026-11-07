@@ -1,0 +1,52 @@
+{
+    "ld-mensura": {
+        "general": {
+            "mainMenuItem": "Mensura",
+            "description": "Produkt-Konfigurator und Flächen-/Preiskalkulation",
+            "statusSetup": "Im Aufbau",
+            "comingSoon": "Folgt als Nächstes"
+        },
+        "groups": {
+            "start": "Start",
+            "setup": "Einrichtung"
+        },
+        "overview": {
+            "title": "Konfigurator & Kalkulation",
+            "subline": "Hier richtest du ein, wie Folien, Platten und weitere Artikel berechnet werden: Kalkulationen mit eigener Formel, Materialien mit Preisen je m² und Optionen mit Aufschlägen."
+        },
+        "areas": {
+            "overview": {
+                "title": "Übersicht",
+                "description": "Alle Bereiche von Mensura auf einen Blick."
+            },
+            "calculation": {
+                "title": "Kalkulationen",
+                "description": "Rechenvorlagen je Artikelart: Formatgrenzen, Grundpreis je Stück, Mindestpreis, Staffeln und Formel."
+            },
+            "material": {
+                "title": "Materialien",
+                "description": "Platten und Folien mit Preis je m², Staffeln, Rohformaten und Eigenschaften."
+            },
+            "option": {
+                "title": "Optionen",
+                "description": "Optionsgruppen wie Farbigkeit, Schnitt oder Veredelung mit Werten und Aufschlägen (€/m², €/Stk, %, pauschal)."
+            }
+        }
+    },
+    "lm-design": {
+        "switchLabel": "Design",
+        "default": "Standard",
+        "designs": {
+            "a": "A · Hafen – nah am Shopware-Standard",
+            "b": "B · Druckbogen – Markenfarbe und CMYK",
+            "c": "C · Kompass – Cockpit mit Seitennavigation"
+        }
+    },
+    "sw-privileges": {
+        "permissions": {
+            "ld_mensura": {
+                "label": "Mensura – Konfigurator & Kalkulation"
+            }
+        }
+    }
+}

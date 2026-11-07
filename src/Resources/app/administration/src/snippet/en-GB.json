@@ -1,0 +1,52 @@
+{
+    "ld-mensura": {
+        "general": {
+            "mainMenuItem": "Mensura",
+            "description": "Product configurator and area/price calculation",
+            "statusSetup": "In progress",
+            "comingSoon": "Coming next"
+        },
+        "groups": {
+            "start": "Start",
+            "setup": "Setup"
+        },
+        "overview": {
+            "title": "Configurator & calculation",
+            "subline": "Set up how films, boards and other products are priced: calculations with their own formula, materials with prices per m² and options with surcharges."
+        },
+        "areas": {
+            "overview": {
+                "title": "Overview",
+                "description": "All Mensura areas at a glance."
+            },
+            "calculation": {
+                "title": "Calculations",
+                "description": "Calculation templates per product type: format limits, base price per piece, minimum price, price tiers and formula."
+            },
+            "material": {
+                "title": "Materials",
+                "description": "Boards and films with price per m², price tiers, raw sheet sizes and properties."
+            },
+            "option": {
+                "title": "Options",
+                "description": "Option groups such as colours, cutting or finishing with values and surcharges (€/m², €/pc, %, flat)."
+            }
+        }
+    },
+    "lm-design": {
+        "switchLabel": "Design",
+        "default": "default",
+        "designs": {
+            "a": "A · Harbour – close to Shopware",
+            "b": "B · Print sheet – brand colour and CMYK",
+            "c": "C · Compass – cockpit with side navigation"
+        }
+    },
+    "sw-privileges": {
+        "permissions": {
+            "ld_mensura": {
+                "label": "Mensura – Configurator & calculation"
+            }
+        }
+    }
+}

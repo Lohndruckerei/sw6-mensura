@@ -1,0 +1,722 @@
+// Umschaltbares Design der Lohndruckerei-Plugins: A · Hafen, B · Druckbogen, C · Kompass.
+// Alle Regeln hängen an .lm-design / .lm-design--{a|b|c}; Shopware-Komponenten bleiben unverändert.
+
+$lm-text: var(--color-text-primary-default, #1c1c1c);
+$lm-text2: var(--color-text-secondary-default, #52667a);
+$lm-text3: var(--color-text-tertiary-default, #8a97a6);
+$lm-border: var(--color-border-primary-default, #d1d9e0);
+$lm-surface: var(--color-elevation-surface-raised, #ffffff);
+$lm-sunken: var(--color-elevation-surface-sunken, #f0f2f5);
+$lm-primary: var(--color-interaction-primary-default, #0870ff);
+
+// ---------- Farben je Richtung ----------
+.lm-design {
+    --lm-ok: #14802e;
+    --lm-ok-bg: #e1ffe0;
+    --lm-warn: #975a00;
+    --lm-warn-bg: #fff3e3;
+    --lm-err: #c20017;
+    --lm-err-bg: #fff2f0;
+    --lm-off: #696a6e;
+    --lm-off-bg: #eef0f4;
+}
+
+.lm-design--a {
+    --lm-brand: #57d9a3;
+    --lm-brand-ink: #0e7a52;
+    --lm-accent: #0870ff;
+    // Bereichsfarben (Kacheln, Icons): 1 Kalkulation, 2 Material, 3 Optionen, 4 Sonstiges
+    --lm-c1: #0870ff;
+    --lm-c2: #633bc6;
+    --lm-c3: #0f9d8f;
+    --lm-c4: #d97706;
+}
+
+.lm-design--b {
+    --lm-brand: #0b6e79;
+    --lm-brand-ink: #0b6e79;
+    --lm-accent: #e5007e;
+    // Druckfarben: Cyan, Magenta, Gelb, Schwarz (Key)
+    --lm-c1: #009fe3;
+    --lm-c2: #e5007e;
+    --lm-c3: #e0a800;
+    --lm-c4: #2b2b33;
+}
+
+.lm-design--c {
+    --lm-brand: #243758;
+    --lm-brand-ink: #243758;
+    --lm-accent: #ff8a00;
+    --lm-c1: #2f80ed;
+    --lm-c2: #8e44ad;
+    --lm-c3: #16a085;
+    --lm-c4: #e67e22;
+}
+
+// ---------- Schalter „Design A | B | C“ ----------
+.lm-design-switch {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 8px;
+    border: 1px solid $lm-border;
+    border-radius: 6px;
+    overflow: hidden;
+    background: $lm-surface;
+    font-size: 12px;
+
+    &__label {
+        padding: 0 10px;
+        color: $lm-text2;
+        border-right: 1px solid $lm-border;
+        line-height: 30px;
+    }
+
+    &__option {
+        min-width: 30px;
+        height: 30px;
+        border: 0;
+        background: none;
+        color: $lm-text2;
+        font-weight: 600;
+        cursor: pointer;
+
+        &:hover {
+            background: $lm-sunken;
+        }
+
+        &.is--active {
+            background: var(--lm-brand, #{$lm-primary});
+            color: #fff;
+        }
+
+        & + & {
+            border-left: 1px solid $lm-border;
+        }
+    }
+}
+
+// ---------- Chip (z. B. Preisart €/m², €/Stk); Farbe über --lm-t ----------
+.lm-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 18px;
+    white-space: nowrap;
+    vertical-align: middle;
+
+    & + & {
+        margin-left: 4px;
+    }
+}
+
+.lm-design--a .lm-chip {
+    border-radius: 4px;
+    background: $lm-sunken;
+    color: $lm-text;
+
+    .lm-chip__icon {
+        color: var(--lm-t);
+    }
+}
+
+.lm-design--b .lm-chip {
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--lm-t) 13%, transparent);
+    color: color-mix(in srgb, var(--lm-t) 72%, #1c1c1c);
+    box-shadow: inset 3px 0 0 var(--lm-t);
+}
+
+.lm-design--c .lm-chip {
+    padding: 0 4px 0 0;
+    background: none;
+    color: $lm-text;
+    font-weight: 500;
+
+    .lm-chip__icon {
+        display: none;
+    }
+
+    &::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        background: var(--lm-t);
+    }
+}
+
+// ---------- Status ----------
+.lm-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+
+    &--ok { background: var(--lm-ok-bg); color: var(--lm-ok); }
+    &--warn { background: var(--lm-warn-bg); color: var(--lm-warn); }
+    &--err { background: var(--lm-err-bg); color: var(--lm-err); }
+    &--off { background: var(--lm-off-bg); color: var(--lm-off); }
+}
+
+.lm-design--a .lm-status {
+    padding: 1px 8px;
+    border-radius: 4px;
+
+    .lm-status__icon {
+        display: none;
+    }
+}
+
+.lm-design--c .lm-status {
+    padding: 0;
+    background: none;
+    color: $lm-text;
+    font-weight: 500;
+
+    .lm-status__icon {
+        display: none;
+    }
+
+    &::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    &--ok::before { background: #36d046; }
+    &--warn::before { background: #fbaf18; }
+    &--err::before { background: #e2262a; }
+    &--off::before { background: $lm-text3; }
+}
+
+// ---------- Reiter (B horizontal, C vertikal) ----------
+.lm-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 4px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid $lm-border;
+
+    &__item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: -1px;
+        padding: 10px 14px;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        background: none;
+        color: $lm-text2;
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+
+        &:hover {
+            color: $lm-text;
+        }
+
+        &.is--active {
+            border-bottom-color: var(--lm-brand);
+            color: var(--lm-brand-ink);
+            font-weight: 600;
+        }
+    }
+
+    &__count {
+        min-width: 20px;
+        padding: 0 7px;
+        border-radius: 99px;
+        background: $lm-sunken;
+        color: $lm-text2;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 18px;
+        text-align: center;
+    }
+
+    &__item.is--warn &__count {
+        background: var(--lm-warn-bg);
+        color: var(--lm-warn);
+    }
+
+    &__warn {
+        color: #e09a00;
+    }
+
+    &--vertical {
+        position: sticky;
+        top: 12px;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: 2px;
+        margin: 0;
+        padding: 8px;
+        border: 1px solid $lm-border;
+        border-radius: 8px;
+        background: $lm-surface;
+
+        .lm-tabs__group {
+            padding: 10px 10px 4px;
+            color: $lm-text3;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .lm-tabs__item {
+            width: 100%;
+            margin: 0;
+            padding: 9px 10px;
+            border: 0;
+            border-radius: 6px;
+            color: $lm-text;
+            text-align: left;
+
+            .lm-tabs__icon {
+                color: $lm-text2;
+            }
+
+            .lm-tabs__count {
+                margin-left: auto;
+            }
+
+            &.is--active {
+                background: color-mix(in srgb, var(--lm-accent) 12%, transparent);
+                color: $lm-text;
+
+                .lm-tabs__icon {
+                    color: var(--lm-accent);
+                }
+            }
+        }
+    }
+}
+
+// ---------- Kopfkarte der Detailseite (B, C) ----------
+.lm-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    border: 1px solid $lm-border;
+    border-radius: 8px;
+    background: $lm-surface;
+
+    &__icon {
+        display: grid;
+        flex: none;
+        width: 48px;
+        height: 48px;
+        place-items: center;
+        border-radius: 10px;
+        background: color-mix(in srgb, var(--lm-brand) 14%, transparent);
+        color: var(--lm-brand-ink);
+    }
+
+    &__main {
+        min-width: 0;
+    }
+
+    &__title {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 14px;
+        margin-top: 4px;
+        color: $lm-text2;
+        font-size: 13px;
+    }
+
+    &__chips {
+        margin-left: auto;
+    }
+
+    &__stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-left: auto;
+    }
+
+    &__stat {
+        display: flex;
+        flex-direction: column;
+        color: $lm-text2;
+        font-size: 12px;
+
+        b {
+            color: $lm-text;
+            font-size: 16px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        &.is--warn b {
+            color: var(--lm-warn);
+        }
+    }
+}
+
+.lm-design--b .lm-header {
+    border-top: 4px solid var(--lm-brand);
+}
+
+// ---------- Detailseite C: Seitennavigation ----------
+.lm-split {
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+
+    @media (max-width: 1000px) {
+        grid-template-columns: minmax(0, 1fr);
+
+        .lm-tabs--vertical {
+            position: static;
+            flex-direction: row;
+            flex-wrap: wrap;
+
+            .lm-tabs__group {
+                display: none;
+            }
+
+            .lm-tabs__item {
+                width: auto;
+            }
+        }
+    }
+}
+
+// ---------- Liste: Filter (B), Kennzahlen und Kacheln (C) ----------
+// Die Liste selbst ist randlos (wie in Shopware); Filter, Kennzahlen und Kacheln bekommen Abstand.
+.lm-page__content {
+    > .lm-filters,
+    > .lm-kpis,
+    > .lm-toolbar,
+    > .lm-tiles,
+    > .sw-pagination {
+        margin-left: 24px;
+        margin-right: 24px;
+    }
+
+    > .lm-filters,
+    > .lm-kpis {
+        margin-top: 16px;
+    }
+}
+
+.lm-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.lm-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border: 1px solid $lm-border;
+    border-radius: 99px;
+    background: $lm-surface;
+    color: $lm-text;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+
+    b {
+        color: $lm-text2;
+        font-weight: 600;
+    }
+
+    &.is--active {
+        border-color: var(--lm-brand);
+        background: color-mix(in srgb, var(--lm-brand) 14%, transparent);
+        color: var(--lm-brand-ink);
+    }
+}
+
+.lm-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+
+    @media (max-width: 1000px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.lm-kpi {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid $lm-border;
+    border-radius: 8px;
+    background: $lm-surface;
+    color: $lm-text;
+    text-align: left;
+    cursor: pointer;
+
+    b {
+        display: block;
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    small {
+        color: $lm-text2;
+        font-size: 12px;
+    }
+
+    &--all .mt-icon { color: var(--lm-brand-ink); }
+    &--ok .mt-icon { color: var(--lm-ok); }
+    &--warn .mt-icon { color: #e09a00; }
+    &--off .mt-icon { color: $lm-text3; }
+
+    &.is--active {
+        border-color: var(--lm-accent);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--lm-accent) 20%, transparent);
+    }
+}
+
+.lm-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.lm-seg {
+    display: inline-flex;
+    margin-left: auto;
+    border: 1px solid $lm-border;
+    border-radius: 6px;
+    overflow: hidden;
+
+    button {
+        display: flex;
+        padding: 6px 10px;
+        border: 0;
+        background: $lm-surface;
+        color: $lm-text2;
+        cursor: pointer;
+
+        &.is--active {
+            background: $lm-sunken;
+            color: $lm-text;
+        }
+    }
+}
+
+.lm-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+}
+
+.lm-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid $lm-border;
+    border-radius: 8px;
+    background: $lm-surface;
+    color: $lm-text;
+    text-align: left;
+    text-decoration: none;
+
+    &:hover {
+        border-color: var(--lm-accent);
+    }
+
+    &.is--inactive {
+        opacity: .65;
+    }
+
+    &__top {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+
+        b {
+            display: block;
+            font-size: 14.5px;
+        }
+
+        small {
+            color: $lm-text3;
+            font-size: 12px;
+        }
+    }
+
+    &__status {
+        margin-left: auto;
+    }
+
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 16px;
+        padding-top: 10px;
+        border-top: 1px solid $lm-border;
+        color: $lm-text2;
+        font-size: 12.5px;
+    }
+}
+
+.lm-sicon {
+    display: grid;
+    flex: none;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--lm-brand) 14%, transparent);
+    color: var(--lm-brand-ink);
+
+    &.is--off {
+        background: var(--lm-off-bg);
+        color: $lm-text3;
+    }
+}
+
+.lm-namecell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    a {
+        font-weight: 600;
+    }
+
+    small {
+        display: block;
+        color: $lm-text3;
+        font-size: 12px;
+    }
+}
+
+.lm-muted {
+    color: $lm-text3;
+}
+
+// ---------- Übersicht: Bereichskacheln ----------
+.lm-page__content > .lm-header,
+.lm-page__content > .lm-areas,
+.lm-page__content > .lm-split,
+.lm-page__content > .lm-tabs {
+    margin-left: 24px;
+    margin-right: 24px;
+}
+
+.lm-page__content > .lm-header,
+.lm-page__content > .lm-split {
+    margin-top: 24px;
+}
+
+// A: ohne Bereichsnavigation, Kacheln brauchen eigenen Abstand oben
+.lm-design--a.lm-page__content > .lm-areas {
+    margin-top: 24px;
+}
+
+.lm-areas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.lm-area {
+    --lm-t: var(--lm-c1);
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px;
+    border: 1px solid $lm-border;
+    border-radius: 8px;
+    background: $lm-surface;
+    color: $lm-text;
+    text-align: left;
+    text-decoration: none;
+
+    &:hover {
+        border-color: var(--lm-accent);
+    }
+
+    &__icon {
+        display: grid;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        border-radius: 10px;
+        background: color-mix(in srgb, var(--lm-t) 14%, transparent);
+        color: var(--lm-t);
+    }
+
+    b {
+        font-size: 15px;
+    }
+
+    p {
+        margin: 0;
+        color: $lm-text2;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    &__foot {
+        margin-top: auto;
+        padding-top: 10px;
+        border-top: 1px solid $lm-border;
+    }
+
+    &--c2 { --lm-t: var(--lm-c2); }
+    &--c3 { --lm-t: var(--lm-c3); }
+    &--c4 { --lm-t: var(--lm-c4); }
+}
+
+.lm-design--a .lm-area__icon {
+    background: $lm-sunken;
+}
+
+.lm-design--b .lm-area {
+    border-top: 4px solid var(--lm-t);
+}
+
+.lm-design--c .lm-areas {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+// Leere Zustände in Markenfarbe (B)
+.lm-design--b .sw-empty-state__icon,
+.lm-design--b .sw-empty-state .mt-icon {
+    color: var(--lm-brand-ink);
+}
