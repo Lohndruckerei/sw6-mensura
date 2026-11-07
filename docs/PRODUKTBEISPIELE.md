@@ -34,7 +34,25 @@ Preisaufruf: `Produkt / Material / Festformat / Breite / Höhe / Motive / Stück
 | DIN-Formate Hohlkammer 3 mm (Produkt 419) | Format als **Optionsgruppe mit festen Maßen** (A0, A1, A2, B1, Doppel A0/A1/B1); Preis hängt von **Stückfläche und Menge** ab (A0: 1 Stk = Mindestpreis 9,35 €, 10 Stk 5,12 €/Stk, 50 Stk 4,82 €/Stk; Doppel A0 1 Stk 4,77 €/m², 50 Stk 4,58 €/m²); Rillung und Lochbohrung ohne Aufpreis |
 | Etiketten (Haftfolie PP 60 µ) | nur Fläche zählt, nicht die Form (50×50 = 25×100 = 20×125); Staffel über Gesamtfläche: bis < 10 m² ≈ 6,80 €/m², ab 10 m² 2,41 €/m²; Konturschnitt + ≈ 2,33 €/m² |
 
-**Staffelsprung:** Bei Etiketten kosten 3.000 Stück 51,00 €, 4.000 Stück aber nur 24,10 €. Mensura sollte eine
+#### Etiketten & Sticker auf Rolle und Bogen (Kategorie 62) im Detail
+
+Etikett 50 × 50 mm, Haftfolie PP 60 µ weiß, UV-Lack (Pflichtoption, glänzend/matt gleich teuer):
+
+| Gesamtfläche der Position | < 1 m² | 1–< 2 m² | 2–< 10 m² | 10–< ≈100 m² | ab ≈100 m² |
+|---|---|---|---|---|---|
+| €/m² | 22,30 | 11,30 | 6,80 | 2,41 | 2,16 |
+
+- Mindestpreis 11,45 €; Konturschnitt/rund + ≈ 2,33 €/m²; Laufrichtung, Rollenkern, Rolle/Sammelbogen ohne Aufpreis.
+- **Sorten sind kostenlos und teilen die Menge:** 5 Sorten in 1.000 Stück gesamt kosten so viel wie 1 Sorte × 1.000.
+  Die Menge ist also die Gesamtmenge, die Sorten werden darauf verteilt. Bei Platten und Bannern ist es dagegen Motive × Stück je Motiv.
+- Sticker (Haftpapier matt): **der Zuschnitt bestimmt die Preisbasis**
+  | Zuschnitt | 1.000 Stk (2,5 m²) | 4.000 Stk (10 m²) |
+  |---|---|---|
+  | auf Rolle | 11,45 (Mindestpreis) | 30,00 (3 €/m², Staffel) |
+  | Sammelbogen | 17,50 (7 €/m²) | 70,00 (7 €/m², keine Staffel) |
+  | Einzelzuschnitt mit Trägerrand | 57,50 (23 €/m²) | 230,00 (23 €/m², keine Staffel) |
+
+**Staffelsprung:** Bei Etiketten kosten 300 Stück 16,73 €, 400 Stück aber nur 11,45 €; 3.999 Stück 67,98 €, 4.000 Stück 24,10 €. Mensura sollte eine
 **Bestpreisregel** haben: Wenn eine größere Menge weniger kostet, gilt deren Preis („mehr bestellen lohnt sich“)
 bzw. wird der Kunde darauf hingewiesen.
 
@@ -79,11 +97,12 @@ kommen Umschlag (Material und Farbigkeit) als zweite Material-/Optionsebene und 
 | 1 | EK und VK haben teils **unterschiedliche Staffelarten** (Blockout: EK je Stückfläche, VK fest) | `tiers` getrennt nach EK und VK, je mit eigener Staffelbasis: `{purchase: {basis, steps}, sale: {basis, steps}}` |
 | 2 | **Preistabellen** (Flyer, Broschüren): Stückpreis bzw. Gesamtpreis je Auflage für Kombinationen aus Formatklasse × Material × Farbigkeit × Seiten | neue Tabelle `ld_mensura_price_table` (je Kalkulation, Schlüssel = Material + gewählte Optionswerte, Zeilen = Auflage → EK/VK, Art „je Stück“ oder „gesamt“) mit **CSV-Import/-Export** (Pflege per Excel) |
 | 3 | **Festformate als Optionen** mit Sperren und Formatklassen (Falzflyer, DIN-Formate auf Platten) | Optionsgruppe `type = format`: Werte mit Breite/Höhe; freie Formate werden der nächsten Klasse zugeordnet; Sperren über `conditions` wie bei allen Optionen |
-| 4 | **Staffelbezug bei Motiven**: Flyer = Summe aller Motive, andere ggf. je Motiv | Feld `tierScope` an der Kalkulation: `total` (Standard) oder `per_motif` |
+| 4 | **Motive/Sorten**: Platten = Motive × Stück je Motiv; Etiketten = Gesamtmenge, auf Sorten verteilt (kostenlos); Flyer = Staffel über alle Motive | Feld `motifMode` an der Kalkulation (`multiply` / `split`) und `tierScope` (`total` / `per_motif`); Aufpreis je Sorte über Preisanteil `per_motif` |
 | 5 | **Druckpositionen** (Mehrfachauswahl mit Maß) | Optionsgruppe `displayType = multi` mit Preis je gewählter Position; erst wenn Textil kommt |
 | 6 | **Bestpreisregel** bei Staffelsprüngen | Schalter an der Kalkulation: „günstigere größere Menge anbieten/anwenden“ |
 | 7 | Grundpreis je Stück hängt am Material (Mesh 0,20 €, PVC 510 g 0 €) | `priceComponents` auch am Material (heute nur über Optionspreis je Material möglich) |
 | 7a | **Zweidimensionale Staffel** (Stückfläche × Menge, DIN-Formate Hohlkammer) | Staffelschritte mit zwei Schwellen (`fromPieceArea`, `fromQuantity`) oder Preistabelle (Lücke 2) je Formatwert |
+| 9 | **Option ersetzt die Preisbasis** (Sticker-Zuschnitt: Rolle mit Staffel, Bogen/Einzelzuschnitt fester €/m²) | Preisanteil `base_area` an einem Optionswert, der den Materialpreis samt Staffel ersetzt (eigene Staffel am Optionswert möglich) |
 | 8 | Zweite Materialebene (Umschlag bei Broschüren) | Optionsgruppe mit Material-Bezug oder Kalkulation mit `coverMaterial`; klären, wenn Broschüren kommen |
 
 Rechenart A ist mit 1, 6 und 7 vollständig abgebildet. Für B und C braucht es 2, 3 und 4. Die eigene Formel bleibt die
