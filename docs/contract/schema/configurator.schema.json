@@ -57,6 +57,7 @@
           "displayType": { "enum": ["select", "tiles", "radio", "checkbox", "number", "multi"] },
           "required": { "type": "boolean" },
           "mode": { "enum": ["inherit", "restrict", "fixed", "hidden"], "description": "Regel aus dem Produktprofil; hidden = nicht anzeigen, Wert steht in defaults" },
+          "showPriceHint": { "type": "boolean", "description": "optional, Standard true: false = Aufpreise (priceHint) der Werte dieser Gruppe im Shop nicht anzeigen, Fokus auf den Gesamtpreis" },
           "values": {
             "type": "array",
             "items": {
@@ -88,7 +89,19 @@
     "startSet": { "type": ["string", "null"] },
     "defaults": { "$ref": "configuration.schema.json" },
     "quantitySteps": { "type": "array", "items": { "type": "integer", "minimum": 1 }, "description": "Zeilen der Preismatrix" },
-    "orderCutoff": { "type": ["string", "null"], "pattern": "^[0-2][0-9]:[0-5][0-9]$", "description": "Annahmeschluss, z. B. 11:30" }
+    "orderCutoff": { "type": ["string", "null"], "pattern": "^[0-2][0-9]:[0-5][0-9]$", "description": "Annahmeschluss, z. B. 11:30" },
+    "display": {
+      "type": "object",
+      "description": "optional: was der Shop dem Käufer neben dem Gesamtpreis zeigt (Plugin-Einstellung bzw. Produktprofil). Fehlt ein Schalter = true",
+      "additionalProperties": false,
+      "properties": {
+        "showPriceHints": { "type": "boolean", "description": "Aufpreise an Optionswerten (priceHint); je Gruppe zusätzlich showPriceHint" },
+        "showArea": { "type": "boolean", "description": "Fläche (Breite × Höhe × Stück) und abgerechnete Fläche" },
+        "showPerSqm": { "type": "boolean", "description": "Preis je m²" },
+        "showPerPiece": { "type": "boolean", "description": "Preis je Stück" },
+        "showFromPrice": { "type": "boolean", "description": "„ab“-Preis je m² an Material-Kacheln (fromPricePerSqm)" }
+      }
+    }
   },
   "$defs": {
     "id": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
