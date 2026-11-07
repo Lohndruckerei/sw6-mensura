@@ -80,8 +80,8 @@ Das Verhältnis ist nicht einheitlich (×1,12 bis ×2) → EK und VK müssen get
 - **Flächenstaffel je Position:** Fläche × Menge einer Konfiguration (5 Banner à 3 m² = 15 m² → „ab 10 m²“).
   Andere Positionen im Warenkorb zählen nicht mit.
 - **Mindestpreis je Position:** jede Konfiguration kostet mindestens den Mindestpreis, wie im Comdatek-Shop.
-- **Banner-Konfektion (Saum + Ösen, Hohlsaum, Keder):** noch offen, wird bei Comdatek erfragt. Deshalb bekommt
-  jeder Optionswert beide Preisanteile (je m² und je lfm Umfang); was gilt, wird je Option eingestellt.
+- **Banner-Konfektion (Saum + Ösen, Hohlsaum, Keder):** laut Comdatek-Shop je m² (siehe 2b). Beide Preisanteile
+  (je m² und je lfm Umfang) bleiben möglich, z. B. für Gummilippe/Flauschband je lfm.
 - **EK und VK werden getrennt gepflegt**, dazu ein **Margenrechner** (siehe 3.5). Bei Comdatek liegt die Marge
   meist bei 20–30 %; bei anderen Lieferanten kann der VK anders entstehen.
 
@@ -111,6 +111,9 @@ Das Verhältnis ist nicht einheitlich (×1,12 bis ×2) → EK und VK müssen get
   (Kundenkonto, Link) bleiben offen. Prüfung und Freigabe (Auflösung, Stückzahl, Format, Beschnitt) übernimmt ein eigenes
   Plugin. Mensura reserviert dafür `artwork` im Schnappschuss und im Payload.
 - **LieferLotse und künftige Plugins:** siehe [INTEGRATION.md](INTEGRATION.md).
+- **Banner-Konfektion je m²** (Comdatek-VK geprüft: gleicher Aufschlag bei 3×3, 9×1 und 4,5×2 m).
+- Weitere Rechenarten (Flächenstaffel, Preistabellen für Flyer/Broschüren, Festformate, Seiten) und die daraus
+  folgenden Erweiterungen des Datenmodells: [PRODUKTBEISPIELE.md](PRODUKTBEISPIELE.md).
 
 ## 3. Kalkulationsfelder (Datenmodell)
 
