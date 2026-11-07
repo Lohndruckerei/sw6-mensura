@@ -23,6 +23,8 @@
         "quantity": { "type": "integer" },
         "area": { "type": "number", "description": "Gesamtfläche in m²" },
         "minimumApplied": { "type": "boolean" },
+        "billedArea": { "type": "number", "description": "optional: abgerechnete Gesamtfläche in m² nach Mindestfläche und Schrittweite der Kalkulation (≥ area); darauf rechnen Material und flächenbezogene Optionen. Fehlt = area" },
+        "minimumArea": { "type": ["number", "null"], "description": "optional: Mindestfläche der Position in m², falls eine gilt (z. B. Folie A 1,0 / Folie B 0,5)" },
         "currency": { "type": "string" }
       }
     },
