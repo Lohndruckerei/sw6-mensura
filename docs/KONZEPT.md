@@ -245,6 +245,77 @@ aus einer Vorlage.
 
 Warenkorb: normale Produktposition mit Konfiguration im Payload, Preis über CartProcessor (siehe INTEGRATION.md).
 
+### 3.7 Optionssets: der Konfigurationsfluss (umgesetzt in v0.3.0)
+
+Ein **Optionsset** (`ld_mensura_option_set` + `ld_mensura_option_set_group`) ist eine geordnete Folge von
+Optionsgruppen, also ein Konfigurationsschritt. Welche Gruppen der Kunde sieht, ergibt sich aus den aktiven Sets:
+
+```
+Start-Set der Kalkulation  →  Folge-Set des gewählten Materials  →  Folge-Sets der gewählten Optionswerte (rekursiv)
+z. B. „Grundlagen“ (Farbigkeit)  →  Aluverbund: „Plattenveredelung“ (Laminat, Lochbohrung, Schnitt)
+                                 →  Wert „Kaschierung auf Alu“: „Alu-Weiterverarbeitung“
+```
+
+- Nicht relevante Gruppen verschwinden, weil sie in keinem aktiven Set stehen. Das Produktprofil kann zusätzlich
+  einschränken, festlegen oder ausblenden (3.6).
+- **Frühere Wahl ändern (z. B. Aluverbund → Acryl):**
+  - **Format, Menge und Motive bleiben erhalten.**
+  - **Gruppen, die auch im neuen Set vorkommen, behalten ihren Wert,** solange er dort erlaubt ist. Optionsgruppen sind eine
+    gemeinsame Bibliothek, deshalb ist „Laminat“ bei Alu und Acryl dieselbe Gruppe. Andernfalls gilt der Standardwert.
+  - Gruppen, die wegfallen, werden aus der Konfiguration entfernt. Kehrt der Kunde zurück, wird die frühere Wahl
+    wiederhergestellt, solange er die Seite nicht verlassen hat.
+  - **Grenzen des neuen Materials** (z. B. Acryl max. 2.000 mm Höhe): Der Wert wird **nicht still verändert**. Das Feld
+    wird markiert und mit einem Hinweis versehen („Acryl 5 mm: max. 2.000 mm“), dazu gibt es die Schaltfläche „Auf 2.000 mm setzen“.
+    Bis zur Korrektur gibt es keinen Preis und kein „In den Warenkorb“.
+  - Der Kunde sieht kurz, was sich durch den Wechsel geändert hat (z. B. „Lochbohrung entfällt bei Acryl“).
+- Die Engine prüft dieselben Regeln serverseitig. Der Warenkorb nimmt nur gültige Konfigurationen an.
+
+Weitere Felder in v0.3.0: Kalkulation `motifMode` (`multiply`/`split`), `tierScope` (`total`/`per_motif`),
+`bestPriceMode` (`none`/`hint`/`apply`), Material `priceComponents` (z. B. 0,20 €/Stk), Optionsgruppe Typ
+`format` mit Werten `width`/`height` (Festformate wie DIN A0–A2).
+
+## 3a. Bedienung: intuitiv und mit Hilfe-Texten (verbindlich für alle Oberflächen)
+
+Der Funktionsumfang ist groß. Die Bedienung muss trotzdem ohne Schulung gehen:
+
+1. **Hilfetext an jedem Feld** (de/en), in Alltagssprache und mit Beispiel aus dem Druckalltag, z. B. „Mindestpreis:
+   Eine Position kostet nie weniger, z. B. 12,50 € bei Aluverbund, auch wenn nur ein kleines Schild bestellt wird.“
+2. **Erklärkarten** für die Grundbegriffe (Kalkulation, Material, Optionsgruppe, Optionsset, Produktprofil) oben auf der
+   jeweiligen Seite, einklappbar, mit einer kleinen Skizze des Ablaufs.
+3. **Assistenten statt leerer Formulare**: „Neue Kalkulation“ fragt Schritt für Schritt (Was wird verkauft? Wie wird
+   gerechnet: Fläche, Stück, Tabelle? Mindestpreis? Staffel?). Vorlagen gibt es z. B. für „Platte wie Aluverbund“, „Banner mit
+   Flächenstaffel“, „Etikett“ und „Flyer mit Preistabelle“.
+4. **Live-Vorschau**: Neben jeder Kalkulation bzw. jedem Profil steht der Konfigurator so, wie ihn der Kunde sieht, mit Testrechner
+   und Rechenweg Zeile für Zeile (EK, VK, Marge).
+5. **Warnungen beim Speichern** statt Fehlern im Shop: Pflichtgruppe ohne Wert, VK ≤ EK, Staffelsprung, Material ohne Preis,
+   Option ohne Preis in einer Kalkulation, Profil ohne gültiges Material.
+6. **Wenig Klicks für Massenpflege**: Tabellenansicht mit Inline-Bearbeitung für Preise, Kopieren von Kalkulationen und
+   Profilen, CSV-Import/-Export.
+7. Die Designs A/B/C gelten auch hier. Fachbegriffe werden konsequent gleich benannt.
+
+## 3b. Benutzerrechte je Rolle (für alle Plugins der Familie)
+
+Alle Plugins (LieferLotse, Mensura, künftige) melden ihre Rechte bei der **Shopware-Rollenverwaltung** an
+(Einstellungen → Benutzer & Rechte → Rollen). Dort werden Rollen wie *Buchhaltung, Vertrieb, Chef, Admin* je Plugin und
+Bereich freigegeben. Menüpunkte, Reiter und Schaltflächen ohne Recht werden ausgeblendet, und die API lehnt solche Zugriffe ab.
+
+Geplante Rechte für Mensura (heute gibt es `ld_mensura` mit Ansehen/Bearbeiten/Anlegen/Löschen):
+
+| Recht | Inhalt | typisch für |
+|---|---|---|
+| `ld_mensura.catalog` | Kalkulationen, Materialien, Optionen, Sets ansehen/pflegen (nur VK) | Vertrieb (ansehen), Produktmanagement (pflegen) |
+| `ld_mensura.profiles` | Produktprofile pflegen | Produktmanagement, Shop-Pflege |
+| `ld_mensura.purchase` | **Einkaufspreise, Margen, Deckungsbeitrag** sehen und pflegen, Margenrechner | Chef, Buchhaltung, Einkauf |
+| `ld_mensura.customer_groups` | Kundengruppen-Aufschläge | Chef, Vertrieb (Leitung) |
+| `ld_mensura.orders` | Rechenweg-Schnappschuss in Bestellungen (mit EK nur zusammen mit `purchase`) | Buchhaltung, Auftragsbearbeitung |
+| `ld_mensura.settings` | Plugin-Einstellungen, Import/Export | Admin |
+
+**Wichtig:** EK-Felder liegen heute in denselben Datensätzen wie die VK-Felder (`pricePurchase`, `purchase` in
+den Preisanteilen). Damit eine Rolle ohne `ld_mensura.purchase` sie auch über die API nicht sieht und nicht ändert, filtert ein
+serverseitiger Schutz die EK-Werte beim Lesen heraus und weist Schreibzugriffe darauf ab. Alternativ werden die EK-Werte in eine
+eigene Tabelle ausgelagert. Das wird mit den Admin-Oberflächen umgesetzt und getestet. LieferLotse und spätere Plugins
+(Auftragsverwaltung, Rechnung, Buchhaltung) folgen demselben Muster.
+
 ## 4. Standardformel (Engine)
 
 ```
@@ -285,6 +356,9 @@ Shop-Frontend geprüft werden können.
 1. ✅ Grundgerüst, Menü, Designs, Konzept
 2. ✅ Entitäten + Migration (Kalkulation, Material, Optionen, Preisanteile EK/VK, Staffeln, VK-Regel, Kundengruppen,
    Produktverknüpfung, Bestell-Schnappschuss)
+2a. ✅ v0.3.0: Optionssets (Konfigurationsfluss), Produktprofile (allgemein/speziell, Materialien über Kalkulationen,
+   Optionsregeln), Motiv-/Staffel-/Bestpreis-Modus, Preisanteile am Material, Festformate
+2b. v0.4.0: Preistabellen (Flyer, Broschüren) mit CSV-Import/-Export; getrennte EK/VK-Staffeln
 3. Admin: Listen & Detailseiten je Bereich, Preisfelder EK/VK mit Margenrechner
 4. Preis-Engine (PHP, mit Unit-Tests anhand der Comdatek-Werte oben) + Testrechner im Admin
 5. Produktzuordnung + Store-API „Preis berechnen“

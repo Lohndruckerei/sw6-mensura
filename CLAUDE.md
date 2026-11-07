@@ -26,10 +26,15 @@
   ist hier als eigene Kopie mit Präfix `lm-` enthalten (Store `lmDesign`, Mixin `lm-design`)
 - Eigener Hauptmenüpunkt: Modul ist als `type: 'core'` registriert, weil Shopware Plugin-Module nicht auf
   die erste Menüebene lässt. Neue Oberflächen in `module/ld-mensura/constants.js` (AREAS) + Route ergänzen.
-- Admin einfach und übersichtlich halten
+- Admin einfach und übersichtlich halten – verbindliche Bedienregeln in docs/KONZEPT.md Abschnitt 3a
+  (Hilfetext an jedem Feld mit Beispiel, Erklärkarten, Assistenten, Live-Vorschau, Warnungen beim Speichern)
+- Grundprinzip: Kalkulationen rechnen, Produktprofile wählen aus und schränken ein (nie erweitern);
+  Optionssets steuern, welche Gruppen erscheinen (KONZEPT 3.6/3.7)
 - Entities: vollständige Getter/Setter (`bin/console dal:validate` muss für Mensura fehlerfrei sein; die
   Meldungen des LieferLotse sind dessen Sache), toMany-Setter nicht nullable, Constraint-Namen ≤ 64 Zeichen
 - Preise netto, nur B2B; Basis-VK = Wiederverkäufer, andere Kundengruppen per Aufschlag (`ld_mensura_customer_group_rule`)
+- Rechte je Rolle (Buchhaltung, Vertrieb, Chef, Admin …) über die Shopware-Rollenverwaltung; EK/Marge nur mit
+  eigenem Recht und serverseitig geschützt (KONZEPT 3b)
 - Einkaufspreise nie in die Store-API (kein ApiAware an EK-Feldern und am Schnappschuss `ld_mensura_order_line_item`)
 - LieferLotse nur lose koppeln: Lieferanten-IDs ohne Fremdschlüssel, Andocken über dessen Events
   (Vertrag in docs/INTEGRATION.md – bei Änderungen dort pflegen; Payload/Schnappschuss nur erweitern, `schema` erhöhen bei Bruch)

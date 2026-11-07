@@ -40,8 +40,20 @@
         </service>
 
         <!-- Verknüpfungen zu Shopware -->
-        <service id="Lohndruckerei\Mensura\Core\Content\ProductCalculation\ProductCalculationDefinition">
-            <tag name="shopware.entity.definition" entity="ld_mensura_product_calculation"/>
+        <service id="Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_option_set"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\OptionSet\Aggregate\OptionSetGroup\OptionSetGroupDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_option_set_group"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\ProductProfile\ProductProfileDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_product_profile"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileMaterial\ProductProfileMaterialDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_product_profile_material"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileOption\ProductProfileOptionDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_product_profile_option"/>
         </service>
         <service id="Lohndruckerei\Mensura\Core\Checkout\OrderLineItem\MensuraOrderLineItemDefinition">
             <tag name="shopware.entity.definition" entity="ld_mensura_order_line_item"/>

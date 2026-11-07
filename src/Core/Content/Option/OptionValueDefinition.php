@@ -6,6 +6,7 @@ namespace Lohndruckerei\Mensura\Core\Content\Option;
 
 use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationOptionValue\CalculationOptionValueDefinition;
 use Lohndruckerei\Mensura\Core\Content\Option\Aggregate\OptionValueTranslation\OptionValueTranslationDefinition;
+use Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -62,6 +63,12 @@ class OptionValueDefinition extends EntityDefinition
             new FloatField('width_factor', 'widthFactor'),
             new FloatField('height_factor', 'heightFactor'),
             new IntField('delivery_days', 'deliveryDays', 0),
+            // Festformat (Gruppe vom Typ `format`): Breite/Höhe in mm, z. B. DIN A1 594 × 841
+            new IntField('width', 'width', 0),
+            new IntField('height', 'height', 0),
+            // Folge-Set: welche Optionsgruppen nach Wahl dieses Werts erscheinen
+            new FkField('option_set_id', 'optionSetId', OptionSetDefinition::class),
+            new ManyToOneAssociationField('optionSet', 'option_set_id', OptionSetDefinition::class, 'id', false),
             new JsonField('exclusions', 'exclusions'),
 
             new JsonField('supplier_codes', 'supplierCodes'),

@@ -2,7 +2,7 @@
     "name": "lohndruckerei/ld-mensura",
     "description": "Mensura – Produkt-Konfigurator und Flächen-/Preiskalkulation für Folien und Platten",
     "type": "shopware-platform-plugin",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "license": "proprietary",
     "authors": [
         {

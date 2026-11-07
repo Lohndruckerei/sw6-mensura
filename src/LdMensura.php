@@ -20,8 +20,12 @@ class LdMensura extends Plugin
      */
     public const TABLES = [
         'ld_mensura_order_line_item',
+        'ld_mensura_product_profile_option',
+        'ld_mensura_product_profile_material',
+        'ld_mensura_product_profile',
         'ld_mensura_product_calculation',
         'ld_mensura_customer_group_rule',
+        'ld_mensura_option_set_group',
         'ld_mensura_calculation_option_value',
         'ld_mensura_option_value_translation',
         'ld_mensura_option_value',
@@ -31,6 +35,7 @@ class LdMensura extends Plugin
         'ld_mensura_material_translation',
         'ld_mensura_material',
         'ld_mensura_calculation',
+        'ld_mensura_option_set',
     ];
 
     /**

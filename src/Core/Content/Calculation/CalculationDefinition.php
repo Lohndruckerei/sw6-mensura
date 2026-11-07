@@ -8,7 +8,10 @@ use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationCustomer
 use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationMaterial\CalculationMaterialDefinition;
 use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationOptionValue\CalculationOptionValueDefinition;
 use Lohndruckerei\Mensura\Core\Content\Material\MaterialDefinition;
-use Lohndruckerei\Mensura\Core\Content\ProductCalculation\ProductCalculationDefinition;
+use Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetDefinition;
+use Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileMaterial\ProductProfileMaterialDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -39,6 +42,12 @@ class CalculationDefinition extends EntityDefinition
     public const FORMAT_MODES = ['free', 'fixed', 'both', 'none'];
     public const TIER_BASES = ['none', 'quantity', 'total_area', 'piece_area', 'total_price'];
     public const SALE_RULES = ['margin', 'markup', 'factor', 'free'];
+    /** multiply = Motive × Stück je Motiv (Platten); split = Gesamtmenge auf Sorten verteilt (Etiketten) */
+    public const MOTIF_MODES = ['multiply', 'split'];
+    /** Staffel über alle Motive (total) oder je Motiv */
+    public const TIER_SCOPES = ['total', 'per_motif'];
+    /** Staffelsprung: none, hint (größere günstigere Menge anbieten), apply (günstigeren Preis anwenden) */
+    public const BEST_PRICE_MODES = ['none', 'hint', 'apply'];
 
     public function getEntityName(): string
     {
@@ -78,6 +87,13 @@ class CalculationDefinition extends EntityDefinition
             new IntField('max_motifs', 'maxMotifs', 1),
             new IntField('max_quantity', 'maxQuantity', 1),
 
+            // Konfigurationsfluss und Mengenlogik
+            new FkField('option_set_id', 'optionSetId', OptionSetDefinition::class),
+            (new StringField('motif_mode', 'motifMode', 16))->addFlags(new Required()),
+            (new StringField('tier_scope', 'tierScope', 16))->addFlags(new Required()),
+            (new StringField('best_price_mode', 'bestPriceMode', 16))->addFlags(new Required()),
+            new ManyToOneAssociationField('optionSet', 'option_set_id', OptionSetDefinition::class, 'id', false),
+
             // Preise: Grundpreise als Preisanteile [{type, purchase, sale}], Mindestpreis je Position
             new JsonField('price_components', 'priceComponents'),
             new FloatField('minimum_price_purchase', 'minimumPricePurchase'),
@@ -102,8 +118,8 @@ class CalculationDefinition extends EntityDefinition
             new ManyToManyAssociationField('materials', MaterialDefinition::class, CalculationMaterialDefinition::class, 'calculation_id', 'material_id'),
             (new OneToManyAssociationField('optionValues', CalculationOptionValueDefinition::class, 'calculation_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('customerGroups', CalculationCustomerGroupDefinition::class, 'calculation_id'))->addFlags(new CascadeDelete()),
-            // Kalkulation, die noch an Produkten hängt, kann nicht gelöscht werden
-            (new OneToManyAssociationField('products', ProductCalculationDefinition::class, 'calculation_id'))->addFlags(new RestrictDelete()),
+            // Kalkulation, die noch in Produktprofilen verwendet wird, kann nicht gelöscht werden
+            (new OneToManyAssociationField('profileMaterials', ProductProfileMaterialDefinition::class, 'calculation_id'))->addFlags(new RestrictDelete()),
         ]);
     }
 
@@ -116,6 +132,9 @@ class CalculationDefinition extends EntityDefinition
             'allowRotation' => true,
             'tierBasis' => 'none',
             'saleRule' => 'margin',
+            'motifMode' => 'multiply',
+            'tierScope' => 'total',
+            'bestPriceMode' => 'hint',
         ];
     }
 }

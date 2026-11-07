@@ -15,6 +15,9 @@ class OptionValueEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
+    protected ?string $optionSetId = null;
+    protected ?\Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetEntity $optionSet = null;
+
     protected string $optionGroupId;
     protected string $technicalName;
     protected ?string $code = null;
@@ -24,6 +27,8 @@ class OptionValueEntity extends Entity
     protected ?float $widthFactor = null;
     protected ?float $heightFactor = null;
     protected ?int $deliveryDays = null;
+    protected ?int $width = null;
+    protected ?int $height = null;
     protected ?array $exclusions = null;
     protected ?array $supplierCodes = null;
     protected ?string $mediaId = null;
@@ -213,5 +218,45 @@ class OptionValueEntity extends Entity
     public function setTranslations(\Shopware\Core\Framework\DataAbstractionLayer\EntityCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getOptionSetId(): ?string
+    {
+        return $this->optionSetId;
+    }
+
+    public function setOptionSetId(?string $optionSetId): void
+    {
+        $this->optionSetId = $optionSetId;
+    }
+
+    public function getOptionSet(): ?\Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetEntity
+    {
+        return $this->optionSet;
+    }
+
+    public function setOptionSet(?\Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetEntity $optionSet): void
+    {
+        $this->optionSet = $optionSet;
+    }
+
+    public function getWidth(): ?int
+    {
+        return $this->width;
+    }
+
+    public function setWidth(?int $width): void
+    {
+        $this->width = $width;
+    }
+
+    public function getHeight(): ?int
+    {
+        return $this->height;
+    }
+
+    public function setHeight(?int $height): void
+    {
+        $this->height = $height;
     }
 }

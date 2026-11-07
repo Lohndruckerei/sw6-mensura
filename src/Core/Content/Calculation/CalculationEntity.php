@@ -7,7 +7,6 @@ namespace Lohndruckerei\Mensura\Core\Content\Calculation;
 use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationCustomerGroup\CalculationCustomerGroupCollection;
 use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationOptionValue\CalculationOptionValueCollection;
 use Lohndruckerei\Mensura\Core\Content\Material\MaterialCollection;
-use Lohndruckerei\Mensura\Core\Content\ProductCalculation\ProductCalculationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -16,6 +15,13 @@ class CalculationEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
+
+    protected ?string $optionSetId = null;
+    protected string $motifMode;
+    protected string $tierScope;
+    protected string $bestPriceMode;
+    protected ?\Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetEntity $optionSet = null;
+    protected ?\Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileMaterial\ProductProfileMaterialCollection $profileMaterials = null;
 
     protected string $technicalName;
     protected string $name;
@@ -57,7 +63,6 @@ class CalculationEntity extends Entity
     protected ?MaterialCollection $materials = null;
     protected ?CalculationOptionValueCollection $optionValues = null;
     protected ?CalculationCustomerGroupCollection $customerGroups = null;
-    protected ?ProductCalculationCollection $products = null;
 
     public function getTechnicalName(): string
     {
@@ -379,13 +384,63 @@ class CalculationEntity extends Entity
         $this->customerGroups = $customerGroups;
     }
 
-    public function getProducts(): ?ProductCalculationCollection
+    public function getOptionSetId(): ?string
     {
-        return $this->products;
+        return $this->optionSetId;
     }
 
-    public function setProducts(ProductCalculationCollection $products): void
+    public function setOptionSetId(?string $optionSetId): void
     {
-        $this->products = $products;
+        $this->optionSetId = $optionSetId;
+    }
+
+    public function getMotifMode(): string
+    {
+        return $this->motifMode;
+    }
+
+    public function setMotifMode(string $motifMode): void
+    {
+        $this->motifMode = $motifMode;
+    }
+
+    public function getTierScope(): string
+    {
+        return $this->tierScope;
+    }
+
+    public function setTierScope(string $tierScope): void
+    {
+        $this->tierScope = $tierScope;
+    }
+
+    public function getBestPriceMode(): string
+    {
+        return $this->bestPriceMode;
+    }
+
+    public function setBestPriceMode(string $bestPriceMode): void
+    {
+        $this->bestPriceMode = $bestPriceMode;
+    }
+
+    public function getOptionSet(): ?\Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetEntity
+    {
+        return $this->optionSet;
+    }
+
+    public function setOptionSet(?\Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetEntity $optionSet): void
+    {
+        $this->optionSet = $optionSet;
+    }
+
+    public function getProfileMaterials(): ?\Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileMaterial\ProductProfileMaterialCollection
+    {
+        return $this->profileMaterials;
+    }
+
+    public function setProfileMaterials(\Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileMaterial\ProductProfileMaterialCollection $profileMaterials): void
+    {
+        $this->profileMaterials = $profileMaterials;
     }
 }

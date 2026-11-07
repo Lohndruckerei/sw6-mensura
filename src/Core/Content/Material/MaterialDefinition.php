@@ -6,9 +6,11 @@ namespace Lohndruckerei\Mensura\Core\Content\Material;
 
 use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationMaterial\CalculationMaterialDefinition;
 use Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationOptionValue\CalculationOptionValueDefinition;
-use Lohndruckerei\Mensura\Core\Content\ProductCalculation\ProductCalculationDefinition;
+use Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetDefinition;
+use Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileMaterial\ProductProfileMaterialDefinition;
+use Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileOption\ProductProfileOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Lohndruckerei\Mensura\Core\Content\Calculation\CalculationDefinition;
 use Lohndruckerei\Mensura\Core\Content\Material\Aggregate\MaterialTranslation\MaterialTranslationDefinition;
@@ -67,6 +69,10 @@ class MaterialDefinition extends EntityDefinition
             new FloatField('minimum_price_sale', 'minimumPriceSale'),
             new StringField('tier_basis', 'tierBasis', 16),
             new JsonField('tiers', 'tiers'),
+            // Preisanteile des Materials, z. B. 0,20 €/Stk bei Mesh-Banner
+            new JsonField('price_components', 'priceComponents'),
+            // Folge-Set: welche Optionsgruppen nach Wahl dieses Materials erscheinen
+            new FkField('option_set_id', 'optionSetId', OptionSetDefinition::class),
 
             new IntField('sheet_width', 'sheetWidth', 0),
             new IntField('sheet_height', 'sheetHeight', 0),
@@ -88,7 +94,10 @@ class MaterialDefinition extends EntityDefinition
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             new ManyToManyAssociationField('calculations', CalculationDefinition::class, CalculationMaterialDefinition::class, 'material_id', 'calculation_id'),
             (new OneToManyAssociationField('calculationOptionValues', CalculationOptionValueDefinition::class, 'material_id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('fixedProducts', ProductCalculationDefinition::class, 'fixed_material_id'))->addFlags(new SetNullOnDelete()),
+            // Material, das in Produktprofilen verwendet wird, kann nicht gelöscht werden
+            (new OneToManyAssociationField('profileMaterials', ProductProfileMaterialDefinition::class, 'material_id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('profileOptions', ProductProfileOptionDefinition::class, 'material_id'))->addFlags(new CascadeDelete()),
+            new ManyToOneAssociationField('optionSet', 'option_set_id', OptionSetDefinition::class, 'id', false),
         ]);
     }
 

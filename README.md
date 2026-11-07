@@ -13,8 +13,10 @@ Fläche, Staffeln, Mindestpreisen und Optionsaufschlägen, bei Bedarf mit eigene
 
 ## Stand
 
-Version 0.2.0 – Grundgerüst (Hauptmenü mit Untermenüs, Design A/B/C) und Datenmodell
-(12 Tabellen `ld_mensura_*`, per Admin-API nutzbar, Rechte für die Rollenverwaltung).
+Version 0.3.0 – Grundgerüst (Hauptmenü mit Untermenüs, Design A/B/C) und Datenmodell
+(16 Tabellen `ld_mensura_*`, per Admin-API nutzbar, Rechte für die Rollenverwaltung): Kalkulationen,
+Materialien, Optionsgruppen/-werte, **Optionssets** (Konfigurationsfluss), **Produktprofile** (allgemeine und
+spezielle Produkte), Kundengruppen-Aufschläge, Bestell-Schnappschuss.
 Schnittstellen zu LieferLotse und künftigen Plugins: [docs/INTEGRATION.md](docs/INTEGRATION.md).
 Nächster Schritt: Admin-Oberflächen für Kalkulationen, Materialien und Optionen (siehe Fahrplan im Konzept).
 

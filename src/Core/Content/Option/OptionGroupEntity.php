@@ -13,6 +13,9 @@ class OptionGroupEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
+    protected ?\Lohndruckerei\Mensura\Core\Content\OptionSet\Aggregate\OptionSetGroup\OptionSetGroupCollection $setGroups = null;
+    protected ?\Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileOption\ProductProfileOptionCollection $profileOptions = null;
+
     protected string $technicalName;
     protected string $type;
     protected string $scope;
@@ -133,5 +136,25 @@ class OptionGroupEntity extends Entity
     public function setTranslations(\Shopware\Core\Framework\DataAbstractionLayer\EntityCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getSetGroups(): ?\Lohndruckerei\Mensura\Core\Content\OptionSet\Aggregate\OptionSetGroup\OptionSetGroupCollection
+    {
+        return $this->setGroups;
+    }
+
+    public function setSetGroups(\Lohndruckerei\Mensura\Core\Content\OptionSet\Aggregate\OptionSetGroup\OptionSetGroupCollection $setGroups): void
+    {
+        $this->setGroups = $setGroups;
+    }
+
+    public function getProfileOptions(): ?\Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileOption\ProductProfileOptionCollection
+    {
+        return $this->profileOptions;
+    }
+
+    public function setProfileOptions(\Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileOption\ProductProfileOptionCollection $profileOptions): void
+    {
+        $this->profileOptions = $profileOptions;
     }
 }

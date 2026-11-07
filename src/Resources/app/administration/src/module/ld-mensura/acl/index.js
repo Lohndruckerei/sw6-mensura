@@ -13,7 +13,11 @@ const MASTER_DATA = [
     'ld_mensura_option_group_translation',
     'ld_mensura_option_value',
     'ld_mensura_option_value_translation',
-    'ld_mensura_product_calculation',
+    'ld_mensura_option_set',
+    'ld_mensura_option_set_group',
+    'ld_mensura_product_profile',
+    'ld_mensura_product_profile_material',
+    'ld_mensura_product_profile_option',
 ];
 
 const privileges = (action) => MASTER_DATA.map((entity) => `${entity}:${action}`);

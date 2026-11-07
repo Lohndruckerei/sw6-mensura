@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Lohndruckerei\Mensura\Core\Content\Option;
 
 use Lohndruckerei\Mensura\Core\Content\Option\Aggregate\OptionGroupTranslation\OptionGroupTranslationDefinition;
+use Lohndruckerei\Mensura\Core\Content\OptionSet\Aggregate\OptionSetGroup\OptionSetGroupDefinition;
+use Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileOption\ProductProfileOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -30,7 +32,8 @@ class OptionGroupDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'ld_mensura_option_group';
 
-    public const TYPES = ['standard', 'delivery'];
+    /** format = Festformate (Werte mit Breite/Höhe, z. B. DIN A0–A2) */
+    public const TYPES = ['standard', 'delivery', 'format'];
     public const SCOPES = ['position', 'supplier'];
     public const DISPLAY_TYPES = ['select', 'tiles', 'radio', 'checkbox', 'number'];
 
@@ -67,6 +70,8 @@ class OptionGroupDefinition extends EntityDefinition
             (new TranslationsAssociationField(OptionGroupTranslationDefinition::class, 'ld_mensura_option_group_id'))->addFlags(new Required()),
 
             (new OneToManyAssociationField('values', OptionValueDefinition::class, 'option_group_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('setGroups', OptionSetGroupDefinition::class, 'option_group_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('profileOptions', ProductProfileOptionDefinition::class, 'option_group_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 

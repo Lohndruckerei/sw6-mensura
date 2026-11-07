@@ -16,6 +16,12 @@ class MaterialEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
+    protected ?array $priceComponents = null;
+    protected ?string $optionSetId = null;
+    protected ?\Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetEntity $optionSet = null;
+    protected ?\Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileMaterial\ProductProfileMaterialCollection $profileMaterials = null;
+    protected ?\Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileOption\ProductProfileOptionCollection $profileOptions = null;
+
     protected string $technicalName;
     protected ?string $code = null;
     protected ?bool $active = null;
@@ -41,7 +47,6 @@ class MaterialEntity extends Entity
     protected ?MediaEntity $media = null;
     protected ?CalculationCollection $calculations = null;
     protected ?\Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationOptionValue\CalculationOptionValueCollection $calculationOptionValues = null;
-    protected ?\Lohndruckerei\Mensura\Core\Content\ProductCalculation\ProductCalculationCollection $fixedProducts = null;
     /** @var \Shopware\Core\Framework\DataAbstractionLayer\EntityCollection<TranslationEntity>|null */
     protected $translations;
 
@@ -295,13 +300,53 @@ class MaterialEntity extends Entity
         $this->calculationOptionValues = $calculationOptionValues;
     }
 
-    public function getFixedProducts(): ?\Lohndruckerei\Mensura\Core\Content\ProductCalculation\ProductCalculationCollection
+    public function getPriceComponents(): ?array
     {
-        return $this->fixedProducts;
+        return $this->priceComponents;
     }
 
-    public function setFixedProducts(\Lohndruckerei\Mensura\Core\Content\ProductCalculation\ProductCalculationCollection $fixedProducts): void
+    public function setPriceComponents(?array $priceComponents): void
     {
-        $this->fixedProducts = $fixedProducts;
+        $this->priceComponents = $priceComponents;
+    }
+
+    public function getOptionSetId(): ?string
+    {
+        return $this->optionSetId;
+    }
+
+    public function setOptionSetId(?string $optionSetId): void
+    {
+        $this->optionSetId = $optionSetId;
+    }
+
+    public function getOptionSet(): ?\Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetEntity
+    {
+        return $this->optionSet;
+    }
+
+    public function setOptionSet(?\Lohndruckerei\Mensura\Core\Content\OptionSet\OptionSetEntity $optionSet): void
+    {
+        $this->optionSet = $optionSet;
+    }
+
+    public function getProfileMaterials(): ?\Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileMaterial\ProductProfileMaterialCollection
+    {
+        return $this->profileMaterials;
+    }
+
+    public function setProfileMaterials(\Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileMaterial\ProductProfileMaterialCollection $profileMaterials): void
+    {
+        $this->profileMaterials = $profileMaterials;
+    }
+
+    public function getProfileOptions(): ?\Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileOption\ProductProfileOptionCollection
+    {
+        return $this->profileOptions;
+    }
+
+    public function setProfileOptions(\Lohndruckerei\Mensura\Core\Content\ProductProfile\Aggregate\ProductProfileOption\ProductProfileOptionCollection $profileOptions): void
+    {
+        $this->profileOptions = $profileOptions;
     }
 }
