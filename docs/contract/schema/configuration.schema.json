@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lohndruckerei.eu/mensura/contract/configuration.schema.json",
+  "title": "Mensura-Konfiguration einer Position",
+  "description": "Was der Kunde gewählt hat. Frontend → Store-API (calculate, Warenkorb) und Payload `ldMensura` der Bestellposition. Enthält nie Preise.",
+  "type": "object",
+  "required": ["schema", "productId", "materialId", "format", "motifs", "perMotif", "options"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": 1, "description": "Version dieses Schemas" },
+    "productId": { "$ref": "#/$defs/id" },
+    "materialId": { "$ref": "#/$defs/id" },
+    "format": {
+      "type": "object",
+      "required": ["width", "height"],
+      "additionalProperties": false,
+      "properties": {
+        "width": { "type": "integer", "minimum": 1, "description": "Endformat Breite in mm" },
+        "height": { "type": "integer", "minimum": 1, "description": "Endformat Höhe in mm" },
+        "formatValueId": { "$ref": "#/$defs/id", "description": "gewähltes Festformat (Optionsgruppe vom Typ format), sonst frei" }
+      }
+    },
+    "motifs": { "type": "integer", "minimum": 1, "description": "Anzahl Motive bzw. Sorten" },
+    "perMotif": { "type": "integer", "minimum": 1, "description": "Stück je Motiv (motifMode multiply) bzw. Gesamtmenge (split)" },
+    "options": {
+      "type": "object",
+      "description": "Optionsgruppe (technischer Name) → gewählter Wert (technischer Name). Nur Gruppen aktiver Sets.",
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "deliveryValue": { "type": "string", "description": "technischer Name des Werts der Gruppe vom Typ delivery" },
+    "reference": { "type": "string", "maxLength": 255, "description": "Referenz/Kostenstelle des Kunden je Position" },
+    "artwork": {
+      "type": "array",
+      "description": "reserviert für Druckdaten (Prüf-Plugin); je Motiv eine oder mehrere Dateien",
+      "items": { "type": "object" }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+  }
+}

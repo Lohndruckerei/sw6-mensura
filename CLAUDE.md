@@ -41,6 +41,14 @@
 - Preise immer serverseitig berechnen (nie dem Frontend vertrauen); Formeln nie per `eval`
 - Kleine, nachvollziehbare Schritte; nach jedem Schritt im Shop testen
 
+## Backend und Frontend (ein Repo, zwei Bereiche)
+- Zuständigkeit je Ordner, Branch-Regeln und Abgleich: docs/ENTWICKLUNG.md
+- Backend und Frontend sprechen nur über den Vertrag in docs/contract/ (Store-API, Schemas, Beispielfälle mit Sollwerten).
+  Vertragsänderungen zuerst auf `contract/…` nach `main`, dann umsetzen. Nur erweitern, nie brechen.
+- Arbeits-Branches `backend/…` bzw. `frontend/…` holen regelmäßig `main`; zusammenführen nur bei grüner Prüfung
+  (.github/workflows/ci.yml). Lokal: `bash .github/scripts/check-all.sh` im Plugin-Verzeichnis des Containers.
+- In einer Sitzung, die nur einen Bereich bearbeitet, keine Dateien des anderen Bereichs ändern.
+
 ## Git
 - Repository: git@github.com:Lohndruckerei/sw6-mensura.git (Branch `main`)
 - Zugriff über Deploy-Key `~/.ssh/mensura_deploy` (in `core.sshCommand` hinterlegt, ohne Passphrase)

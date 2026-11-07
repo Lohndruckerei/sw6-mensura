@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lohndruckerei.eu/mensura/contract/calculation-result.schema.json",
+  "title": "Ergebnis der Preisberechnung",
+  "description": "Antwort von POST /store-api/ld-mensura/calculate. Netto-Preise in der Währung des Verkaufskanals, für die Kundengruppe des Kontexts. Keine Einkaufspreise.",
+  "type": "object",
+  "required": ["apiVersion", "valid", "errors", "hints", "configuration"],
+  "properties": {
+    "apiVersion": { "const": 1 },
+    "valid": { "type": "boolean", "description": "false = nicht bestellbar, price fehlt" },
+    "errors": { "type": "array", "items": { "$ref": "#/$defs/message" } },
+    "hints": { "type": "array", "items": { "$ref": "#/$defs/message" }, "description": "Hinweise, z. B. Mindestpreis greift, größere Menge günstiger, Option entfallen" },
+    "configuration": { "$ref": "configuration.schema.json", "description": "normalisierte Konfiguration (ungültige Werte durch Standard ersetzt)" },
+    "activeGroups": { "type": "array", "items": { "type": "string" }, "description": "sichtbare Gruppen in Reihenfolge (aus aktiven Sets und Profilregeln)" },
+    "price": {
+      "type": "object",
+      "required": ["total", "perPiece", "perSqm", "quantity", "area", "minimumApplied"],
+      "properties": {
+        "total": { "type": "number", "description": "netto, Position gesamt" },
+        "totalGross": { "type": "number" },
+        "perPiece": { "type": "number" },
+        "perSqm": { "type": "number" },
+        "quantity": { "type": "integer" },
+        "area": { "type": "number", "description": "Gesamtfläche in m²" },
+        "minimumApplied": { "type": "boolean" },
+        "currency": { "type": "string" }
+      }
+    },
+    "delivery": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["value", "available"],
+        "properties": {
+          "value": { "type": "string" },
+          "available": { "type": "boolean" },
+          "date": { "type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "Liefertermin YYYY-MM-DD" },
+          "reason": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "matrix": {
+      "type": "array",
+      "description": "optional (Anfrage matrix=true): Preise für quantitySteps × Lieferzeiten",
+      "items": {
+        "type": "object",
+        "required": ["quantity", "delivery", "total"],
+        "properties": { "quantity": { "type": "integer" }, "delivery": { "type": "string" }, "total": { "type": ["number", "null"] } }
+      }
+    }
+  },
+  "$defs": {
+    "message": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^[a-z_]+(\\.[a-z_]+)+$", "description": "z. B. format.height_max, option.removed, price.minimum_applied" },
+        "message": { "type": "string" },
+        "field": { "type": ["string", "null"], "description": "z. B. format.height oder options.veredelung" },
+        "fix": { "description": "Vorschlag zum Übernehmen, z. B. {\"format.height\": 2000}" }
+      }
+    }
+  }
+}

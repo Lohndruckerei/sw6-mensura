@@ -1,0 +1,108 @@
+{
+  "apiVersion": 1,
+  "productId": "0194e1a0000070008000000000000a01",
+  "layout": "compact",
+  "allowLayoutSwitch": true,
+  "steps": [
+    { "key": "material", "label": "Material" },
+    { "key": "format", "label": "Format" },
+    { "key": "options", "label": "Ausführung" },
+    { "key": "quantity", "label": "Menge & Lieferzeit" }
+  ],
+  "materials": [
+    {
+      "id": "0194e1a0000070008000000000000b01",
+      "technicalName": "alu-3mm",
+      "name": "Aluverbund 3 mm",
+      "description": "Der Klassiker für Schilder innen und außen.",
+      "image": null,
+      "badges": ["außen", "Bestseller"],
+      "calculation": { "technicalName": "aluverbund", "name": "Aluverbund", "motifMode": "multiply" },
+      "optionSet": "plattenveredelung-alu",
+      "fromPricePerSqm": 29.0,
+      "limits": { "widthMin": 100, "widthMax": 1500, "heightMin": 100, "heightMax": 3000, "allowRotation": true, "maxMotifs": null, "maxQuantity": null }
+    },
+    {
+      "id": "0194e1a0000070008000000000000b02",
+      "technicalName": "acryl-5mm",
+      "name": "Acrylglas 5 mm",
+      "description": "Beispielwerte – massiver Glaseffekt.",
+      "image": null,
+      "badges": ["innen"],
+      "calculation": { "technicalName": "acryl", "name": "Acrylglas", "motifMode": "multiply" },
+      "optionSet": "plattenveredelung-acryl",
+      "fromPricePerSqm": 62.0,
+      "limits": { "widthMin": 100, "widthMax": 1500, "heightMin": 100, "heightMax": 2000, "allowRotation": true, "maxMotifs": null, "maxQuantity": null }
+    }
+  ],
+  "groups": [
+    {
+      "technicalName": "farbigkeit", "name": "Farbigkeit", "helpText": "„4/0“ heißt: vorne vierfarbig, hinten unbedruckt.",
+      "type": "standard", "scope": "position", "displayType": "select", "required": true, "mode": "inherit",
+      "values": [
+        { "technicalName": "4-0", "name": "4/0 einseitig bedruckt", "priceHint": "ohne Aufpreis" },
+        { "technicalName": "4-4", "name": "4/4 beidseitig bedruckt", "priceHint": "+ 9,00 €/m²", "availableForMaterials": ["alu-3mm"] },
+        { "technicalName": "4-0w", "name": "4/0 + weiß hinterdruckt", "priceHint": "+ 8,00 €/m²", "availableForMaterials": ["acryl-5mm"] },
+        { "technicalName": "0-0", "name": "0/0 unbedruckt (blanko)", "priceHint": "− 8,00 €/m²" }
+      ]
+    },
+    {
+      "technicalName": "veredelung", "name": "Veredelung", "helpText": "Schützt den Druck. Anti-Graffiti lässt sich von Farbe reinigen.",
+      "type": "standard", "scope": "position", "displayType": "select", "required": true, "mode": "inherit",
+      "values": [
+        { "technicalName": "keine", "name": "keine", "priceHint": "ohne Aufpreis" },
+        { "technicalName": "lam-matt", "name": "Laminat matt", "priceHint": "+ 8,00 €/m²" },
+        { "technicalName": "ag-2", "name": "Anti-Graffiti beidseitig", "priceHint": "+ 29,00 €/m²" }
+      ]
+    },
+    {
+      "technicalName": "kanten", "name": "Kantenpolitur", "helpText": "Polierte Kanten wirken wie Glas.",
+      "type": "standard", "scope": "position", "displayType": "select", "required": true, "mode": "inherit",
+      "values": [
+        { "technicalName": "nein", "name": "ohne", "priceHint": "ohne Aufpreis" },
+        { "technicalName": "ja", "name": "Kanten poliert", "priceHint": "+ 4,00 €/lfm" }
+      ]
+    },
+    {
+      "technicalName": "bohrung", "name": "Lochbohrungen", "helpText": "Vier Bohrungen in den Ecken.",
+      "type": "standard", "scope": "position", "displayType": "select", "required": true, "mode": "inherit",
+      "values": [
+        { "technicalName": "nein", "name": "Nein", "priceHint": "ohne Aufpreis" },
+        { "technicalName": "ja", "name": "Ja, 4 Ecken", "priceHint": "+ 0,30 €/Stk" }
+      ]
+    },
+    {
+      "technicalName": "schnitt", "name": "Schneiden", "helpText": "Konturschnitt folgt der Schnittlinie in der Druckdatei.",
+      "type": "standard", "scope": "position", "displayType": "select", "required": true, "mode": "inherit",
+      "values": [
+        { "technicalName": "recht", "name": "rechteckig", "priceHint": "ohne Aufpreis" },
+        { "technicalName": "kontur", "name": "Konturschnitt / Freiform", "priceHint": "+ 2,00 €/m²" }
+      ]
+    },
+    {
+      "technicalName": "lieferzeit", "name": "Produktion & Lieferung", "helpText": "Bei Bestellung und Druckdaten bis 11:30 Uhr.",
+      "type": "delivery", "scope": "position", "displayType": "radio", "required": true, "mode": "inherit",
+      "values": [
+        { "technicalName": "standard", "name": "Standard", "deliveryDays": 5, "priceHint": "ohne Aufpreis" },
+        { "technicalName": "express", "name": "Express", "deliveryDays": 3, "priceHint": "+ 30 %" }
+      ]
+    }
+  ],
+  "sets": {
+    "plattenveredelung-alu": ["farbigkeit", "veredelung", "bohrung", "schnitt"],
+    "plattenveredelung-acryl": ["farbigkeit", "kanten", "bohrung", "schnitt"]
+  },
+  "startSet": null,
+  "defaults": {
+    "schema": 1,
+    "productId": "0194e1a0000070008000000000000a01",
+    "materialId": "0194e1a0000070008000000000000b01",
+    "format": { "width": 600, "height": 400 },
+    "motifs": 1,
+    "perMotif": 1,
+    "options": { "farbigkeit": "4-0", "veredelung": "keine", "bohrung": "nein", "schnitt": "recht" },
+    "deliveryValue": "standard"
+  },
+  "quantitySteps": [1, 2, 5, 10, 25, 50, 100],
+  "orderCutoff": "11:30"
+}

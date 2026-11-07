@@ -1,0 +1,20 @@
+{
+  "apiVersion": 1,
+  "valid": true,
+  "errors": [],
+  "hints": [
+    { "code": "price.minimum_applied", "message": "Mindestpreis 12,50 € je Position", "field": null }
+  ],
+  "configuration": {
+    "schema": 1,
+    "productId": "0194e1a0000070008000000000000a01",
+    "materialId": "0194e1a0000070008000000000000b01",
+    "format": { "width": 600, "height": 400 },
+    "motifs": 1,
+    "perMotif": 1,
+    "options": { "farbigkeit": "4-0", "veredelung": "keine", "bohrung": "nein", "schnitt": "recht" },
+    "deliveryValue": "standard"
+  },
+  "activeGroups": ["farbigkeit", "veredelung", "bohrung", "schnitt"],
+  "price": { "total": 12.5, "perPiece": 12.5, "perSqm": 52.08, "quantity": 1, "area": 0.24, "minimumApplied": true, "currency": "EUR" }
+}

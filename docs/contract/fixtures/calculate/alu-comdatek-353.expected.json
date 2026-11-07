@@ -1,0 +1,18 @@
+{
+  "apiVersion": 1,
+  "valid": true,
+  "errors": [],
+  "hints": [],
+  "configuration": {
+    "schema": 1,
+    "productId": "0194e1a0000070008000000000000a01",
+    "materialId": "0194e1a0000070008000000000000b01",
+    "format": { "width": 1000, "height": 500 },
+    "motifs": 1,
+    "perMotif": 10,
+    "options": { "farbigkeit": "4-4", "veredelung": "ag-2", "bohrung": "ja", "schnitt": "kontur" },
+    "deliveryValue": "standard"
+  },
+  "activeGroups": ["farbigkeit", "veredelung", "bohrung", "schnitt"],
+  "price": { "total": 353.0, "perPiece": 35.3, "perSqm": 70.6, "quantity": 10, "area": 5.0, "minimumApplied": false, "currency": "EUR" }
+}

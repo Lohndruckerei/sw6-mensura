@@ -1,0 +1,22 @@
+{
+  "apiVersion": 1,
+  "valid": false,
+  "errors": [
+    { "code": "format.height_max", "message": "Acrylglas 5 mm: Höhe höchstens 2.000 mm", "field": "format.height", "fix": { "format.height": 2000 } }
+  ],
+  "hints": [
+    { "code": "option.removed", "message": "Veredelung entfällt bei Acrylglas", "field": "options.veredelung" },
+    { "code": "option.reset", "message": "Farbigkeit „4/4 beidseitig bedruckt“ gibt es bei Acrylglas nicht – jetzt „4/0 einseitig bedruckt“", "field": "options.farbigkeit" }
+  ],
+  "configuration": {
+    "schema": 1,
+    "productId": "0194e1a0000070008000000000000a01",
+    "materialId": "0194e1a0000070008000000000000b02",
+    "format": { "width": 1200, "height": 2500 },
+    "motifs": 1,
+    "perMotif": 1,
+    "options": { "farbigkeit": "4-0", "kanten": "nein", "bohrung": "ja", "schnitt": "recht" },
+    "deliveryValue": "standard"
+  },
+  "activeGroups": ["farbigkeit", "kanten", "bohrung", "schnitt"]
+}

@@ -1,0 +1,65 @@
+name: Prüfung
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  vertrag:
+    name: Vertrag Backend ↔ Frontend
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Schemas und Beispielfälle prüfen
+        run: |
+          S=docs/contract/schema; F=docs/contract/fixtures
+          AJV="npx --yes ajv-cli@5.0.0"; OPTS="--spec=draft2020 --strict=false"
+          $AJV compile $OPTS -s $S/configuration.schema.json
+          $AJV compile $OPTS -s $S/calculation-result.schema.json -r $S/configuration.schema.json
+          $AJV compile $OPTS -s $S/configurator.schema.json -r $S/configuration.schema.json
+          $AJV validate $OPTS -s $S/configuration.schema.json -d "$F/calculate/*.request.json"
+          $AJV validate $OPTS -s $S/calculation-result.schema.json -r $S/configuration.schema.json -d "$F/calculate/*.expected.json"
+          $AJV validate $OPTS -s $S/configurator.schema.json -r $S/configuration.schema.json -d "$F/configurator/*.json"
+      - name: Inhaltliche Regeln (keine EK, Sollpreise stimmig)
+        run: node .github/scripts/check-contract.mjs
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: PHP-Syntax
+        run: |
+          status=0
+          while IFS= read -r -d '' f; do php -l "$f" > /dev/null || status=1; done < <(find src -name '*.php' -print0)
+          exit $status
+      - name: Snippets de-DE/en-GB vollständig
+        run: node .github/scripts/check-snippets.mjs
+      # Ab Fahrplan Schritt 4: Preis-Engine gegen docs/contract/fixtures/calculate (PHPUnit)
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Storefront-Bereich vorhanden?
+        run: |
+          if [ -d src/Resources/app/storefront ]; then
+            echo "Storefront-Code gefunden – Tests gegen docs/contract/fixtures folgen mit Fahrplan Schritt 6."
+          else
+            echo "Noch kein Storefront-Code (Konfigurator folgt in Schritt 6)."
+          fi
+      # Ab Fahrplan Schritt 6: Konfigurator-JS gegen fixtures/configurator + fixtures/calculate (ohne Shop)

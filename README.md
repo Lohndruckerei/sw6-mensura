@@ -22,6 +22,10 @@ Nächster Schritt: Admin-Oberflächen für Kalkulationen, Materialien und Option
 
 ## Entwicklung
 
+Backend und Frontend werden getrennt entwickelt und über einen Vertrag (`docs/contract/`) automatisch abgeglichen:
+siehe [docs/ENTWICKLUNG.md](docs/ENTWICKLUNG.md). Alle Prüfungen lokal:
+`docker exec shopware bash -c "cd /var/www/html/custom/plugins/LdMensura && bash .github/scripts/check-all.sh"`
+
 ```bash
 docker exec shopware bash -c "cd /var/www/html && bin/console plugin:refresh && bin/console plugin:install --activate LdMensura"
 docker exec shopware bash -c "cd /var/www/html && bin/build-administration.sh"

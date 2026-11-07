@@ -1,0 +1,93 @@
+openapi: 3.1.0
+info:
+  title: Mensura Store-API
+  version: 1.0.0
+  description: |
+    Vertrag zwischen Mensura-Backend und -Frontend (Konfigurator „kompakt“ und „geführt“, später Produktberater).
+    Alle Preise netto für die Kundengruppe des Sales-Channel-Kontexts. Keine Einkaufspreise.
+    Aufruf wie jede Shopware-Store-API: Header `sw-access-key`, optional `sw-context-token`.
+servers:
+  - url: /store-api
+paths:
+  /ld-mensura/product/{productId}/configurator:
+    get:
+      summary: Konfigurator-Daten eines Produkts (Materialien, Sets, Gruppen, Werte, Grenzen, Vorbelegung)
+      operationId: mensuraConfigurator
+      parameters:
+        - { name: productId, in: path, required: true, schema: { type: string, pattern: '^[0-9a-f]{32}$' } }
+      responses:
+        '200':
+          description: Daten zum Aufbau des Konfigurators
+          content:
+            application/json:
+              schema: { $ref: 'schema/configurator.schema.json' }
+              examples:
+                aluverbund: { externalValue: 'fixtures/configurator/aluverbund.json' }
+        '404': { description: Produkt hat kein Mensura-Profil }
+  /ld-mensura/calculate:
+    post:
+      summary: Konfiguration prüfen, normalisieren und berechnen
+      description: |
+        Wird bei jeder Änderung im Konfigurator aufgerufen (entprellt). Ungültige Werte werden durch den Standard ersetzt
+        und als Hinweis gemeldet; Formatverletzungen liefern `valid: false` mit `errors[].fix`.
+        Mit `matrix: true` zusätzlich Preise für `quantitySteps` × Lieferzeiten (geführte Darstellung).
+      operationId: mensuraCalculate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [configuration]
+              properties:
+                configuration: { $ref: 'schema/configuration.schema.json' }
+                matrix: { type: boolean, default: false }
+      responses:
+        '200':
+          description: Ergebnis (auch bei ungültiger Konfiguration 200 mit valid=false)
+          content:
+            application/json:
+              schema: { $ref: 'schema/calculation-result.schema.json' }
+              examples:
+                mindestpreis: { externalValue: 'fixtures/calculate/alu-mindestpreis.expected.json' }
+                comdatek353: { externalValue: 'fixtures/calculate/alu-comdatek-353.expected.json' }
+                acrylZuHoch: { externalValue: 'fixtures/calculate/acryl-hoehe-zu-gross.expected.json' }
+  /ld-mensura/cart/add:
+    post:
+      summary: Konfigurierte Position in den Warenkorb (Backend rechnet erneut, nie Frontend-Preise übernehmen)
+      operationId: mensuraCartAdd
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [configuration]
+              properties:
+                configuration: { $ref: 'schema/configuration.schema.json' }
+      responses:
+        '200': { description: Warenkorb (Shopware-Standardantwort) }
+        '400':
+          description: Konfiguration ungültig
+          content:
+            application/json:
+              schema: { $ref: 'schema/calculation-result.schema.json' }
+  /ld-mensura/preset/validate:
+    post:
+      summary: Vorlage (z. B. vom Produktberater) prüfen und in eine gültige Konfiguration überführen
+      operationId: mensuraPresetValidate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [configuration]
+              properties:
+                configuration: { $ref: 'schema/configuration.schema.json' }
+      responses:
+        '200':
+          description: wie calculate
+          content:
+            application/json:
+              schema: { $ref: 'schema/calculation-result.schema.json' }
