@@ -5,7 +5,9 @@ import { join } from 'node:path';
 import { loadCases, loadConfigurators, loadTestData, SRC } from './helpers.mjs';
 
 const S = await import(join(SRC, 'state.js'));
+const configurators = loadConfigurators().map((c) => c.data);
 const alu = loadConfigurators().find((c) => c.name === 'aluverbund').data;
+const dataFor = (productId) => configurators.find((d) => d.productId === productId);
 const cases = Object.fromEntries(loadCases().map((c) => [c.name, c]));
 const ACRYL = '0194e1a0000070008000000000000b02';
 const ALU = '0194e1a0000070008000000000000b01';
@@ -39,9 +41,11 @@ test('Aluverbund-Vorbelegung = Beispielfall Mindestpreis (600 × 400, 1 Stk)', (
 
 test('jeder Beispielfall: lokale Normalisierung trifft die normalisierte Konfiguration des Backends', () => {
     for (const c of Object.values(cases)) {
-        const state = S.createState(alu, { initial: c.request });
+        const data = dataFor(c.request.productId);
+        assert.ok(data, `kein Konfigurator für ${c.request.productId} (${c.name})`);
+        const state = S.createState(data, { initial: c.request });
         assert.equal(S.configKey(S.toConfiguration(state)), S.configKey(c.expected.configuration), c.name);
-        if (c.expected.activeGroups) assert.deepEqual(S.activeGroupNames(alu, state.config), c.expected.activeGroups, c.name);
+        if (c.expected.activeGroups) assert.deepEqual(S.activeGroupNames(data, state.config), c.expected.activeGroups, c.name);
     }
 });
 

@@ -86,9 +86,10 @@ Im laufenden Shop: `bin/console mensura:demo:seed` legt das Demo-Produkt aus den
 - **Schritte:** kompakt 1 Material · 2 Format & Auflage · 3 Druck & Weiterverarbeitung; geführt Material · Format & Stückzahl ·
   je Optionsgruppe · Lieferzeit. Die Stückzahl steht beim Format, die Gesamtfläche (B × H × Stück) wird dort angezeigt (vom Backend,
   sobald das Ergebnis frisch ist). `steps[].key` „quantity“ aus den Konfigurator-Daten = Lieferzeit-Schritt.
-- **Anzeige-Schalter** (Vertrag `contract/billed-area-display`): `display.showPriceHints/showArea/showPerSqm/showPerPiece/showFromPrice`
+- **Anzeige-Schalter** (Vertragsvorschlag `contract/billed-area-display`, Teil display): `display.showPriceHints/showArea/showPerSqm/showPerPiece/showFromPrice`
   und je Gruppe `showPriceHint` blenden Aufpreise, Fläche und Einzelpreise aus (Fokus auf den Gesamtpreis); fehlt ein Schalter = anzeigen.
-  `price.billedArea`/`minimumArea` erscheinen beim Format und im Preis, wenn die abgerechnete Fläche größer ist als die echte.
+  `price.areas.billed`/`minArea` (Vertrag contract/area-values) erscheinen beim Format und im Preis, wenn die abgerechnete
+  Fläche größer ist als die echte. Die Schalter `display`/`showPriceHint` liefert das Backend noch nicht.
 - **Festformat:** Hat ein Wert der Format-Gruppe eine `id`, sendet das Frontend `format.formatValueId` (Vertrag `contract/format-value-id`).
 - **Gestaltung = Shopware-Theme:** Bootstrap-Klassen (btn, form-select, alert, nav-tabs, table, badge, card) und `--bs-*`-Variablen,
   `scss/base.scss` nur für Layout. Das Admin-Designsystem gilt im Storefront nicht. Breite per Container-Query: in der Kaufbox

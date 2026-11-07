@@ -10,7 +10,7 @@ const { FixtureClient, StoreApiClient, addWorkdays } = await import(join(SRC, 'a
 const { MensuraController } = await import(join(SRC, 'controller.js'));
 
 const configurators = loadConfigurators().map((c) => c.data);
-const alu = configurators[0];
+const alu = configurators.find((d) => d.productId === '0194e1a0000070008000000000000a01');
 const cases = loadCases();
 const byName = Object.fromEntries(cases.map((c) => [c.name, c]));
 const ACRYL = '0194e1a0000070008000000000000b02';
@@ -214,14 +214,34 @@ test('brutto umschaltbar, wenn das Backend totalGross liefert; sonst kein Schalt
 test('abgerechnete Fläche (billedArea/minimumArea) im Live-Preis und beim Format, nur wenn größer als die echte Fläche', async () => {
     const c = await controller();
     const r = structuredClone(c.state.result);
-    r.price.billedArea = 1;
-    r.price.minimumArea = 1;
+    r.price.areas = { piece: 0.24, total: 0.24, billed: 1, minArea: 1, rounding: 0.1 };
     const s = S.apply(c.state, { type: 'result', result: r });
     const price = textOf(R.renderPrice(ctx, s));
     assert.ok(price.includes('abgerechnete Fläche 1 m² (Mindestfläche 1 m²)'), price);
     assert.ok(textOf(R.renderCompact(ctx, s)).includes('= 0,24 m² gesamt (abgerechnet 1 m²)'));
     // ohne Vertragsfeld bzw. gleich der Fläche: keine Zeile
     assert.ok(!textOf(R.renderPrice(ctx, c.state)).includes('abgerechnete Fläche'));
+});
+
+test('Folie (Vertrags-Beispielfälle): Mindestfläche und Schrittweite – abgerechnete Fläche im Live-Preis', async () => {
+    const folie = configurators.find((d) => d.productId === '0194e1a0000070008000000000000a02');
+    assert.ok(folie, 'fixtures/configurator/folie.json');
+    for (const name of ['folie-mindestflaeche', 'folie-schrittweite']) {
+        const k = byName[name];
+        const c = new MensuraController({ data: folie, client: client(), debounceMs: 0, initial: k.request });
+        await c.calculateNow();
+        assert.equal(c.state.result.price.total, k.expected.price.total, name);
+        const a = k.expected.price.areas;
+        const price = textOf(R.renderPrice(ctx, c.state));
+        const area = textOf(R.renderCompact(ctx, c.state));
+        if (a.billed > a.total) {
+            assert.ok(price.includes(`abgerechnete Fläche ${ctx.fmt.num(a.billed)} m²`), `Preisblock ${name}: ${price}`);
+            assert.ok(area.includes(`(abgerechnet ${ctx.fmt.num(a.billed)} m²)`), `Format ${name}`);
+        } else {
+            assert.ok(!price.includes('abgerechnete Fläche'), name);
+        }
+        assert.ok(price.includes(ctx.fmt.money(k.expected.price.total).replace('\u00a0', ' ')), `Gesamtpreis ${name}`);
+    }
 });
 
 test('Anzeige-Schalter: Aufpreise, Fläche, je m²/je Stück, ab-Preis abschaltbar – Gesamtpreis bleibt', async () => {

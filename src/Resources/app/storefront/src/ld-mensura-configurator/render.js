@@ -155,8 +155,9 @@ function areaInfo(ctx, state) {
     if (!shows(state, 'showArea')) return '';
     const price = isFresh(state) ? state.result?.price : null;
     const total = price?.area ?? piece * qty;
-    const billed = price?.billedArea != null && price.billedArea > total + 1e-9
-        ? ` <span class="lm-area__billed">${ctx.t.html('area.billed', { area: esc(ctx.fmt.num(price.billedArea)) })}</span>` : '';
+    const billedArea = price?.areas?.billed;
+    const billed = billedArea != null && billedArea > total + 1e-9
+        ? ` <span class="lm-area__billed">${ctx.t.html('area.billed', { area: esc(ctx.fmt.num(billedArea)) })}</span>` : '';
     return `<div class="lm-area" data-lm-area="${total}">${ctx.t.html('area.summary', { piece: esc(ctx.fmt.num(piece)), count: esc(ctx.fmt.int(qty)), total: `<b>${esc(ctx.fmt.num(total))}</b>` })}${billed} ${help(ctx, ctx.t('help.area'), fieldId(ctx, 'area-h'))}</div>`;
 }
 
@@ -373,7 +374,7 @@ export function renderPrice(ctx, state) {
             ${shows(state, 'showPerSqm') ? `<dt>${esc(ctx.t('price.perSqm'))}</dt><dd>${ctx.fmt.money(price.perSqm * factor)}</dd>` : ''}
             <dt>${esc(ctx.t('price.quantity'))}</dt><dd>${ctx.fmt.int(price.quantity)}</dd>
             ${shows(state, 'showArea') ? `<dt>${esc(ctx.t('price.area'))}</dt><dd>${ctx.fmt.num(price.area)} m²</dd>` : ''}
-            ${shows(state, 'showArea') && price.billedArea != null && price.billedArea > price.area + 1e-9 ? `<dt>${esc(ctx.t('price.billedArea'))}</dt><dd data-lm-billed="${price.billedArea}">${ctx.fmt.num(price.billedArea)} m²${price.minimumArea ? ` <small>(${esc(ctx.t('price.minimumArea', { area: ctx.fmt.num(price.minimumArea) }))})</small>` : ''}</dd>` : ''}
+            ${shows(state, 'showArea') && price.areas?.billed != null && price.areas.billed > price.area + 1e-9 ? `<dt>${esc(ctx.t('price.billedArea'))}</dt><dd data-lm-billed="${price.areas.billed}">${ctx.fmt.num(price.areas.billed)} m²${price.areas.minArea ? ` <small>(${esc(ctx.t('price.minimumArea', { area: ctx.fmt.num(price.areas.minArea) }))})</small>` : ''}</dd>` : ''}
           </dl>
           ${minimum ? `<p class="lm-minimum alert alert-info py-2 px-3 mb-0 small" data-lm-code="price.minimum_applied">${esc(minimum.message)}</p>` : ''}
           ${other.length ? `<ul class="lm-msgs lm-msgs--hint">${other.map((h) => `<li data-lm-code="${esc(h.code)}">${esc(h.message)} ${fixButton(ctx, h)}</li>`).join('')}</ul>` : ''}`;
