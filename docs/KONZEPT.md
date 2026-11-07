@@ -358,10 +358,15 @@ Shop-Frontend geprüft werden können.
    Produktverknüpfung, Bestell-Schnappschuss)
 2a. ✅ v0.3.0: Optionssets (Konfigurationsfluss), Produktprofile (allgemein/speziell, Materialien über Kalkulationen,
    Optionsregeln), Motiv-/Staffel-/Bestpreis-Modus, Preisanteile am Material, Festformate
-2b. v0.4.0: Preistabellen (Flyer, Broschüren) mit CSV-Import/-Export; getrennte EK/VK-Staffeln
+2b. v0.4.0: Preistabellen (Flyer, Broschüren) mit CSV-Import/-Export; getrennte EK/VK-Staffeln; aus dem
+   Wettbewerbsvergleich ([WETTBEWERB.md](WETTBEWERB.md)): Verfügbarkeitsregeln und Annahmeschluss für Lieferzeiten,
+   Arbeitstage-Kalender, Einrichtepauschale, Versand im Preis (optional), Badges/Infotexte je Wert, Services
+   (Muster, Proof, Datencheck – nie vorausgewählt), Referenztext je Position
 3. Admin: Listen & Detailseiten je Bereich, Preisfelder EK/VK mit Margenrechner
 4. Preis-Engine (PHP, mit Unit-Tests anhand der Comdatek-Werte oben) + Testrechner im Admin
 5. Produktzuordnung + Store-API „Preis berechnen“
-6. Storefront-Konfigurator (4 Schritte, Live-Preis, Lieferzeit, Upload) + Warenkorb/Bestellung + Schnappschuss
+6. Storefront-Konfigurator als Assistent mit Reitern je Optionsset, Kacheln mit Bild/Info, Zusammenfassung „Ihr Produkt“,
+   Live-Preis, **Preismatrix Menge × Lieferzeit**, Liefertermin + Annahmeschluss, netto/brutto, Konfiguration in der URL,
+   Angebot als PDF, Upload + Warenkorb/Bestellung + Schnappschuss
 6a. LieferLotse: Feld `attributes` in der Lieferantenposition + Mensura-Subscriber auf `SupplierOrderBuiltEvent`
 7. Weitere Artikel (Folien, Banner …) – eigene Kalkulationen/Formeln
