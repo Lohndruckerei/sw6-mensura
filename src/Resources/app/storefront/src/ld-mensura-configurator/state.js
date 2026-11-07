@@ -161,6 +161,14 @@ export function toConfiguration(state) {
         perMotif: config.perMotif,
         options,
     };
+    // Festformat: Die Engine erwartet format.formatValueId (Vertragsvorschlag: optionale id an Format-Werten).
+    // Ohne id bleibt nur options[<Format-Gruppe>].
+    for (const name of active) {
+        const group = getGroup(data, name);
+        if (group?.type !== 'format') continue;
+        const value = findValue(group, config.options[name]);
+        if (value?.id) out.format.formatValueId = value.id;
+    }
     if (config.deliveryValue) out.deliveryValue = config.deliveryValue;
     if (config.reference) out.reference = config.reference;
     return out;

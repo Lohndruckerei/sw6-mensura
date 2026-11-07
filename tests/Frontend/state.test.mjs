@@ -176,8 +176,10 @@ test('Folge-Sets von Werten, Start-Set, ausgeblendete und optionale Gruppen, Fes
     // Festformat ↔ freie Eingabe
     s = S.apply(s, { type: 'formatValue', group: 'format', value: '2000x1000' });
     assert.deepEqual(s.config.format, { width: 2000, height: 1000 });
+    assert.equal(S.toConfiguration(s).format.formatValueId, '0194e1a00000700080000000000f0f02', 'Festformat mit id → formatValueId');
     s = S.apply(s, { type: 'format', width: 1234 });
     assert.equal(s.config.options.format, 'frei');
+    assert.equal(S.toConfiguration(s).format.formatValueId, undefined, 'freies Format ohne formatValueId');
     s = S.apply(s, { type: 'format', width: 1000, height: 500 });
     assert.equal(s.config.options.format, '1000x500');
     // Drehen gesperrt (allowRotation=false), Mengengrenzen mit fix

@@ -111,4 +111,13 @@
 .lm-pv__text { font-size: 12px; fill: var(--bs-secondary-color); font-variant-numeric: tabular-nums; }
 
 .lm-toast { position: fixed; left: 50%; bottom: 1.125rem; transform: translateX(-50%); background: var(--bs-emphasis-color); color: var(--bs-body-bg); padding: .625rem 1rem; border-radius: var(--bs-border-radius); max-width: calc(100% - 2rem); z-index: 1100; }
+/* Warenkorb: Konfiguration an der Position, Menge fest */
+.lm-line-config { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 .5rem; margin: .25rem 0; font-size: .8125rem; }
+.lm-line-config dt { font-weight: 400; color: var(--bs-secondary-color); }
+.lm-line-config dd { margin: 0; }
+.lm-line-edit { font-size: .8125rem; }
+.lm-line-qty { display: grid; justify-items: end; gap: .125rem; }
+.lm-line-qty__value { font-weight: 700; }
+.lm-line-qty__hint { color: var(--bs-secondary-color); font-size: .75rem; text-align: right; }
+
 .lm-loading, .lm-load-error { padding: 1.5rem 0; color: var(--bs-secondary-color); }

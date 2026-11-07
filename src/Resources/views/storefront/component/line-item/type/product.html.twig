@@ -1,0 +1,50 @@
+{% sw_extends '@Storefront/storefront/component/line-item/type/product.html.twig' %}
+
+{# Mensura-Positionen (payload.ldMensura, siehe docs/INTEGRATION.md 1): Konfiguration an der Position zeigen, Liefertermin aus ldDeliveryDate #}
+{% block component_line_item_type_product_number %}
+    {{ parent() }}
+    {% set lm = lineItem.payload.ldMensura ?? null %}
+    {% if lm %}
+        {% block ld_mensura_line_item_configuration %}
+            {% set lmCfg = lm.configuration ?? {} %}
+            <dl class="lm-line-config">
+                {% if lm.material.name ?? false %}
+                    <dt>{{ 'ldMensura.lineItem.material'|trans|sw_sanitize }}</dt><dd>{{ lm.material.name }}</dd>
+                {% endif %}
+                {% if lm.format ?? false %}
+                    <dt>{{ 'ldMensura.lineItem.format'|trans|sw_sanitize }}</dt><dd>{{ lm.format.width|format_number(locale=app.request.locale) }} × {{ lm.format.height|format_number(locale=app.request.locale) }} mm</dd>
+                {% endif %}
+                {% for option in lm.options ?? [] %}
+                    <dt>{{ option.groupName }}</dt><dd>{{ option.valueName }}</dd>
+                {% endfor %}
+                {% if (lm.motifs ?? 1) > 1 %}
+                    <dt>{{ 'ldMensura.lineItem.motifs'|trans|sw_sanitize }}</dt><dd>{{ lm.motifs }} × {{ lm.perMotif }}</dd>
+                {% endif %}
+                {% if lm.reference ?? false %}
+                    <dt>{{ 'ldMensura.lineItem.reference'|trans|sw_sanitize }}</dt><dd>{{ lm.reference }}</dd>
+                {% endif %}
+            </dl>
+            {% if lineItem.referencedId and lmCfg.format is defined %}
+                {# Link zurück in den Konfigurator, gleicher Hash wie im Frontend (state.js encodeHash) #}
+                {% set lmHash = '#lm?m=' ~ (lm.material.key ?? lmCfg.materialId)|url_encode ~ '&w=' ~ lmCfg.format.width ~ '&h=' ~ lmCfg.format.height ~ '&mo=' ~ lmCfg.motifs ~ '&pm=' ~ lmCfg.perMotif %}
+                {% for group, value in lmCfg.options ?? {} %}
+                    {% set lmHash = lmHash ~ '&o.' ~ group|url_encode ~ '=' ~ value|url_encode %}
+                {% endfor %}
+                {% if lmCfg.deliveryValue ?? false %}
+                    {% set lmHash = lmHash ~ '&d=' ~ lmCfg.deliveryValue|url_encode %}
+                {% endif %}
+                <a class="lm-line-edit" href="{{ seoUrl('frontend.detail.page', { productId: lineItem.referencedId }) }}{{ lmHash }}">{{ 'ldMensura.lineItem.edit'|trans|sw_sanitize }}</a>
+            {% endif %}
+        {% endblock %}
+    {% endif %}
+{% endblock %}
+
+{% block component_line_item_type_product_delivery_date %}
+    {% if lineItem.payload.ldDeliveryDate ?? false %}
+        <div class="line-item-delivery-date lm-line-delivery">
+            {{ 'ldMensura.lineItem.deliveryDate'|trans|sw_sanitize }} {{ lineItem.payload.ldDeliveryDate|format_date('short', locale=app.request.locale) }}
+        </div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}

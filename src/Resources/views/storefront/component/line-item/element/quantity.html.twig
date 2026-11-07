@@ -1,0 +1,13 @@
+{% sw_extends '@Storefront/storefront/component/line-item/element/quantity.html.twig' %}
+
+{# Mensura-Positionen: Menge kommt aus der Konfiguration (Motive × Stück) und wird bei jeder Warenkorbberechnung neu gesetzt – nicht änderbar #}
+{% block component_line_item_quantity_select_wrapper %}
+    {% if lineItem.payload.ldMensura ?? false %}
+        <div class="line-item-quantity-select-wrapper lm-line-qty">
+            <span class="lm-line-qty__value">{{ lineItem.quantity|format_number(locale=app.request.locale) }}</span>
+            <small class="lm-line-qty__hint">{{ 'ldMensura.lineItem.quantityHint'|trans|sw_sanitize }}</small>
+        </div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}

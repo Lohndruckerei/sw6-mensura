@@ -38,6 +38,26 @@ test('Twig reicht genau die Konfigurator-Texte durch (lmTextKeys = Snippets ohne
     for (const k of Object.keys(de).filter(TWIG_ONLY)) assert.ok(readSource('src/Resources/views/storefront/component/buy-widget/buy-widget.html.twig').includes(`ldMensura.configurator.${k}`) || twig.includes(k), `ungenutzt: ${k}`);
 });
 
+test('jeder in Storefront-Templates übersetzte Mensura-Schlüssel existiert (de-DE und en-GB)', async () => {
+    const { readdirSync, statSync } = await import('node:fs');
+    const walk = (dir) => readdirSync(dir).flatMap((f) => (statSync(join(dir, f)).isDirectory() ? walk(join(dir, f)) : [join(dir, f)]));
+    const { ROOT } = await import('./helpers.mjs');
+    const flatDe = flattenSnippets(loadSnippets('de-DE'), 'ldMensura');
+    const flatEn = flattenSnippets(loadSnippets('en-GB'), 'ldMensura');
+    for (const file of walk(join(ROOT, 'src/Resources/views/storefront')).filter((f) => f.endsWith('.twig'))) {
+        const src = readSource(file.slice(ROOT.length + 1));
+        for (const m of src.matchAll(/'ldMensura\.([a-zA-Z.]+)'\|trans/g)) {
+            assert.ok(m[1] in flatDe, `fehlt in de-DE: ldMensura.${m[1]}`);
+            assert.ok(m[1] in flatEn, `fehlt in en-GB: ldMensura.${m[1]}`);
+        }
+    }
+    // Warenkorb-Fehler des Backends (messageKey ld-mensura-configuration-invalid, Parameter name/reason)
+    for (const loc of ['de-DE', 'en-GB']) {
+        const text = loadSnippets(loc).checkout?.['ld-mensura-configuration-invalid'];
+        assert.ok(text && text.includes('%name%') && text.includes('%reason%'), loc);
+    }
+});
+
 test('Platzhalter stimmen in beiden Sprachen überein', () => {
     const ph = (s) => (String(s).match(/%[a-z]+%/gi) || []).sort().join(',');
     for (const k of Object.keys(de)) assert.equal(ph(de[k]), ph(en[k]), k);

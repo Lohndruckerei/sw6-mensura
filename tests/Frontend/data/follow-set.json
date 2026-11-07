@@ -20,7 +20,7 @@
       "values": [
         { "technicalName": "frei", "name": "freies Format", "width": null, "height": null },
         { "technicalName": "1000x500", "name": "100 × 50 cm", "width": 1000, "height": 500 },
-        { "technicalName": "2000x1000", "name": "200 × 100 cm", "width": 2000, "height": 1000 }
+        { "id": "0194e1a00000700080000000000f0f02", "technicalName": "2000x1000", "name": "200 × 100 cm", "width": 2000, "height": 1000 }
       ]
     },
     {

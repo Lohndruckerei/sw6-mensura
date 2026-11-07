@@ -151,6 +151,18 @@
       "buybox": {
         "hint": "The price depends on material, size and finish."
       }
+    },
+    "lineItem": {
+      "material": "Material:",
+      "format": "Size:",
+      "motifs": "Designs × pieces:",
+      "reference": "Reference:",
+      "deliveryDate": "Delivery date:",
+      "edit": "Change configuration",
+      "quantityHint": "Change the quantity in the configurator"
     }
+  },
+  "checkout": {
+    "ld-mensura-configuration-invalid": "“%name%” was removed from the cart because its configuration is no longer valid: %reason%"
   }
 }

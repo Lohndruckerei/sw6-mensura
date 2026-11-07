@@ -151,6 +151,18 @@
       "buybox": {
         "hint": "Der Preis hängt von Material, Format und Ausführung ab."
       }
+    },
+    "lineItem": {
+      "material": "Material:",
+      "format": "Format:",
+      "motifs": "Motive × Stück:",
+      "reference": "Referenz:",
+      "deliveryDate": "Liefertermin:",
+      "edit": "Konfiguration ändern",
+      "quantityHint": "Menge im Konfigurator ändern"
     }
+  },
+  "checkout": {
+    "ld-mensura-configuration-invalid": "„%name%“ wurde aus dem Warenkorb entfernt, weil die Konfiguration nicht mehr gültig ist: %reason%"
   }
 }

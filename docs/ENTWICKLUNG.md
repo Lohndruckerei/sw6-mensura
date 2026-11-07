@@ -80,6 +80,10 @@ Im laufenden Shop: `bin/console mensura:demo:seed` legt das Demo-Produkt aus den
 - **Twig:** `views/storefront/component/buy-widget/buy-widget.html.twig` ersetzt Preis und Kaufformular durch den Konfigurator,
   wenn `product.extensions.ldMensura` gesetzt ist (Backend muss die Assoziation auf der Produktseite laden).
   `component/ld-mensura/configurator.html.twig` übergibt Store-API-Zugang und Texte (`lmTextKeys` = Snippets `ldMensura.configurator.*`).
+- **Warenkorb:** `component/line-item/type/product.html.twig` zeigt bei `payload.ldMensura` die Konfiguration, den Liefertermin
+  (`ldDeliveryDate`) und „Konfiguration ändern“ (Link mit demselben Hash wie der Konfigurator); `element/quantity.html.twig`
+  sperrt die Menge (sie kommt aus Motive × Stück). Snippet `checkout.ld-mensura-configuration-invalid` für entfernte Positionen.
+- **Festformat:** Hat ein Wert der Format-Gruppe eine `id`, sendet das Frontend `format.formatValueId` (Vertrag `contract/format-value-id`).
 - **Gestaltung = Shopware-Theme:** Bootstrap-Klassen (btn, form-select, alert, nav-tabs, table, badge, card) und `--bs-*`-Variablen,
   `scss/base.scss` nur für Layout. Das Admin-Designsystem gilt im Storefront nicht. Breite per Container-Query: in der Kaufbox
   einspaltig, auf voller Breite zweispaltig.
