@@ -106,5 +106,10 @@ kommen Umschlag (Material und Farbigkeit) als zweite Material-/Optionsebene und 
 | 10 | **Spezialprodukte** (Duschrückwände: nur bestimmte Materialien aus mehreren Kalkulationen, Optionen fest/ausgeblendet/eingeschränkt). Comdatek 402/400: Laminat nur Glaslaminat, Lochbohrung nur „Nein“, Optionen je Material verschieden | Produktprofil statt `ld_mensura_product_calculation`: Materialien über Kalkulationen hinweg, Optionsregeln `inherit`/`restrict`/`fixed`/`hidden` je Gruppe und optional je Material (KONZEPT 3.6) |
 | 8 | Zweite Materialebene (Umschlag bei Broschüren) | Optionsgruppe mit Material-Bezug oder Kalkulation mit `coverMaterial`; klären, wenn Broschüren kommen |
 
+**Stand v0.4.0:** 1 (getrennte EK/VK-Staffeln), 2 (Preistabellen, CSV folgt mit der Administration), 3 (Festformate
+als Optionsgruppe `format`; Formatklassen für freie Formate noch offen), 4, 6, 7, 9 und 10 sind im Datenmodell und in der
+Preis-Engine umgesetzt und getestet (`tests/Backend/PriceEngineTest.php`). Offen: 5 (Druckpositionen), 7a (zweidimensionale
+Staffel – bis dahin Preistabelle je Formatwert), 8 (zweite Materialebene).
+
 Rechenart A ist mit 1, 6 und 7 vollständig abgebildet. Für B und C braucht es 2, 3 und 4. Die eigene Formel bleibt die
 Rückfalloption für Produkte, die in keine Tabelle passen (z. B. Bogenrechnung).

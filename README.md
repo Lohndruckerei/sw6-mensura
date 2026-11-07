@@ -13,12 +13,22 @@ Fläche, Staffeln, Mindestpreisen und Optionsaufschlägen, bei Bedarf mit eigene
 
 ## Stand
 
-Version 0.3.0 – Grundgerüst (Hauptmenü mit Untermenüs, Design A/B/C) und Datenmodell
-(16 Tabellen `ld_mensura_*`, per Admin-API nutzbar, Rechte für die Rollenverwaltung): Kalkulationen,
-Materialien, Optionsgruppen/-werte, **Optionssets** (Konfigurationsfluss), **Produktprofile** (allgemeine und
-spezielle Produkte), Kundengruppen-Aufschläge, Bestell-Schnappschuss.
+Version 0.4.0 – Grundgerüst (Hauptmenü mit Untermenüs, Design A/B/C), Datenmodell (26 Tabellen `ld_mensura_*`,
+per Admin-API nutzbar, Rechte für die Rollenverwaltung) und **Preis-Engine mit Store-API**:
+
+- Stammdaten: Kalkulationen, Materialien, Optionsgruppen/-werte, Optionssets (Konfigurationsfluss), Produktprofile
+  (allgemeine und spezielle Produkte, Darstellung kompakt/geführt), Kundengruppen-Aufschläge, **Preistabellen**
+  (Flyer, Broschüren), getrennte EK/VK-Staffeln, Einrichtepauschale, Lieferzeit-Verfügbarkeit, Annahmeschluss und
+  Arbeitstage, Bestell-Schnappschuss; für den künftigen Produktberater **Merkmale, Anwendungsfälle, Zubehörregeln**
+- Preis-Engine (`src/Service/Calculation`, reines PHP): Standardformel, Normalisierung mit Hinweisen/Fehlern
+  (feste `code`s), Mindestpreis, Kundengruppen-Aufschlag, Bestpreisregel, Motiv-Modus, EK parallel
+- Store-API: `GET /store-api/ld-mensura/product/{id}/configurator`, `POST /store-api/ld-mensura/calculate`
+  (mit Preismatrix), `POST /store-api/ld-mensura/preset/validate` – ohne Einkaufspreise
+- Demo-Daten passend zu den Vertrags-Beispielfällen: `bin/console mensura:demo:seed`
+
 Schnittstellen zu LieferLotse und künftigen Plugins: [docs/INTEGRATION.md](docs/INTEGRATION.md).
-Nächster Schritt: Admin-Oberflächen für Kalkulationen, Materialien und Optionen (siehe Fahrplan im Konzept).
+Nächste Schritte: Admin-Oberflächen mit Testrechner, Storefront-Konfigurator (parallel), Warenkorb/Schnappschuss
+(siehe Fahrplan im Konzept).
 
 ## Entwicklung
 

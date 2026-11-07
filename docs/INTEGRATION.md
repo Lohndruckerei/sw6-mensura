@@ -88,10 +88,13 @@ Lieferantenbestellung. Damit kann der Lieferant fertigen und direkt an den Kunde
 | Rechnung, Buchhaltung | VK aus der Bestellung; EK und Deckungsbeitrag aus `ld_mensura_order_line_item` |
 | Produktberater | Merkmale, Anwendungsfälle, Zubehörregeln, Presets, Store-API `catalog` (siehe Abschnitt 6) |
 
-Mensura stellt dafür bereit (mit der Preis-Engine, Schritt 4):
-- `ConfigurationReader::fromLineItem()`: liest die Konfiguration einer Bestellposition typisiert, unabhängig von der Schema-Version
-- `MensuraPriceCalculatedEvent`: nach jeder Berechnung; andere Plugins können Zu- und Abschläge ergänzen, z. B. Kundenrabatte
-- Store-API `POST /store-api/ld-mensura/calculate`: Live-Preis für das Frontend
+Mensura stellt dafür bereit:
+- ✅ (v0.4.0) Store-API `POST /store-api/ld-mensura/calculate`: Live-Preis für das Frontend; `CalculationResult::toSnapshot()`
+  liefert den Rechenweg mit EK/VK und Deckungsbeitrag für `ld_mensura_order_line_item` (geschrieben wird er mit dem Warenkorb)
+- (mit Warenkorb/Bestellung, Schritt 6) `ConfigurationReader::fromLineItem()`: liest die Konfiguration einer Bestellposition
+  typisiert, unabhängig von der Schema-Version
+- (mit Warenkorb/Bestellung, Schritt 6) `MensuraPriceCalculatedEvent`: nach jeder Berechnung; andere Plugins können Zu- und
+  Abschläge ergänzen, z. B. Kundenrabatte
 
 ## 6. Produktberater (künftiges eigenes Plugin)
 
@@ -108,10 +111,10 @@ Vergleichstabellen und Infotexte im Konfigurator. Deshalb stehen sie in Mensura 
 
 | Baustein in Mensura | Zweck für den Berater | geplant |
 |---|---|---|
-| **Merkmal-Katalog** `ld_mensura_feature` (+ Übersetzung): Schlüssel, Art (`bool`, `level` 0–5, `number` + Einheit, `enum`/`multi`), Gruppe (Haltbarkeit, Umgebung, Montage, Pflege, Nachhaltigkeit), Bezeichnung, Hilfetext, Icon | gemeinsame Sprache der Kriterien: `haltbarkeit_jahre`, `einsatz` (innen/außen), `uv`, `wasserfest`, `kratzfest`, `hitzebestaendig_c`, `rueckstandslos_entfernbar`, `brandschutz` (B1), `pvc_frei`, `selbst_zuschneidbar` … | v0.4.0, ersetzt das freie JSON `material.properties` |
-| **Merkmalswerte** `ld_mensura_feature_value`: Merkmal × Material / Optionswert / Produktprofil | Material- und Optionsbewertung, z. B. Laminat Anti-Graffiti: kratzfest 4, Glaslaminat: Optik 5 | v0.4.0 |
-| **Anwendungsfälle** `ld_mensura_use_case` (+ Übersetzung): Schild innen/außen, Fahrzeugbeschriftung, Schaufenster, Fußboden, Fassade, Rückwand Küche/Bad, Messe …; Zuordnung zu Produktprofilen und Materialien mit Eignung (0–5) und optionaler Vorbelegung | Einstieg „Wofür brauchst du es?“, Filter, Empfehlungen | v0.4.0 |
-| **Zubehörregeln** `ld_mensura_accessory_rule`: Auslöser (Material, Optionswert, Anwendungsfall oder Merkmalbedingung) → Shopware-Produkt (Abstandshalter, Klebeband, Spanngummis, Montagekleber, Profile) mit **Mengenregel** (fest, je Stück, je Bohrung, je lfm Umfang, je m²), Begründungstext, „empfohlen“ oder „erforderlich“ | Zubehörempfehlung im Berater **und** im Konfigurator/Warenkorb (z. B. 4 Bohrungen × 10 Stk = 40 Abstandshalter) | v0.4.0 |
+| **Merkmal-Katalog** `ld_mensura_feature` (+ Übersetzung): Schlüssel, Art (`bool`, `level` 0–5, `number` + Einheit, `enum`/`multi`), Gruppe (Haltbarkeit, Umgebung, Montage, Pflege, Nachhaltigkeit), Bezeichnung, Hilfetext, Icon | gemeinsame Sprache der Kriterien: `haltbarkeit_jahre`, `einsatz` (innen/außen), `uv`, `wasserfest`, `kratzfest`, `hitzebestaendig_c`, `rueckstandslos_entfernbar`, `brandschutz` (B1), `pvc_frei`, `selbst_zuschneidbar` … | ✅ v0.4.0 (Tabelle; `material.properties` bleibt vorerst bestehen) |
+| **Merkmalswerte** `ld_mensura_feature_value`: Merkmal × Material / Optionswert / Produktprofil, Wert als JSON `{"value": …}` | Material- und Optionsbewertung, z. B. Laminat Anti-Graffiti: kratzfest 4, Glaslaminat: Optik 5 | ✅ v0.4.0 |
+| **Anwendungsfälle** `ld_mensura_use_case` (+ Übersetzung, `ld_mensura_use_case_assignment`): Schild innen/außen, Fahrzeugbeschriftung, Schaufenster, Fußboden, Fassade, Rückwand Küche/Bad, Messe …; Zuordnung zu Produktprofilen und Materialien mit Eignung (0–5) und optionaler Vorbelegung (`preset`) | Einstieg „Wofür brauchst du es?“, Filter, Empfehlungen | ✅ v0.4.0 |
+| **Zubehörregeln** `ld_mensura_accessory_rule` (+ Übersetzung `name`, `reason`): Auslöser (`triggerType` material, option_value, use_case oder feature + `featureCondition`) → Shopware-Produkt (Abstandshalter, Klebeband, Spanngummis, Montagekleber, Profile) mit **Mengenregel** (`fixed`, `per_piece`, `per_hole`, `per_perimeter`, `per_area` × `quantityFactor`), Begründungstext, `recommended` oder `required` | Zubehörempfehlung im Berater **und** im Konfigurator/Warenkorb (z. B. 4 Bohrungen × 10 Stk = 40 Abstandshalter) | ✅ v0.4.0 (Tabelle; Auswertung mit Warenkorb/Store-API `catalog`) |
 | **Konfigurations-Vorlage (Preset)**: gleiches Schema wie Payload `ldMensura` (Produkt/Profil, Material, Format, Menge, Optionen), optional Felder als „gesperrt“ markiert; als URL-Parameter `?mensura=…` oder kurze ID | „Auswahl übernehmen“ → Konfigurator vorbelegt; ungültige Teile werden mit Hinweis korrigiert (gleiche Regeln wie beim Materialwechsel, KONZEPT 3.7) | mit dem Konfigurator (Schritt 6) |
 | **Store-API** (ohne EK) | `GET /store-api/ld-mensura/catalog` (Profile, Materialien, Optionswerte mit Merkmalen, Anwendungsfällen, Bildern, „ab“-Preisen), `POST /store-api/ld-mensura/preset/validate` (Vorlage prüfen → gültige Konfiguration + Hinweise), `POST /store-api/ld-mensura/calculate` (Preis für Vergleichslisten) | mit Schritt 5/6 |
 | **Events** | `MensuraCatalogLoadedEvent` (Berater ergänzt Daten), `MensuraPresetAppliedEvent` (Statistik: welche Empfehlung wurde übernommen), Zubehör als eigene Warenkorbpositionen mit Verweis auf die Mensura-Position (`payload.ldMensuraParent`) | mit Schritt 6 |

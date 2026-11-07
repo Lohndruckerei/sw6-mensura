@@ -131,6 +131,20 @@ Das Verhältnis ist nicht einheitlich (×1,12 bis ×2) → EK und VK müssen get
 | `ld_mensura_product_calculation` | Produkt ↔ Kalkulation (`product.extensions.ldMensura`), festes Material, eingeschränkte Auswahl, Vorbelegung. **Wird in v0.3.0 durch Produktprofile ersetzt** (3.6), weil Spezialprodukte Materialien aus mehreren Kalkulationen brauchen |
 | `ld_mensura_order_line_item` | Rechenweg-Schnappschuss je Bestellposition (`orderLineItem.extensions.ldMensura`), nur Admin-API |
 
+**Ergänzt in v0.4.0** (Migration `Migration1794140000PriceTablesDeliveryAdvisor`):
+
+| Tabelle / Feld | Inhalt |
+|---|---|
+| `ld_mensura_price_table` (+ `_row`) | Preistabelle je Kalkulation: Schlüssel Material (optional) + Optionswerte, Art `piece`/`total`, Zeilen Auflage → EK/VK |
+| Kalkulation `setupPricePurchase`/`setupPriceSale`, `quantitySteps` | Einrichtepauschale je Position; Zeilen der Preismatrix |
+| Optionswert `availability`, Übersetzung `badges` | Lieferzeit-Verfügbarkeit `{maxQuantity, maxArea, materialIds}`; Badges |
+| Material-Übersetzung `badges` | Badges für Kacheln, z. B. „außen“, „Bestseller“ |
+| Produktprofil `layout`, `quantitySteps` | Darstellung `compact`/`guided` (leer = Plugin-Einstellung), eigene Mengenstufen |
+| `ld_mensura_feature` (+ `_translation`, `ld_mensura_feature_value`) | Merkmal-Katalog und Werte je Material/Optionswert/Profil (`value` als `{"value": …}`) |
+| `ld_mensura_use_case` (+ `_translation`, `_assignment`) | Anwendungsfälle mit Eignung 0–5 und Vorbelegung je Profil/Material |
+| `ld_mensura_accessory_rule` (+ `_translation`) | Zubehörregeln: Auslöser → Shopware-Produkt, Mengenregel, empfohlen/erforderlich, Begründung |
+| Plugin-Einstellungen | `storefrontLayout`, `allowLayoutSwitch`, `layoutTestShare`, `orderCutoff`, `workingDays`, `holidays` |
+
 Die folgenden Unterabschnitte beschreiben die fachliche Bedeutung der Felder.
 
 Ziel: Jeder Artikel hängt an einer **Kalkulation** (Rechenvorlage). Die Standardformel deckt Platten und
@@ -367,6 +381,19 @@ Die Engine rechnet dieselbe Formel zweimal – mit VK-Werten (Kundenpreis) und m
 (Einkauf) – und liefert den Rechenweg samt Deckungsbeitrag. Alle Preisanteile (per_area, per_piece …)
 kommen aus Material, Kalkulation und den gewählten Optionswerten, jeweils nach Staffel aufgelöst.
 
+**Umsetzung v0.4.0** (`src/Service/Calculation/PriceEngine.php`), festgelegte Details:
+
+| Thema | Regel |
+|---|---|
+| Reihenfolge der Prüfung | Material (muss im Profil erlaubt sein, sonst Standard + Hinweis `material.reset`) → Festformat → Optionen in Set-Reihenfolge (Start-Set → Material-Set → Folge-Sets der gewählten Werte) → entfallene Optionen (`option.removed`) → Format (`format.*`, mit `fix`) → Menge (`quantity.*`) → Lieferzeit (`delivery.reset`) → Preis (`price.*`) |
+| Optionswerte | erlaubt = in der Kalkulation zugeordnet (Zeile je Material vor allgemeiner) ∩ Profilregel; Bedingungen gegen die bereits gewählten Werte; sonst Standard (Profil-Standard → `isDefault` → erster) mit Hinweis `option.reset` / `option.fixed` / `option.excluded` |
+| Staffeln | `tiers` im alten Format (Liste, Basis aus `tierBasis`) oder getrennt `{purchase:{basis,steps}, sale:{basis,steps}}`; Schritt `price` ersetzt, `discount` gibt Rabatt %. Material-Staffel ersetzt den Materialpreis; Kalkulations-Staffel mit `price` ebenso (wenn das Material keine hat), mit `discount` = Staffelrabatt auf die Zwischensumme; Staffel am Optionswert ersetzt dessen ersten Preisanteil (bzw. `base_area`) |
+| `base_area` | Optionswert ersetzt den Materialpreis je m² samt Material-Staffel (Sticker-Zuschnitt) |
+| Preistabelle | spezifischste passende Tabelle (alle Schlüsselwerte gewählt; mehr Schlüssel und Material vor ohne); Zeile mit größter Auflage ≤ Menge (darunter die erste); `total` wird auf den Stück-Preis der Zeile umgerechnet. Hat die Kalkulation Tabellen, aber keine passt → `price.not_available` |
+| Aufschläge VK | Produktprofil (% + je Material %) vor dem Mindestpreis; Mindestpreis = max(Material bzw. Kalkulation, Profil); **Kundengruppen-Aufschlag nach dem Mindestpreis** (auch der Mindestpreis steigt), danach Rundung (Regel der Kundengruppe vor Kalkulation, sonst Cent) |
+| Bestpreisregel | Schwellen aus Staffeln (Basis Menge oder Gesamtfläche) und Preistabellen; kostet eine größere Menge weniger: `hint` → Hinweis `price.best_price` mit `fix: {perMotif}`, `apply` → günstigerer Preis gilt (`price.best_price_applied`) |
+| Lieferzeit | Gruppe vom Typ `delivery`, Wert mit Werktagen und `availability` `{maxQuantity, maxArea, materialIds}`; Termin ab heute bzw. nach Annahmeschluss/an freien Tagen ab dem nächsten Arbeitstag |
+
 **Eigene Formeln:** Für Artikel, die nicht ins Schema passen, bekommt die Kalkulation einen Ausdruck mit
 den Variablen oben (`breite`, `hoehe`, `flaeche`, `umfang`, `menge`, `motive`, `materialpreis`,
 `optionen.<gruppe>` …). Umsetzung mit sicherem Ausdrucks-Parser (Kandidat: `symfony/expression-language`
@@ -391,14 +418,19 @@ Shop-Frontend geprüft werden können.
    Produktverknüpfung, Bestell-Schnappschuss)
 2a. ✅ v0.3.0: Optionssets (Konfigurationsfluss), Produktprofile (allgemein/speziell, Materialien über Kalkulationen,
    Optionsregeln), Motiv-/Staffel-/Bestpreis-Modus, Preisanteile am Material, Festformate
-2b. v0.4.0: Preistabellen (Flyer, Broschüren) mit CSV-Import/-Export; getrennte EK/VK-Staffeln; aus dem
+2b. ✅ v0.4.0 (Datenmodell): Preistabellen (Flyer, Broschüren); getrennte EK/VK-Staffeln; aus dem
    Wettbewerbsvergleich ([WETTBEWERB.md](WETTBEWERB.md)): Verfügbarkeitsregeln und Annahmeschluss für Lieferzeiten,
-   Arbeitstage-Kalender, Einrichtepauschale, Versand im Preis (optional), Badges/Infotexte je Wert, Services
-   (Muster, Proof, Datencheck – nie vorausgewählt), Referenztext je Position; für den künftigen **Produktberater**
-   (INTEGRATION.md Abschnitt 6): Merkmal-Katalog + Merkmalswerte, Anwendungsfälle, Zubehörregeln mit Mengenregel
+   Arbeitstage-Kalender, Einrichtepauschale, Badges je Material/Wert, Referenztext je Position (`reference` in der
+   Konfiguration), Darstellung je Produktprofil; für den künftigen **Produktberater** (INTEGRATION.md Abschnitt 6):
+   Merkmal-Katalog + Merkmalswerte, Anwendungsfälle, Zubehörregeln mit Mengenregel.
+   Offen aus 2b: CSV-Import/-Export der Preistabellen (mit Schritt 3), Versand im Preis, Services (Muster, Proof,
+   Datencheck – nie vorausgewählt; als Optionsgruppe ohne Pflicht abbildbar)
 3. Admin: Listen & Detailseiten je Bereich, Preisfelder EK/VK mit Margenrechner
-4. Preis-Engine (PHP, mit Unit-Tests anhand der Comdatek-Werte oben) + Testrechner im Admin
-5. Produktzuordnung + Store-API „Preis berechnen“
+4. ✅ v0.4.0: Preis-Engine (`src/Service/Calculation`, reines PHP) mit PHPUnit-Vertragstest gegen
+   `docs/contract/fixtures` (Comdatek-Werte auf den Cent) und Unit-Tests der Einzelregeln; offen: Testrechner im Admin,
+   eigene Formeln (Ausdrucks-Parser), Formatklassen für Preistabellen (freies Format → nächste Klasse)
+5. ✅ v0.4.0: Store-API `configurator`, `calculate` (mit Preismatrix) und `preset/validate` laut `docs/contract`;
+   Demo-Daten `bin/console mensura:demo:seed`; offen: `cart/add` + CartProcessor (mit Schritt 6), Store-API `catalog`
 6. Storefront-Konfigurator in **zwei Varianten** (3c): **kompakt** (Comdatek: eine Seite, 4 nummerierte Abschnitte) und
    **geführt** (flyeralarm: Reiter je Optionsset, Kacheln, Zusammenfassung, Preismatrix Menge × Lieferzeit), beide mit
    Live-Preis, Liefertermin + Annahmeschluss, Konfiguration in der URL, Angebot als PDF, Upload; umschaltbar je Profil,
