@@ -83,6 +83,9 @@ Im laufenden Shop: `bin/console mensura:demo:seed` legt das Demo-Produkt aus den
 - **Warenkorb:** `component/line-item/type/product.html.twig` zeigt bei `payload.ldMensura` die Konfiguration, den Liefertermin
   (`ldDeliveryDate`) und „Konfiguration ändern“ (Link mit demselben Hash wie der Konfigurator); `element/quantity.html.twig`
   sperrt die Menge (sie kommt aus Motive × Stück). Snippet `checkout.ld-mensura-configuration-invalid` für entfernte Positionen.
+- **Schritte:** kompakt 1 Material · 2 Format & Auflage · 3 Druck & Weiterverarbeitung; geführt Material · Format & Stückzahl ·
+  je Optionsgruppe · Lieferzeit. Die Stückzahl steht beim Format, die Gesamtfläche (B × H × Stück) wird dort angezeigt (vom Backend,
+  sobald das Ergebnis frisch ist). `steps[].key` „quantity“ aus den Konfigurator-Daten = Lieferzeit-Schritt.
 - **Festformat:** Hat ein Wert der Format-Gruppe eine `id`, sendet das Frontend `format.formatValueId` (Vertrag `contract/format-value-id`).
 - **Gestaltung = Shopware-Theme:** Bootstrap-Klassen (btn, form-select, alert, nav-tabs, table, badge, card) und `--bs-*`-Variablen,
   `scss/base.scss` nur für Layout. Das Admin-Designsystem gilt im Storefront nicht. Breite per Container-Query: in der Kaufbox

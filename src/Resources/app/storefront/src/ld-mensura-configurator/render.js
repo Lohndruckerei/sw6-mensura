@@ -134,6 +134,37 @@ function quantityFields(ctx, state) {
       </div>${messageList(ctx, state, errs, 'lm-msgs--error')}`;
 }
 
+/**
+ * Fläche Breite × Höhe × Stück – reine Anzeige, damit der Kunde früh sieht, worauf flächenbezogene Optionen rechnen.
+ * Maßgeblich (auch abgerechnete Fläche, Mindestfläche) ist das Backend: ist das Ergebnis frisch, steht dessen price.area hier.
+ */
+function areaInfo(ctx, state) {
+    const { data, config } = state;
+    const material = materialById(data, config.materialId);
+    const qty = material?.calculation?.motifMode === 'split' ? config.perMotif : config.motifs * config.perMotif;
+    const piece = (config.format.width * config.format.height) / 1e6;
+    const backendArea = isFresh(state) ? state.result?.price?.area : null;
+    const total = backendArea ?? piece * qty;
+    return `<div class="lm-area" data-lm-area="${total}">${ctx.t.html('area.summary', { piece: esc(ctx.fmt.num(piece)), count: esc(ctx.fmt.int(qty)), total: `<b>${esc(ctx.fmt.num(total))}</b>` })} ${help(ctx, ctx.t('help.area'), fieldId(ctx, 'area-h'))}</div>`;
+}
+
+/** Format und Stückzahl gehören zusammen (ergibt die Gesamtfläche) */
+function formatQuantityFields(ctx, state) {
+    return `${formatFields(ctx, state)}<div class="lm-g-group lm-qty">${quantityFields(ctx, state)}</div>${areaInfo(ctx, state)}`;
+}
+
+function deliveryTiles(ctx, state) {
+    const dg = deliveryGroup(state.data);
+    if (!dg) return '';
+    const material = materialById(state.data, state.config.materialId);
+    return `<div class="lm-tiles">${allowedValues(dg, material).map((v) => {
+        const info = deliveryInfo(state, v.technicalName);
+        const text = [v.deliveryDays != null ? ctx.t('delivery.days', { days: v.deliveryDays }) : null, info?.date ? ctx.fmt.date(info.date) : null].filter(Boolean).join(' · ');
+        const extra = `${v.priceHint ? `<span class="lm-tile__price">${esc(v.priceHint)}</span>` : ''}${info && info.available === false ? `<small>${esc(info.reason || ctx.t('delivery.unavailable'))}</small>` : ''}`;
+        return tile({ action: 'delivery', attrs: `data-lm-value="${esc(v.technicalName)}"`, pressed: state.config.deliveryValue === v.technicalName, title: v.name, text, extra, disabled: info?.available === false });
+    }).join('')}</div>`;
+}
+
 function referenceField(ctx, state) {
     return `<div class="lm-field lm-field--wide"><label class="form-label" for="${fieldId(ctx, 'reference')}">${esc(ctx.t('field.reference'))} ${help(ctx, ctx.t('help.reference'), fieldId(ctx, 'reference-h'))}</label>
       <input id="${fieldId(ctx, 'reference')}" type="text" maxlength="255" value="${esc(state.config.reference || '')}" data-lm-field="reference" class="form-control" autocomplete="off"></div>`;
@@ -196,9 +227,8 @@ export function renderCompact(ctx, state) {
       ${sec(1, ctx.t('section.material'), `<div class="lm-field"><label class="form-label" for="${fieldId(ctx, 'material')}">${esc(ctx.t('field.material'))} ${help(ctx, ctx.t('help.material'), fieldId(ctx, 'material-h'))}</label>
           <select class="form-select" id="${fieldId(ctx, 'material')}" data-lm-field="material">${matOptions}</select></div>
         ${material?.description ? `<p class="lm-muted">${esc(material.description)} ${badges(material.badges)}</p>` : badges(material?.badges)}`, 'material')}
-      ${sec(2, ctx.t('section.format'), formatFields(ctx, state), 'format')}
-      ${sec(3, ctx.t('section.quantity'), quantityFields(ctx, state) + referenceField(ctx, state), 'quantity')}
-      ${sec(4, ctx.t('section.options'), `<div class="lm-opts">${options}${deliverySelect(ctx, state)}</div>`, 'options')}
+      ${sec(2, ctx.t('section.format'), formatQuantityFields(ctx, state), 'format')}
+      ${sec(3, ctx.t('section.options'), `<div class="lm-opts">${options}${deliverySelect(ctx, state)}</div>${referenceField(ctx, state)}`, 'options')}
     </div>`;
 }
 
@@ -270,7 +300,7 @@ export function renderGuided(ctx, state) {
             action: 'formatValue', attrs: `data-lm-width="${w}" data-lm-height="${h}"`, pressed: config.format.width === w && config.format.height === h,
             title: n || `${ctx.fmt.int(w)} × ${ctx.fmt.int(h)} mm`, text: n ? `${ctx.fmt.int(w)} × ${ctx.fmt.int(h)} mm` : '',
         })).join('')}</div></div>`;
-        body = `<h3 class="lm-g-title">${esc(ctx.t('guided.formatTitle', { material: material?.name || '' }))}</h3><div class="lm-g-group">${formatFields(ctx, state)}</div>${presets}`;
+        body = `<h3 class="lm-g-title">${esc(ctx.t('guided.formatTitle', { material: material?.name || '' }))}</h3><div class="lm-g-group">${formatQuantityFields(ctx, state)}</div>${presets}`;
     } else if (step.kind === 'group') {
         const g = getGroup(data, step.group);
         const values = allowedValues(g, material);
@@ -283,10 +313,13 @@ export function renderGuided(ctx, state) {
             extra: `${badges(v.badges)}${v.priceHint ? `<span class="lm-tile__price">${esc(v.priceHint)}</span>` : ''}`,
         })).join('')}</div>${messageList(ctx, state, errorsFor(state, `options.${g.technicalName}`), 'lm-msgs--error')}`;
     } else {
-        body = `<h3 class="lm-g-title">${esc(ctx.t('guided.matrixTitle'))}</h3>
-          <p class="lm-muted">${esc(ctx.t('guided.matrixHelp', { mode: ctx.t(state.gross ? 'price.grossShort' : 'price.netShort') }))}</p>
-          ${renderMatrix(ctx, state)}
-          <details class="lm-more" ${state.config.motifs > 1 ? 'open' : ''}><summary>${esc(ctx.t('guided.matrixOther'))}</summary><div class="lm-g-group">${quantityFields(ctx, state)}${referenceField(ctx, state)}</div></details>`;
+        // Lieferzeit: Kacheln mit Termin; Staffelpreise (Menge × Lieferzeit) nur noch zum Vergleichen, Klick übernimmt beides
+        body = `<h3 class="lm-g-title">${esc(ctx.t('guided.deliveryTitle'))} ${help(ctx, deliveryGroup(data)?.helpText || ctx.t('help.delivery'), fieldId(ctx, 'gd-h'))}</h3>
+          ${deliveryTiles(ctx, state)}
+          <details class="lm-more"><summary>${esc(ctx.t('guided.matrixCompare'))}</summary><div class="lm-g-group">
+            <p class="lm-muted">${esc(ctx.t('guided.matrixHelp', { mode: ctx.t(state.gross ? 'price.grossShort' : 'price.netShort') }))}</p>
+            ${renderMatrix(ctx, state)}</div></details>
+          ${referenceField(ctx, state)}`;
     }
     const last = idx === steps.length - 1;
     const formatBlocked = step.kind === 'format' && errorsFor(state, 'format').length > 0;
@@ -362,10 +395,10 @@ export function renderSummary(ctx, state) {
         [ctx.t('summary.material'), material?.name || '', link('material', 'material')],
         [ctx.t('summary.format'), `${ctx.fmt.int(config.format.width)} × ${ctx.fmt.int(config.format.height)} mm`, link('format', 'width')],
         ...optionGroups(data, state).map((g) => [g.name, findValue(g, config.options[g.technicalName])?.name || ctx.t('option.none'), link(`group:${g.technicalName}`, `g-${g.technicalName}`)]),
-        [ctx.t('summary.quantity'), `${qty} ${ctx.t('summary.pieces')}`, link('quantity', 'motifs')],
+        [ctx.t('summary.quantity'), `${qty} ${ctx.t('summary.pieces')}`, link('format', 'motifs')],
     ];
-    if (dv) rows.push([ctx.t('summary.delivery'), dv.name, link('quantity', 'delivery')]);
-    if (config.reference) rows.push([ctx.t('field.reference'), config.reference, link('quantity', 'reference')]);
+    if (dv) rows.push([ctx.t('summary.delivery'), dv.name, link('delivery', 'delivery')]);
+    if (config.reference) rows.push([ctx.t('field.reference'), config.reference, link('delivery', 'reference')]);
     return `<div class="lm-card card card-body lm-summary"><h3>${esc(ctx.t('summary.title'))}</h3><dl>${rows.map(([k, v, l]) => `<dt>${esc(k)}</dt><dd>${esc(v)}${l}</dd>`).join('')}</dl></div>`;
 }
 

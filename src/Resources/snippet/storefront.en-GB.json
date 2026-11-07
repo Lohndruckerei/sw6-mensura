@@ -17,7 +17,8 @@
         "totalQuantity": "Total quantity across all designs. Example: 1,000 labels, however many versions.",
         "reference": "Your order or cost centre reference for this item. It appears on the delivery note and invoice, e.g. “Branch North / CC 4711”.",
         "delivery": "When the goods reach you. The date applies to orders and print files received before the cut-off time, e.g. ordered today by 11:30 with standard = delivery in 5 working days.",
-        "option": "Choose a finish. The price is recalculated immediately, e.g. matt laminate instead of no finish."
+        "option": "Choose a finish. The price is recalculated immediately, e.g. matt laminate instead of no finish.",
+        "area": "The total area (width × height × quantity) is the basis for the material and area-based options such as laminate, e.g. 1,000 × 500 mm × 10 pieces = 5 m². Minimum areas or billing steps are included in the price automatically."
       },
       "layout": {
         "label": "View",
@@ -26,8 +27,7 @@
       },
       "section": {
         "material": "Material",
-        "format": "Final size",
-        "quantity": "Quantity",
+        "format": "Size & quantity",
         "options": "Printing & finishing"
       },
       "field": {
@@ -85,24 +85,25 @@
       },
       "steps": {
         "material": "Material",
-        "format": "Size",
-        "quantity": "Quantity & delivery"
+        "format": "Size & quantity",
+        "delivery": "Delivery time"
       },
       "guided": {
         "stepsLabel": "Steps",
         "materialTitle": "Which material would you like?",
-        "formatTitle": "How large should %material% be?",
+        "formatTitle": "How large should %material% be – and how many?",
         "presets": "Quick pick",
         "fromPrice": "from %price%/m²",
         "matrixTitle": "Choose quantity and delivery time",
         "matrixHelp": "Clicking a price selects quantity and delivery time. Prices %mode%, per item.",
         "matrixQty": "Quantity",
-        "matrixOther": "Other quantity, several designs or reference",
         "matrixOnRequest": "Price appears after selection",
         "pieces": "pcs",
         "piecesPerMotif": "pcs per design",
         "next": "Next",
-        "back": "Back"
+        "back": "Back",
+        "deliveryTitle": "When do you need it?",
+        "matrixCompare": "Compare quantity prices (quantity × delivery time)"
       },
       "price": {
         "title": "Your price",
@@ -150,6 +151,9 @@
       },
       "buybox": {
         "hint": "The price depends on material, size and finish."
+      },
+      "area": {
+        "summary": "Area: %piece% m² per piece × %count% pieces = %total% m² in total"
       }
     },
     "lineItem": {

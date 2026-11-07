@@ -228,7 +228,7 @@ export function createState(data, { initial = null, layout = null, step = null }
     return {
         data,
         layout: wanted && (data.allowLayoutSwitch || wanted === data.layout) ? wanted : data.layout,
-        step: step || 'material',
+        step: normalizeStep(step) || 'material',
         gross: false,
         config,
         memory: synced.memory,
@@ -361,7 +361,7 @@ export function apply(state, action) {
             return { ...state, layout: action.value };
         }
         case 'step':
-            return { ...state, step: action.key };
+            return { ...state, step: normalizeStep(action.key) };
         case 'gross':
             return { ...state, gross: Boolean(action.value) };
         case 'dismissNotice':
@@ -398,17 +398,26 @@ export function apply(state, action) {
 
 /* ---------- Geführte Darstellung: Schritte ---------- */
 
-/** Schritte (Reiter): Material · Format · je sichtbare Optionsgruppe ein Reiter · Menge & Lieferzeit. */
+/** früherer Schlüssel „quantity“ (Menge & Lieferzeit) = heute der Schritt „delivery“ (alte Links/Hashes) */
+const normalizeStep = (key) => (key === 'quantity' ? 'delivery' : key);
+
+/**
+ * Schritte (Reiter): Material · Format & Stückzahl · je sichtbare Optionsgruppe ein Reiter · Lieferzeit.
+ * Die Stückzahl gehört zum Format: daraus ergibt sich früh die Gesamtfläche (Breite × Höhe × Stück), auf der die
+ * folgenden Optionen rechnen. steps[].key „quantity“ aus den Konfigurator-Daten steht für den Lieferzeit-Schritt.
+ * Labels für Format und Lieferzeit kommen aus den Storefront-Snippets (Inhalt der Schritte ist hier festgelegt).
+ */
 export function guidedSteps(data, state) {
     const labels = Object.fromEntries((data.steps || []).map((s) => [s.key, s.label]));
-    const order = (data.steps || []).map((s) => s.key).filter((k) => ['material', 'format', 'options', 'quantity'].includes(k));
+    const order = (data.steps || []).map((s) => normalizeStep(s.key)).filter((k) => ['material', 'format', 'options', 'delivery'].includes(k));
     if (!order.includes('material')) order.unshift('material');
     if (!order.includes('format')) order.splice(order.indexOf('material') + 1, 0, 'format');
-    if (!order.includes('quantity')) order.push('quantity');
-    if (!order.includes('options')) order.splice(order.indexOf('quantity'), 0, 'options');
+    if (!order.includes('delivery')) order.push('delivery');
+    if (!order.includes('options')) order.splice(order.indexOf('delivery'), 0, 'options');
     const steps = [];
     for (const key of order) {
-        if (key === 'material' || key === 'format' || key === 'quantity') steps.push({ key, kind: key, label: labels[key] || null });
+        if (key === 'material') steps.push({ key, kind: key, label: labels.material || null });
+        else if (key === 'format' || key === 'delivery') steps.push({ key, kind: key, label: null });
         else for (const g of optionGroups(data, state)) steps.push({ key: `group:${g.technicalName}`, kind: 'group', group: g.technicalName, label: g.name });
     }
     return steps;
@@ -416,12 +425,12 @@ export function guidedSteps(data, state) {
 
 export function currentStep(data, state) {
     const steps = guidedSteps(data, state);
-    return steps.find((s) => s.key === state.step) || steps[0];
+    return steps.find((s) => s.key === normalizeStep(state.step)) || steps[0];
 }
 
 export function nextStepKey(data, state) {
     const steps = guidedSteps(data, state);
-    const i = steps.findIndex((s) => s.key === state.step);
+    const i = steps.findIndex((s) => s.key === normalizeStep(state.step));
     return steps[Math.min(steps.length - 1, Math.max(0, i) + 1)].key;
 }
 

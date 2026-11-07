@@ -315,10 +315,10 @@ Darstellung. Optionssets, Produktprofile, Abhängigkeiten und das Verhalten beim
 | | **Kompakt** (Vorbild Comdatek) | **Geführt** (Vorbild flyeralarm) |
 |---|---|---|
 | Für wen | Stammkunden und Profis, die wissen, was sie wollen | Neukunden, Gelegenheitskäufer, Beratungsbedarf |
-| Aufbau | **eine Seite**, nummerierte Abschnitte untereinander: 1 Material · 2 Endformat · 3 Auflage (Motive × Stück) · 4 Druck & Weiterverarbeitung | **Reiter je Schritt** (aus den Optionssets), nach jeder Wahl automatisch weiter, rechts „Ihr Produkt“ |
+| Aufbau | **eine Seite**, nummerierte Abschnitte untereinander: 1 Material · 2 Format & Auflage (Breite × Höhe, Motive × Stück, Gesamtfläche) · 3 Druck & Weiterverarbeitung | **Reiter je Schritt**: Material · Format & Stückzahl · je Optionsgruppe (aus den Optionssets) · Lieferzeit; nach jeder Wahl automatisch weiter, rechts „Ihr Produkt“ |
 | Optionen | Auswahllisten, kurze Hilfe-Symbole; nicht relevante Gruppen verschwinden | Kacheln mit Bild, Kurzinfo, Badges; Infotexte ausklappbar |
-| Menge | freie Eingabe (Stück und Motive) | **Preismatrix Menge × Lieferzeit** (ein Klick wählt beides), dazu freie Eingabe |
-| Lieferzeit | Auswahlliste mit Datum und Aufschlag | Spalten der Preismatrix mit Datum |
+| Menge | **zusammen mit dem Format** (Stück und Motive) – daraus ergibt sich früh die Gesamtfläche Breite × Höhe × Stück, auf der die folgenden flächenbezogenen Optionen rechnen (Entscheidung 07.11.2026) | wie kompakt im Format-Schritt; Preismatrix Menge × Lieferzeit nur noch zum Vergleichen (Klick übernimmt beides) |
+| Lieferzeit | Auswahlliste mit Datum und Aufschlag | eigener letzter Schritt: Kacheln mit Datum und Aufschlag |
 | Preis | live, unten bzw. rechts: Gesamt, je Stück, je m² (netto) | live in der Zusammenfassung und in der Matrix |
 | Tastatur | durchgehend per Tastatur bedienbar (Tab, Eingaben), Formatfelder vorne | Mausbedienung im Vordergrund |
 | Wiederbestellen | „Konfiguration übernehmen“ aus früheren Bestellungen | wie kompakt |

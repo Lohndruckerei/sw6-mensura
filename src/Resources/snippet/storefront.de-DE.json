@@ -17,7 +17,8 @@
         "totalQuantity": "Gesamtstückzahl über alle Motive. Beispiel: 1.000 Etiketten, egal wie viele Sorten.",
         "reference": "Ihre Bestell- oder Kostenstellen-Referenz für diese Position. Sie steht auf Lieferschein und Rechnung, z. B. „Filiale Nord / KST 4711“.",
         "delivery": "Wann die Ware bei Ihnen ist. Der Termin gilt bei Bestellung und Druckdaten bis zum Annahmeschluss, z. B. heute bis 11:30 Uhr bestellt und Standard gewählt = Lieferung in 5 Werktagen.",
-        "option": "Wählen Sie eine Ausführung. Der Preis wird sofort neu berechnet, z. B. bei Laminat matt statt ohne Veredelung."
+        "option": "Wählen Sie eine Ausführung. Der Preis wird sofort neu berechnet, z. B. bei Laminat matt statt ohne Veredelung.",
+        "area": "Die Gesamtfläche (Breite × Höhe × Stückzahl) ist die Grundlage für Material und flächenbezogene Optionen wie Laminat, z. B. 1.000 × 500 mm × 10 Stück = 5 m². Mindestflächen oder Abrechnungsschritte berücksichtigt der Preis automatisch."
       },
       "layout": {
         "label": "Darstellung",
@@ -26,8 +27,7 @@
       },
       "section": {
         "material": "Material",
-        "format": "Endformat",
-        "quantity": "Auflage",
+        "format": "Format & Auflage",
         "options": "Druck & Weiterverarbeitung"
       },
       "field": {
@@ -85,24 +85,25 @@
       },
       "steps": {
         "material": "Material",
-        "format": "Format",
-        "quantity": "Menge & Lieferzeit"
+        "format": "Format & Stückzahl",
+        "delivery": "Lieferzeit"
       },
       "guided": {
         "stepsLabel": "Schritte",
         "materialTitle": "Welches Material soll es sein?",
-        "formatTitle": "Wie groß soll %material% sein?",
+        "formatTitle": "Wie groß soll %material% sein – und wie viele?",
         "presets": "Schnellwahl",
         "fromPrice": "ab %price%/m²",
         "matrixTitle": "Menge und Lieferzeit wählen",
         "matrixHelp": "Ein Klick auf einen Preis wählt Stückzahl und Lieferzeit. Preise %mode%, je Position.",
         "matrixQty": "Menge",
-        "matrixOther": "Andere Menge, mehrere Motive oder Referenz",
         "matrixOnRequest": "Preis erscheint nach der Auswahl",
         "pieces": "Stk",
         "piecesPerMotif": "Stk je Motiv",
         "next": "Weiter",
-        "back": "Zurück"
+        "back": "Zurück",
+        "deliveryTitle": "Wann brauchen Sie die Ware?",
+        "matrixCompare": "Staffelpreise vergleichen (Menge × Lieferzeit)"
       },
       "price": {
         "title": "Ihr Preis",
@@ -150,6 +151,9 @@
       },
       "buybox": {
         "hint": "Der Preis hängt von Material, Format und Ausführung ab."
+      },
+      "area": {
+        "summary": "Fläche: %piece% m² je Stück × %count% Stück = %total% m² gesamt"
       }
     },
     "lineItem": {

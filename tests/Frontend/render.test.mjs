@@ -54,7 +54,9 @@ test('kompakt: Startzustand zeigt Mindestpreis 12,50 €, nummerierte Abschnitte
     assert.equal(c.state.result.price.total, 12.5);
     const html = R.renderConfigurator(ctx, c.state);
     const text = textOf(html);
-    for (const s of ['Material', 'Endformat', 'Auflage', 'Druck & Weiterverarbeitung']) assert.ok(text.includes(s), s);
+    for (const s of ['Material', 'Format & Auflage', 'Druck & Weiterverarbeitung']) assert.ok(text.includes(s), s);
+    assert.equal((html.match(/class="lm-sec__no"/g) || []).length, 3, 'drei Abschnitte, Stückzahl beim Format');
+    assert.ok(text.includes('Fläche: 0,24 m² je Stück × 1 Stück = 0,24 m² gesamt'), 'Gesamtfläche beim Format');
     assert.match(text, /12,50 €/);
     assert.ok(text.includes('Mindestpreis 12,50 € je Position'));
     assert.ok(text.includes('netto zzgl. MwSt.'));
@@ -85,6 +87,7 @@ test('kompakt: Weg zum Comdatek-Fall 353,00 € (je Stück 35,30 €, je m² 70,
     assert.ok(text.includes('35,30 €'));
     assert.ok(text.includes('70,60 €'));
     assert.ok(text.includes('5 m²'));
+    assert.ok(textOf(R.renderCompact(ctx, c.state)).includes('= 5 m² gesamt'), 'Fläche vom Backend');
     // nur die letzte Anfrage zählt, entprellt: höchstens Start + 1 weitere Berechnung
     assert.ok(c.client.calls.length <= 2, `Aufrufe: ${c.client.calls.length}`);
 });
@@ -140,12 +143,14 @@ test('geführt: Reiter, Kacheln mit Badges/ab-Preis, automatisch weiter, Ihr Pro
     assert.ok(textOf(html).includes('ab 29,00 €/m²'));
     assert.match(html, /data-lm-action="step" data-lm-value="group:veredelung">ändern</);
     const labels = [...html.matchAll(/<span class="lm-steps__n"[^>]*>[^<]*<\/span>([^<]+)<\/button>/g)].map((m) => m[1].replace(/&amp;/g, '&'));
-    assert.deepEqual(labels, ['Material', 'Format', 'Farbigkeit', 'Veredelung', 'Lochbohrungen', 'Schneiden', 'Menge & Lieferzeit']);
+    assert.deepEqual(labels, ['Material', 'Format & Stückzahl', 'Farbigkeit', 'Veredelung', 'Lochbohrungen', 'Schneiden', 'Lieferzeit']);
     // Format-Schritt: Schnellwahl nur innerhalb der Grenzen
     c.dispatch({ type: 'step', key: 'format' });
     html = R.renderConfigurator(ctx, c.state);
-    assert.ok(textOf(html).includes('Wie groß soll Aluverbund 3 mm sein?'));
+    assert.ok(textOf(html).includes('Wie groß soll Aluverbund 3 mm sein – und wie viele?'));
     assert.ok(textOf(html).includes('DIN A4'));
+    assert.match(html, /data-lm-field="perMotif"/, 'Stückzahl im Format-Schritt');
+    assert.ok(textOf(html).includes('= 0,24 m² gesamt'));
     // Optionsschritt: Kacheln mit Preis-Hinweis
     c.dispatch({ type: 'step', key: 'group:veredelung' });
     html = R.renderConfigurator(ctx, c.state);
@@ -154,10 +159,12 @@ test('geführt: Reiter, Kacheln mit Badges/ab-Preis, automatisch weiter, Ihr Pro
 });
 
 test('geführt: Preismatrix Menge × Lieferzeit mit Datum; Klick wählt beides', async () => {
-    const c = await controller({ layout: 'guided', step: 'quantity' });
+    const c = await controller({ layout: 'guided', step: 'delivery' });
     assert.ok(c.client.calls.at(-1).matrix, 'geführt fragt die Matrix an');
     let html = R.renderConfigurator(ctx, c.state);
     assert.match(html, /<table class="lm-matrix table table-hover align-middle">/);
+    assert.ok(textOf(html).includes('Wann brauchen Sie die Ware?'));
+    assert.match(html, /data-lm-action="delivery" data-lm-value="express" aria-pressed="false"/, 'Lieferzeit als Kachel');
     assert.ok(textOf(html).includes('Standard'));
     assert.ok(textOf(html).includes('Fr., 13.11.'), 'Liefertermin Standard');
     assert.ok(textOf(html).includes('Mi., 11.11.'), 'Liefertermin Express');
@@ -283,6 +290,6 @@ test('Folge-Set-Daten: Festformat-Auswahl, split-Menge, optionale Gruppe „kein
     const fmt = R.renderGuided(ctx, S.apply(c.state, { type: 'step', key: 'format' }));
     assert.match(fmt, /data-lm-field="formatValue" data-lm-group="format"/);
     assert.ok(!fmt.includes('data-lm-action="rotate"'), 'Drehen gesperrt');
-    const qty = R.renderGuided(ctx, S.apply(c.state, { type: 'step', key: 'quantity' }));
+    const qty = R.renderGuided(ctx, S.apply(c.state, { type: 'step', key: 'format' }));
     assert.ok(textOf(qty).includes('Gesamtmenge'));
 });

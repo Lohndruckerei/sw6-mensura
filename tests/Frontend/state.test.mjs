@@ -138,7 +138,7 @@ test('URL-Hash: Konfiguration teilen und wiederherstellen', () => {
     const back = S.createState(alu, { initial: parsed.config, layout: parsed.layout, step: parsed.step });
     assert.equal(S.configKey(S.toConfiguration(back)), S.configKey(S.toConfiguration(s)));
     assert.equal(back.layout, 'guided');
-    assert.equal(back.step, 'quantity');
+    assert.equal(back.step, 'delivery', 'alter Hash-Schritt quantity wird zu delivery');
     assert.equal(S.decodeHash(alu, '#reviews'), null, 'fremde Anker bleiben unberührt');
     const junk = S.decodeHash(alu, '#lm?m=unbekannt&w=abc&o.farbigkeit=xx');
     const junkState = S.createState(alu, { initial: junk.config });
@@ -150,11 +150,12 @@ test('URL-Hash: Konfiguration teilen und wiederherstellen', () => {
 test('Geführte Schritte folgen den aktiven Gruppen (Optionssets)', () => {
     const keys = (s) => S.guidedSteps(alu, s).map((x) => x.key);
     let s = S.createState(alu);
-    assert.deepEqual(keys(s), ['material', 'format', 'group:farbigkeit', 'group:veredelung', 'group:bohrung', 'group:schnitt', 'quantity']);
+    assert.deepEqual(keys(s), ['material', 'format', 'group:farbigkeit', 'group:veredelung', 'group:bohrung', 'group:schnitt', 'delivery']);
     s = S.apply(s, { type: 'material', id: ACRYL });
-    assert.deepEqual(keys(s), ['material', 'format', 'group:farbigkeit', 'group:kanten', 'group:bohrung', 'group:schnitt', 'quantity']);
+    assert.deepEqual(keys(s), ['material', 'format', 'group:farbigkeit', 'group:kanten', 'group:bohrung', 'group:schnitt', 'delivery']);
     assert.equal(S.nextStepKey(alu, { ...s, step: 'material' }), 'format');
-    assert.equal(S.nextStepKey(alu, { ...s, step: 'quantity' }), 'quantity');
+    assert.equal(S.nextStepKey(alu, { ...s, step: 'quantity' }), 'delivery', 'alter Schlüssel quantity = Lieferzeit-Schritt');
+    assert.equal(S.nextStepKey(alu, { ...s, step: 'format' }), 'group:farbigkeit', 'nach Format & Stückzahl kommen die Optionen');
 });
 
 test('Folge-Sets von Werten, Start-Set, ausgeblendete und optionale Gruppen, Festformat', () => {

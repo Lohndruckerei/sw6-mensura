@@ -139,6 +139,9 @@ export async function mountConfigurator(el, options = {}) {
             case 'formatValue':
                 controller.dispatch({ type: 'formatValue', width: Number(btn.getAttribute('data-lm-width')), height: Number(btn.getAttribute('data-lm-height')) });
                 break;
+            case 'delivery':
+                controller.dispatch({ type: 'delivery', value });
+                break;
             case 'matrix':
                 controller.dispatch({ type: 'matrix', quantity: Number(btn.getAttribute('data-lm-quantity')), delivery: btn.getAttribute('data-lm-delivery') });
                 break;
