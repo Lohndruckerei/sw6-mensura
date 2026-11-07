@@ -104,5 +104,6 @@
     "deliveryValue": "standard"
   },
   "quantitySteps": [1, 2, 5, 10, 25, 50, 100],
-  "orderCutoff": "11:30"
+  "orderCutoff": "11:30",
+  "display": { "showPriceHints": true, "showArea": true, "showPerSqm": true, "showPerPiece": true, "showFromPrice": true }
 }
