@@ -23,10 +23,11 @@ echo "== Snippets"
 node .github/scripts/check-snippets.mjs
 
 echo "== Backend gegen Vertrag: Preis-Engine trifft alle Beispielfälle (PHPUnit)"
+source .github/scripts/build-dir.sh
 bash .github/scripts/phpunit.sh
-echo "== Backend gegen Vertrag: Antworten der Engine passen zu den Schemas"
-$AJV validate $OPTS -s $S/calculation-result.schema.json -r $S/configuration.schema.json -d "build/contract/calculate/*.json"
-$AJV validate $OPTS -s $S/configurator.schema.json -r $S/configuration.schema.json -d "build/contract/configurator/*.json"
+echo "== Backend gegen Vertrag: Antworten der Engine passen zu den Schemas ($MENSURA_BUILD)"
+$AJV validate $OPTS -s $S/calculation-result.schema.json -r $S/configuration.schema.json -d "$MENSURA_BUILD/calculate/*.json"
+$AJV validate $OPTS -s $S/configurator.schema.json -r $S/configuration.schema.json -d "$MENSURA_BUILD/configurator/*.json"
 echo "== Frontend gegen Vertrag: Konfigurator-JS mit fixtures (Node, ohne Shop)"
 node --test tests/Frontend/*.test.mjs
 echo "✓ Alle Prüfungen bestanden."

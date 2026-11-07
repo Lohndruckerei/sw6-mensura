@@ -107,7 +107,7 @@ final class ContractTest extends TestCase
 
     private static function write(string $relative, array $data): void
     {
-        $file = self::BUILD . '/' . $relative;
+        $file = (getenv('MENSURA_BUILD') ?: self::BUILD) . '/' . $relative;
         if (!is_dir(\dirname($file))) {
             mkdir(\dirname($file), 0777, true);
         }

@@ -6,7 +6,7 @@
          colors="true"
          failOnWarning="true"
          failOnRisky="true"
-         cacheDirectory="../../.cache/phpunit">
+         cacheResult="false">
     <testsuites>
         <testsuite name="Mensura Backend">
             <directory>.</directory>
