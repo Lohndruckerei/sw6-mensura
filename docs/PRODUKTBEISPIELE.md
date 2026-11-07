@@ -30,6 +30,8 @@ Preisaufruf: `Produkt / Material / Festformat / Breite / Höhe / Motive / Stück
 | Mesh-Banner | < 10 m² 5,25 · ab 10 m² 4,85 €/m² **+ 0,20 €/Stk** |
 | Blockout-Plane | 7,55 €/m² + 0,20 €/Stk, min. 8,90 € (im **EK** dagegen „unter/über 1 m² je Stück“!) |
 | Banner-Konfektion | **je m², nicht je lfm**: rundum umsäumt +1,00 €/m², umsäumt + Ösen alle 50 cm +1,30 €/m² (gleicher Preis bei 3×3 m, 9×1 m, 4,5×2 m) → offene Rückfrage geklärt |
+| Folie Green Stick matt 60 µ (PVC-frei, Kat. 57 → Standardfolien) | 12,00 €/m² + 0,10 €/Stk, ab 10 m² Gesamtfläche ≈ 10,90 €/m², min. 8,00 €; Optionen Laminat (matt/gloss), Schnitt (rechteckig/Kontur/rund), Zuschnitt (durchgeschnitten/mit Trägerrand/Sammelbogen) |
+| DIN-Formate Hohlkammer 3 mm (Produkt 419) | Format als **Optionsgruppe mit festen Maßen** (A0, A1, A2, B1, Doppel A0/A1/B1); Preis hängt von **Stückfläche und Menge** ab (A0: 1 Stk = Mindestpreis 9,35 €, 10 Stk 5,12 €/Stk, 50 Stk 4,82 €/Stk; Doppel A0 1 Stk 4,77 €/m², 50 Stk 4,58 €/m²); Rillung und Lochbohrung ohne Aufpreis |
 | Etiketten (Haftfolie PP 60 µ) | nur Fläche zählt, nicht die Form (50×50 = 25×100 = 20×125); Staffel über Gesamtfläche: bis < 10 m² ≈ 6,80 €/m², ab 10 m² 2,41 €/m²; Konturschnitt + ≈ 2,33 €/m² |
 
 **Staffelsprung:** Bei Etiketten kosten 3.000 Stück 51,00 €, 4.000 Stück aber nur 24,10 €. Mensura sollte eine
@@ -76,11 +78,12 @@ kommen Umschlag (Material und Farbigkeit) als zweite Material-/Optionsebene und 
 |---|---|---|
 | 1 | EK und VK haben teils **unterschiedliche Staffelarten** (Blockout: EK je Stückfläche, VK fest) | `tiers` getrennt nach EK und VK, je mit eigener Staffelbasis: `{purchase: {basis, steps}, sale: {basis, steps}}` |
 | 2 | **Preistabellen** (Flyer, Broschüren): Stückpreis bzw. Gesamtpreis je Auflage für Kombinationen aus Formatklasse × Material × Farbigkeit × Seiten | neue Tabelle `ld_mensura_price_table` (je Kalkulation, Schlüssel = Material + gewählte Optionswerte, Zeilen = Auflage → EK/VK, Art „je Stück“ oder „gesamt“) mit **CSV-Import/-Export** (Pflege per Excel) |
-| 3 | **Festformate als Optionen** mit Sperren und Formatklassen | Optionsgruppe `type = format`: Werte mit Breite/Höhe; freie Formate werden der nächsten Klasse zugeordnet; Sperren über `conditions` wie bei allen Optionen |
+| 3 | **Festformate als Optionen** mit Sperren und Formatklassen (Falzflyer, DIN-Formate auf Platten) | Optionsgruppe `type = format`: Werte mit Breite/Höhe; freie Formate werden der nächsten Klasse zugeordnet; Sperren über `conditions` wie bei allen Optionen |
 | 4 | **Staffelbezug bei Motiven**: Flyer = Summe aller Motive, andere ggf. je Motiv | Feld `tierScope` an der Kalkulation: `total` (Standard) oder `per_motif` |
 | 5 | **Druckpositionen** (Mehrfachauswahl mit Maß) | Optionsgruppe `displayType = multi` mit Preis je gewählter Position; erst wenn Textil kommt |
 | 6 | **Bestpreisregel** bei Staffelsprüngen | Schalter an der Kalkulation: „günstigere größere Menge anbieten/anwenden“ |
 | 7 | Grundpreis je Stück hängt am Material (Mesh 0,20 €, PVC 510 g 0 €) | `priceComponents` auch am Material (heute nur über Optionspreis je Material möglich) |
+| 7a | **Zweidimensionale Staffel** (Stückfläche × Menge, DIN-Formate Hohlkammer) | Staffelschritte mit zwei Schwellen (`fromPieceArea`, `fromQuantity`) oder Preistabelle (Lücke 2) je Formatwert |
 | 8 | Zweite Materialebene (Umschlag bei Broschüren) | Optionsgruppe mit Material-Bezug oder Kalkulation mit `coverMaterial`; klären, wenn Broschüren kommen |
 
 Rechenart A ist mit 1, 6 und 7 vollständig abgebildet. Für B und C braucht es 2, 3 und 4. Die eigene Formel bleibt die
