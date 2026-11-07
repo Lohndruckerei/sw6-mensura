@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lohndruckerei\Mensura\Controller\StoreApi;
 
+use Lohndruckerei\Mensura\Service\Calculation\Catalog;
 use Lohndruckerei\Mensura\Service\Calculation\CatalogLoader;
 use Lohndruckerei\Mensura\Service\Calculation\ConfiguratorBuilder;
 use Lohndruckerei\Mensura\Service\Calculation\ContextFactory;
@@ -62,18 +63,11 @@ class MensuraStoreApiController
     #[Route(path: '/store-api/ld-mensura/cart/add', name: 'store-api.ld-mensura.cart-add', methods: ['POST'])]
     public function cartAdd(Request $request, SalesChannelContext $context): Response
     {
-        try {
-            $configuration = $request->toArray()['configuration'] ?? null;
-        } catch (\Throwable) {
-            return $this->error(400, 'request.invalid_json', 'Anfrage ist kein gültiges JSON');
+        $loaded = $this->loadConfiguration($request, $context);
+        if ($loaded instanceof JsonResponse) {
+            return $loaded;
         }
-        if (!\is_array($configuration) || !\is_string($configuration['productId'] ?? null) || preg_match(self::ID_PATTERN, $configuration['productId']) !== 1) {
-            return $this->error(400, 'request.invalid_configuration', 'configuration.productId fehlt oder ist ungültig');
-        }
-        $catalog = $this->loader->load($configuration['productId'], $context->getContext());
-        if ($catalog === null) {
-            return $this->error(404, 'product.not_configurable', 'Produkt hat kein Mensura-Profil');
-        }
+        [$configuration, $catalog] = $loaded;
         $result = $this->engine->calculate($configuration, $catalog, $this->contextFactory->fromSalesChannelContext($context));
         if (!$result->isValid()) {
             return $this->json($result->toStoreApi(), 400);
@@ -93,12 +87,28 @@ class MensuraStoreApiController
 
     private function run(Request $request, SalesChannelContext $context, mixed $matrix): JsonResponse
     {
+        $loaded = $this->loadConfiguration($request, $context);
+        if ($loaded instanceof JsonResponse) {
+            return $loaded;
+        }
+        [$configuration, $catalog] = $loaded;
+        $result = $this->engine->calculate($configuration, $catalog, $this->contextFactory->fromSalesChannelContext($context), $matrix === true);
+
+        return $this->json($result->toStoreApi());
+    }
+
+    /**
+     * `configuration` aus dem Anfrage-Body lesen und den Katalog des Produkts laden.
+     *
+     * @return array{0: array<string, mixed>, 1: Catalog}|JsonResponse Fehlerantwort (400/404), wenn das nicht geht
+     */
+    private function loadConfiguration(Request $request, SalesChannelContext $context): array|JsonResponse
+    {
         try {
-            $body = $request->toArray();
+            $configuration = $request->toArray()['configuration'] ?? null;
         } catch (\Throwable) {
             return $this->error(400, 'request.invalid_json', 'Anfrage ist kein gültiges JSON');
         }
-        $configuration = $body['configuration'] ?? null;
         if (!\is_array($configuration) || !\is_string($configuration['productId'] ?? null) || preg_match(self::ID_PATTERN, $configuration['productId']) !== 1) {
             return $this->error(400, 'request.invalid_configuration', 'configuration.productId fehlt oder ist ungültig');
         }
@@ -106,9 +116,8 @@ class MensuraStoreApiController
         if ($catalog === null) {
             return $this->error(404, 'product.not_configurable', 'Produkt hat kein Mensura-Profil');
         }
-        $result = $this->engine->calculate($configuration, $catalog, $this->contextFactory->fromSalesChannelContext($context), $matrix === true);
 
-        return $this->json($result->toStoreApi());
+        return [$configuration, $catalog];
     }
 
     /** @param array<string, mixed> $data */

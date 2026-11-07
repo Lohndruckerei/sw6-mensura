@@ -54,12 +54,6 @@ final class Catalog
         }
     }
 
-    /** @return array<string, mixed> */
-    public function toArray(): array
-    {
-        return $this->data;
-    }
-
     public function productId(): string
     {
         return (string) ($this->data['product']['id'] ?? $this->data['profile']['productId']);

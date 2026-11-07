@@ -30,7 +30,6 @@ final class NormalizedConfiguration
     /** @var list<string> ausgeblendete Gruppen (Profil `hidden`): Wert wird berechnet, aber nicht angezeigt */
     public array $hiddenGroupIds = [];
 
-    public ?string $deliveryGroupId = null;
     public ?string $deliveryValueId = null;
     /** @var list<string> erlaubte Lieferzeit-Werte in Reihenfolge */
     public array $deliveryValueIds = [];

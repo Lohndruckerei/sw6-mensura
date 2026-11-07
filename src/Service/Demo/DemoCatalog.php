@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Lohndruckerei\Mensura\Service\Demo;
 
 /**
- * Demo- und Testdaten passend zu docs/contract/fixtures (Produkt „Aluverbund“ mit Aluverbund 3 mm und Acrylglas 5 mm).
+ * Demo- und Testdaten passend zu docs/contract/fixtures: Produkt „Aluverbund“ (Aluverbund 3 mm und Acrylglas 5 mm)
+ * und Produkt „Folie“ (Folie A).
  *
  * - Aluverbund = Comdatek-VK (KONZEPT 2): 29 €/m² + 0,50 €/Stk, min. 12,50 €; EK aus der Einkaufspreisliste 2026 (2a)
  * - Acrylglas  = Beispielwerte (62 €/m²)
@@ -22,7 +23,6 @@ final class DemoCatalog
     public const MATERIAL_ALU = '0194e1a0000070008000000000000b01';
     public const MATERIAL_ACRYL = '0194e1a0000070008000000000000b02';
     public const MATERIAL_FOLIE = '0194e1a0000070008000000000000b03';
-    public const PRODUCT_NUMBER = 'MENSURA-DEMO-ALU';
 
     /** Demo-Produkte: productId → [Produktnummer, Name de, Name en, Profil-Schlüssel, Netto-Anzeigepreis] */
     public const PRODUCTS = [

@@ -17,8 +17,9 @@ $AJV validate $OPTS -s $S/configurator.schema.json -r $S/configuration.schema.js
 node .github/scripts/check-contract.mjs
 
 echo "== Backend: PHP-Syntax"
-find src -name '*.php' -print0 | xargs -0 -n1 php -l | grep -v '^No syntax errors' || true
-if find src -name '*.php' -print0 | xargs -0 -n1 php -l 2>&1 | grep -q 'Parse error'; then echo "PHP-Syntaxfehler"; exit 1; fi
+LINT=$(find src -name '*.php' -print0 | xargs -0 -n1 php -l 2>&1 | grep -v '^No syntax errors' || true)
+[ -z "$LINT" ] || echo "$LINT"
+if grep -q 'Parse error' <<< "$LINT"; then echo "PHP-Syntaxfehler"; exit 1; fi
 echo "== Snippets"
 node .github/scripts/check-snippets.mjs
 

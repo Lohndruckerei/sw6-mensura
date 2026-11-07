@@ -65,6 +65,8 @@ final class LineItemFactory
                 $codes[] = $value['code'];
             }
         }
+        $areas = $result->getAreas();
+        $weight = $result->getWeight();
         $sku = implode('-', array_filter([
             $material['code'] ?? $material['technicalName'] ?? null,
             $config->width . 'x' . $config->height,
@@ -78,12 +80,12 @@ final class LineItemFactory
             'format' => ['width' => $config->width, 'height' => $config->height, 'rotated' => $config->rotated, 'unit' => 'mm'],
             // piece/total = Länge × Breite (× Stück) inkl. Formatzugaben; billed = abgerechnet (Mindestfläche, Schrittweite)
             'area' => [
-                'piece' => $result->getAreas()['piece'] ?? null,
-                'total' => $result->getAreas()['total'] ?? null,
-                'billed' => $result->getAreas()['billed'] ?? null,
+                'piece' => $areas['piece'] ?? null,
+                'total' => $areas['total'] ?? null,
+                'billed' => $areas['billed'] ?? null,
             ],
             // Gewicht in kg (Gewicht je m² des Materials × Fläche) – für ein späteres Versand-Plugin
-            'weight' => $result->getWeight() !== null ? $result->getWeight() + ['unit' => 'kg'] : null,
+            'weight' => $weight !== null ? $weight + ['unit' => 'kg'] : null,
             'motifs' => $config->motifs,
             'perMotif' => $config->perMotif,
             'options' => $options,

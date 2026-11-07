@@ -10,9 +10,19 @@ namespace Lohndruckerei\Mensura\Service\Calculation;
  */
 final class CalculationContext
 {
+    public const DISPLAY_DEFAULTS = [
+        'showPriceHints' => true,
+        'showArea' => true,
+        'showPerSqm' => true,
+        'showPerPiece' => true,
+        'showFromPrice' => true,
+    ];
+
     /**
-     * @param list<int>    $workingDays ISO-Wochentage 1 (Mo) … 7 (So)
-     * @param list<string> $holidays    YYYY-MM-DD
+     * @param list<int>            $workingDays ISO-Wochentage 1 (Mo) … 7 (So)
+     * @param list<string>         $holidays    YYYY-MM-DD
+     * @param array<string, bool>  $display     Anzeige im Shop (Plugin-Einstellung), je Schalter true = anzeigen;
+     *                                          das Produktprofil kann überschreiben
      */
     public function __construct(
         public readonly ?string $customerGroupId = null,
@@ -25,18 +35,9 @@ final class CalculationContext
         public readonly string $storefrontLayout = 'compact',
         public readonly bool $allowLayoutSwitch = true,
         public readonly int $layoutTestShare = 0,
-        /** Anzeige im Shop (Plugin-Einstellung), je Schalter true = anzeigen; das Produktprofil kann überschreiben */
         public readonly array $display = self::DISPLAY_DEFAULTS,
     ) {
     }
-
-    public const DISPLAY_DEFAULTS = [
-        'showPriceHints' => true,
-        'showArea' => true,
-        'showPerSqm' => true,
-        'showPerPiece' => true,
-        'showFromPrice' => true,
-    ];
 
     public static function languageFromLocale(?string $locale): string
     {

@@ -15,8 +15,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Legt das Demo-Produkt „Aluverbund (Mensura-Demo)“ samt Kalkulationen, Materialien, Optionen, Sets und Profil an
- * (Daten aus DemoCatalog, passend zu docs/contract/fixtures). Mehrfach ausführbar (upsert mit festen IDs).
+ * Legt die Demo-Produkte „Aluverbund (Mensura-Demo)“ und „Folie (Mensura-Demo)“ samt Kalkulationen, Materialien,
+ * Optionen, Sets und Profilen an, dazu Beispieldaten für den Produktberater (Merkmale, Anwendungsfall).
+ * Daten aus DemoCatalog, passend zu docs/contract/fixtures. Mehrfach ausführbar (upsert mit festen IDs).
  *
  *   bin/console mensura:demo:seed
  */

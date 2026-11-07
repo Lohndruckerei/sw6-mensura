@@ -20,7 +20,7 @@ class CatalogLoader
 {
     private const CALCULATION_FIELDS = [
         'id', 'technicalName', 'name', 'active', 'unit', 'formatMode', 'widthMin', 'widthMax', 'heightMin', 'heightMax',
-        'allowRotation', 'minArea', 'areaRounding', 'areaScope','maxMotifs', 'maxQuantity', 'optionSetId', 'motifMode', 'tierScope',
+        'allowRotation', 'minArea', 'areaRounding', 'areaScope', 'maxMotifs', 'maxQuantity', 'optionSetId', 'motifMode', 'tierScope',
         'bestPriceMode', 'priceComponents', 'minimumPricePurchase', 'minimumPriceSale', 'tierBasis', 'tiers',
         'priceRounding', 'setupPricePurchase', 'setupPriceSale', 'quantitySteps', 'supplierId',
     ];

@@ -13,7 +13,8 @@ namespace Lohndruckerei\Mensura\Service\Calculation;
  * Rechenweg für den Bestell-Schnappschuss (mit EK, nie in die Store-API).
  *
  *   B, H          = Endformat + Formatzugaben der Optionen (mm)
- *   Fläche        = max(Mindestfläche, aufrunden(B × H / 1e6, Flächenrundung))
+ *   Fläche        = abgerechnete Fläche je Stück: max(Mindestfläche, aufrunden(B × H / 1e6 × Menge, Flächenrundung)) / Menge
+ *                   (areaScope `total`, Standard; bei `piece` Mindestfläche/Rundung je Stück, siehe billedArea())
  *   Umfang        = 2 × (B + H) / 1000
  *   Satz/m²       = (Materialpreis[Staffel] bzw. base_area + Σ per_area) × Π factor
  *   Stückpreis    = Satz/m² × Fläche (bzw. Preistabelle) + Σ per_piece + Umfang × Σ per_perimeter
@@ -57,7 +58,7 @@ final class PriceEngine
         }
         $result->setDelivery($this->delivery($config, $catalog, $context, $messages));
         if ($matrix && $config->isValid()) {
-            $result->setMatrix($this->matrix($config, $catalog, $context));
+            $result->setMatrix($this->matrix($config, $catalog, $context, $messages));
         }
 
         return $result;
@@ -219,20 +220,21 @@ final class PriceEngine
         }
 
         // Format prüfen (Grenzen aus Kalkulation, Material, Profil; Drehen erlaubt?)
-        $this->checkFormat($config, $catalog, $calculation, $material, $limits, $messages);
+        $this->checkFormat($config, $calculation, $material, $limits, $messages);
 
         // Menge prüfen
         $profile = $catalog->profile();
-        $quantity = $config->quantity((string) ($calculation['motifMode'] ?? 'multiply'));
+        $motifMode = (string) ($calculation['motifMode'] ?? 'multiply');
+        $quantity = $config->quantity($motifMode);
         if ($limits['maxMotifs'] !== null && $config->motifs > $limits['maxMotifs']) {
             $config->errors[] = $messages->message('quantity.motifs_max', ['limit' => $messages->number($limits['maxMotifs'])], 'motifs', ['motifs' => $limits['maxMotifs']]);
         }
         $minQuantity = isset($profile['minQuantity']) ? (int) $profile['minQuantity'] : null;
         if ($minQuantity !== null && $quantity < $minQuantity) {
-            $config->errors[] = $messages->message('quantity.min', ['limit' => $messages->number($minQuantity)], 'perMotif', ['perMotif' => $this->perMotifFor($config, (string) ($calculation['motifMode'] ?? 'multiply'), $minQuantity, true)]);
+            $config->errors[] = $messages->message('quantity.min', ['limit' => $messages->number($minQuantity)], 'perMotif', ['perMotif' => $this->perMotifFor($config, $motifMode, $minQuantity, true)]);
         }
         if ($limits['maxQuantity'] !== null && $quantity > $limits['maxQuantity']) {
-            $config->errors[] = $messages->message('quantity.max', ['limit' => $messages->number($limits['maxQuantity'])], 'perMotif', ['perMotif' => $this->perMotifFor($config, (string) ($calculation['motifMode'] ?? 'multiply'), $limits['maxQuantity'], false)]);
+            $config->errors[] = $messages->message('quantity.max', ['limit' => $messages->number($limits['maxQuantity'])], 'perMotif', ['perMotif' => $this->perMotifFor($config, $motifMode, $limits['maxQuantity'], false)]);
         }
 
         // Lieferzeit
@@ -398,7 +400,7 @@ final class PriceEngine
      * @param array<string, mixed>|null $material
      * @param array<string, mixed>      $limits
      */
-    private function checkFormat(NormalizedConfiguration $config, Catalog $catalog, ?array $calculation, ?array $material, array $limits, Messages $messages): void
+    private function checkFormat(NormalizedConfiguration $config, ?array $calculation, ?array $material, array $limits, Messages $messages): void
     {
         $fits = static fn (int $w, int $h) => ($limits['widthMin'] === null || $w >= $limits['widthMin'])
             && ($limits['widthMax'] === null || $w <= $limits['widthMax'])
@@ -463,7 +465,6 @@ final class PriceEngine
         if ($deliveryGroup === null) {
             return null;
         }
-        $config->deliveryGroupId = $deliveryGroup;
 
         $available = array_values(array_filter($config->deliveryValueIds, fn (string $v) => $this->deliveryReason($config, $catalog, $v, null, $messages) === null));
         $requestedId = \is_string($requested) ? $catalog->valueIdByName($deliveryGroup, $requested) : null;
@@ -807,32 +808,36 @@ final class PriceEngine
      * areaScope `total` (Standard): Gesamtfläche L × B × Stück, aufgerundet auf `areaRounding`, mindestens `minArea`
      * (Folie: bis 1 m² gleicher Preis, darüber in Schritten). areaScope `piece`: dasselbe je Stück, dann × Stück.
      *
-     * @param array<string, mixed>|null $calculation
+     * @param array<string, mixed>|null $rules Flächenregeln aus areaRules()
      */
-    public function billedArea(?array $calculation, float $width, float $height, int $quantity): float
+    public function billedArea(?array $rules, float $width, float $height, int $quantity): float
     {
-        if (($calculation['areaScope'] ?? 'total') === 'piece') {
-            return $this->pieceArea($calculation, $width, $height) * $quantity;
+        if (($rules['areaScope'] ?? 'total') === 'piece') {
+            return $this->pieceArea($rules, $width, $height) * $quantity;
         }
         $area = $width * $height / 1_000_000 * $quantity;
-        $rounding = (float) ($calculation['areaRounding'] ?? 0);
+        $rounding = (float) ($rules['areaRounding'] ?? 0);
         if ($rounding > 0) {
             $area = round(ceil(round($area / $rounding, 9)) * $rounding, 9);
         }
 
-        return max((float) ($calculation['minArea'] ?? 0), $area);
+        return max((float) ($rules['minArea'] ?? 0), $area);
     }
 
-    /** Abgerechnete Fläche je Stück bei areaScope `piece`. @param array<string, mixed>|null $calculation */
-    public function pieceArea(?array $calculation, float $width, float $height): float
+    /**
+     * Abgerechnete Fläche je Stück bei areaScope `piece`.
+     *
+     * @param array<string, mixed>|null $rules Flächenregeln aus areaRules()
+     */
+    public function pieceArea(?array $rules, float $width, float $height): float
     {
         $area = $width * $height / 1_000_000;
-        $rounding = (float) ($calculation['areaRounding'] ?? 0);
+        $rounding = (float) ($rules['areaRounding'] ?? 0);
         if ($rounding > 0) {
             $area = ceil($area / $rounding - 1e-9) * $rounding;
         }
 
-        return max((float) ($calculation['minArea'] ?? 0), $area);
+        return max((float) ($rules['minArea'] ?? 0), $area);
     }
 
     /**
@@ -976,7 +981,7 @@ final class PriceEngine
      *
      * @return list<array{quantity: int, delivery: string, total: float|null}>
      */
-    private function matrix(NormalizedConfiguration $config, Catalog $catalog, CalculationContext $context): array
+    private function matrix(NormalizedConfiguration $config, Catalog $catalog, CalculationContext $context, Messages $messages): array
     {
         $profile = $catalog->profile();
         $calculation = $catalog->calculation($config->calculationId) ?? [];
@@ -984,7 +989,6 @@ final class PriceEngine
         if (!\is_array($steps) || $steps === []) {
             $steps = $calculation['quantitySteps'] ?? [1, 2, 5, 10, 25, 50, 100];
         }
-        $messages = new Messages($context->language);
         $rows = [];
         foreach ($steps as $step) {
             $perMotif = max(1, (int) $step);

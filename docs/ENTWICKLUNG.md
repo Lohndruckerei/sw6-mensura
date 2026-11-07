@@ -35,7 +35,7 @@ Jeder Bereich ändert nur seine eigenen Ordner. Braucht das Frontend ein neues F
 | **Vertrag** | Schemas gültig; jeder Beispielfall passt zu seinem Schema; kein Einkaufspreis in Vertrag oder Fixtures; Sollpreise in sich stimmig (Gesamt = je Stück × Menge, außer bei Mindestpreis) | jetzt |
 | **Backend** | PHP-Syntax aller Dateien; Snippets de-DE/en-GB vollständig | jetzt |
 | **Backend gegen Vertrag** | Preis-Engine rechnet alle Beispielfälle aus `fixtures/calculate/` (und baut `fixtures/configurator/`) und muss die Sollwerte exakt treffen (PHPUnit, `tests/Backend/`, Demo-Daten aus `src/Service/Demo/DemoCatalog.php`); die Antworten landen in `build/contract/` und werden gegen die Schemas geprüft | jetzt (v0.4.0) |
-| **Frontend gegen Vertrag** | Konfigurator-JS wird mit `fixtures/configurator/*.json` und `fixtures/calculate/*.expected.json` getestet (ohne Shop) | mit dem Konfigurator (Schritt 6) |
+| **Frontend gegen Vertrag** | Konfigurator-JS wird mit `fixtures/configurator/*.json` und `fixtures/calculate/*.expected.json` getestet (ohne Shop) | jetzt (v0.4.0) |
 
 Damit fällt sofort auf, wenn eine Seite den Vertrag verlässt: Das Backend rechnet anders als im Beispielfall, oder das
 Frontend erwartet ein Feld, das es nicht gibt.
@@ -89,7 +89,8 @@ Im laufenden Shop: `bin/console mensura:demo:seed` legt das Demo-Produkt aus den
 - **Anzeige-Schalter** (Vertragsvorschlag `contract/billed-area-display`, Teil display): `display.showPriceHints/showArea/showPerSqm/showPerPiece/showFromPrice`
   und je Gruppe `showPriceHint` blenden Aufpreise, Fläche und Einzelpreise aus (Fokus auf den Gesamtpreis); fehlt ein Schalter = anzeigen.
   `price.areas.billed`/`minArea` (Vertrag contract/area-values) erscheinen beim Format und im Preis, wenn die abgerechnete
-  Fläche größer ist als die echte. Die Schalter `display`/`showPriceHint` liefert das Backend noch nicht.
+  Fläche größer ist als die echte. Die Schalter kommen aus den Plugin-Einstellungen (Karte „Anzeige im Shop“), je Produktprofil
+  (`display`) und je Optionsgruppe (`showPriceHint`) überschreibbar.
 - **Festformat:** Hat ein Wert der Format-Gruppe eine `id`, sendet das Frontend `format.formatValueId` (Vertrag `contract/format-value-id`).
 - **Gestaltung = Shopware-Theme:** Bootstrap-Klassen (btn, form-select, alert, nav-tabs, table, badge, card) und `--bs-*`-Variablen,
   `scss/base.scss` nur für Layout. Das Admin-Designsystem gilt im Storefront nicht. Breite per Container-Query: in der Kaufbox
