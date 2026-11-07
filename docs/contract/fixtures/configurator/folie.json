@@ -101,5 +101,6 @@
         250
     ],
     "orderCutoff": "11:30",
-    "display": { "showPriceHints": true, "showArea": true, "showPerSqm": true, "showPerPiece": true, "showFromPrice": true }
+    "display": { "showPriceHints": true, "showArea": true, "showPerSqm": true, "showPerPiece": true, "showFromPrice": true },
+    "layoutTest": { "share": 0 }
 }

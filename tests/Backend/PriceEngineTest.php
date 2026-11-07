@@ -395,6 +395,14 @@ final class PriceEngineTest extends TestCase
         self::assertSame(0.3, PriceEngine::roundArea(0.30000000000000004, $rules));
     }
 
+    public function testLayoutTestShareFromSettings(): void
+    {
+        $builder = new \Lohndruckerei\Mensura\Service\Calculation\ConfiguratorBuilder();
+        self::assertSame(['share' => 20], $builder->build(new Catalog(DemoCatalog::catalog()), new CalculationContext(layoutTestShare: 20))['layoutTest']);
+        self::assertSame(['share' => 100], $builder->build(new Catalog(DemoCatalog::catalog()), new CalculationContext(layoutTestShare: 150))['layoutTest']);
+        self::assertSame(['share' => 0], $builder->build(new Catalog(DemoCatalog::catalog()), ContractTest::context())['layoutTest']);
+    }
+
     public function testEnglishTexts(): void
     {
         $api = self::plain((new PriceEngine())->calculate($this->config([]), new Catalog(DemoCatalog::catalog('en')), ContractTest::context(null, 'en'))->toStoreApi());

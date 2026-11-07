@@ -187,6 +187,8 @@ final class ConfiguratorBuilder
             'quantitySteps' => array_values(array_map('intval', $quantitySteps)),
             'orderCutoff' => $context->orderCutoff,
             'display' => $this->display($profile, $context),
+            // Testbetrieb der Darstellungen (Plugin-Einstellung layoutTestShare, 0 = kein Test)
+            'layoutTest' => ['share' => max(0, min(100, $context->layoutTestShare))],
         ];
     }
 
