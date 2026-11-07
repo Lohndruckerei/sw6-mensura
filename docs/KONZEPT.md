@@ -379,7 +379,7 @@ Anders als die EK-Felder liegt der Logistikanteil von Anfang an in **eigenen Tab
 (`ld_mensura_logistics_rule:read` usw.) gehören nur zu diesen Zusatzrechten, nicht zu `ld_mensura.viewer`. Damit schützt
 Shopware ihn in der Admin-API ohne eigenen Filter.
 
-## 3d. Logistikanteil (unsichtbar im VK) – Konzept, Stand 07.11.2026, noch nicht umgesetzt
+## 3d. Logistikanteil (unsichtbar im VK) – Konzept freigegeben 07.11.2026, Umsetzung läuft (3d.8)
 
 Fachliche Vorlage: `sw6-vectura/docs/LOGISTIKPAUSCHALE.md` (Modell D, Abschnitte 3.2–3.4 und 5). Entscheidung vom
 07.11.2026: Versandpauschale (DE 11,90 €, AT 17,90 €) und Verpackungszuschlag bleiben sichtbar und decken die eigene
@@ -412,7 +412,7 @@ anders als bei Folie.
 
 | Feld | Bedeutung | Beispiel |
 |---|---|---|
-| **Form** | `percent` = % vom Warenwert der Position (Basis siehe offene Frage 1) · `per_sqm` = € je abgerechnetem m² der Position · `per_piece` = € je Stück · `per_position` = € je Position | Magnet 12 % · Hartschaum 1,60 €/m² · Acryl groß 29,77 € je Position |
+| **Form** | `percent` = % vom Waren-EK der Position (EK-Zwischensumme, Entscheidung 3d.8 Nr. 1) · `per_sqm` = € je abgerechnetem m² der Position · `per_piece` = € je Stück · `per_position` = € je Position | Magnet 12 % · Hartschaum 1,60 €/m² · Acryl groß 29,77 € je Position |
 | **Wert** | Betrag netto (VK-Seite, Basis Wiederverkäufer) bzw. Prozentsatz | 11,63 |
 | **Rampe längste Seite** (optional, von–bis mm) | Faktor 0 bis „von“, linear steigend bis „bis“, darüber 1. Längste Seite = max(Breite, Höhe) je Stück **inkl. Formatzugaben**. Kein Sprung, auch nicht oberhalb von „bis“ („Rampe weiterführen“). | 1.000 → 1.400 mm: bei 1.200 mm wirkt die Hälfte |
 | **Mengenschwelle** (optional, Basis Gesamtfläche m² oder Stückzahl, von–bis) | ebenfalls gleitend: Faktor 0 unter „von“, linear bis „bis“, darüber 1. Der Faktor gilt für die ganze Position. Rampe und Mengenschwelle werden multipliziert. | Papier/Karton: 10 → 15 m² |
@@ -472,8 +472,8 @@ Grundpreis → Optionen → Staffelrabatt/% → Produktprofil-Aufschlag → Logi
    Kalkulations-Regeln `per_sqm` ohne Rampe stecken im „ab“-Preis je m² (`fromPricePerSqm`). Nicht lineare Teile (Rampe,
    Mengenschwelle, `percent`, Mindestbetrag) passen in keinen festen Text. Dann zeigt die Administration den Hinweis
    „Aufpreis-Hinweis dieser Gruppe ist nicht exakt“ und empfiehlt, den Aufpreis-Hinweis der Gruppe auszublenden
-   (`showPriceHint = false`, gibt es schon). Exakte Hinweise je Konfiguration wären eine eigene Vertragserweiterung
-   (offene Frage 3).
+   (`showPriceHint = false`, gibt es schon). Exakte Hinweise je Konfiguration wären eine eigene Vertragserweiterung und
+   kommen vorerst nicht (3d.8 Nr. 3).
 3. **Nie nach außen:** Store-API (`configurator`, `calculate`, Matrix), Payload `ldMensura`, Warenkorb, Kundenkonto,
    Dokumente und Lieferantenbestellung (LieferLotse `options[]`/`attributes`) enthalten nur Gesamtpreise. Der
    Logistikanteil steht nur im Admin-Rechenweg und im Logistik-Teil des Schnappschusses, beides mit `ld_mensura.logistics`.
@@ -523,6 +523,7 @@ auf (`material_id`, `cost_type`, `valid_from`) und entsprechend für die anderen
 | `logistics_sale` | Logistikanteil im Endpreis (netto, nach Mindestpreis-Anteil und Kundengruppen-Aufschlag) |
 | `production_time_sale` | Produktionszeit-Aufschlag im Endpreis: Preis mit gewählter Lieferzeit − Preis mit der Standard-Lieferzeit, beide ohne Logistik |
 | `share_percent` | Logistik im Endpreis ÷ Endpreis |
+| `goods_contribution_margin` | Deckungsbeitrag der Ware ohne Logistik-Erlös (`contributionMargin` − `logistics_sale`) |
 | `lines` | JSON: je Regel `ruleId`, `costType`, `form`, `value`, Verursacher-Schlüssel (`calculationKey`, `materialKey`, `deliveryKey`), `longestSide`, `fRamp`, `fThreshold`, `amount`, `minimumApplied`, bei `order` der verteilte Anteil |
 | `schema_version` | 1 |
 
@@ -625,17 +626,18 @@ Gestaltung nach `ld-admin-design` (Präfix `lm-`, Tokens, Bausteine `lm-chip`, `
 Schritt 7 braucht die Detailseiten von Material, Kalkulation und Optionswert. An denen arbeitet gerade eine andere Sitzung
 (nicht committet). Die Karte wird als eigenständige Komponente gebaut und erst eingebunden, wenn diese Seiten auf `main` sind.
 
-**Offene Fragen (vor Schritt 1 zu klären):**
-1. **Basis von `percent`:** Waren-**EK** der Position (Vorschlag: passt zu Vectura „6,9 % auf den Waren-EK“ und bleibt bei
-   Margenänderungen stabil) oder VK-Zwischensumme vor Logistik (einfacher zu erklären)?
-2. **Mindestbetrag je Bestellung** wie in 3d.3 (Produktseite voller Betrag, im Warenkorb verteilt und ggf. günstiger) oder
-   vorerst nur je Position?
-3. **Aufpreis-Hinweise:** Reicht „linearer Teil im Hinweis, sonst Hinweis der Gruppe ausblenden“, oder sollen exakte
-   Hinweise je Konfiguration kommen (Vertragserweiterung + Frontend)?
-4. **Rechte und Schnappschuss:** zwei Zusatzrechte und eigene Tabelle für den Logistik-Schnappschuss (Vorschlag), oder
-   Spalten im bestehenden Schnappschuss?
-5. **Deckungsbeitrag:** `contributionMargin` im Schnappschuss enthält künftig den Logistik-Erlös, aber nicht die
-   Versandkosten. Soll Mensura zusätzlich einen „Waren-Deckungsbeitrag“ ohne Logistik ausweisen?
+**Entscheidungen (07.11.2026, Plan freigegeben):**
+1. **Basis von `percent`** ist der Waren-**EK** der Position (EK-Zwischensumme vor Mindestpreis). Das passt zu Vectura
+   („6,9 % auf den Waren-EK“) und bleibt bei Margenänderungen stabil. Fehlt der EK (0), wirkt die Regel nicht, und die
+   Administration warnt.
+2. **Mindestbetrag je Bestellung** wie in 3d.3: Produktseite und Matrix mit vollem Betrag, im Warenkorb verteilt.
+3. **Aufpreis-Hinweise:** Der lineare Teil steht im Hinweis. Bei nicht linearen Regeln empfiehlt die Administration, den
+   Hinweis der Gruppe auszublenden. Exakte Hinweise je Konfiguration kommen vorerst nicht.
+4. **Rechte und Schnappschuss:** zwei Zusatzrechte (`ld_mensura.logistics`, `ld_mensura.logistics_edit`) und die eigene
+   Tabelle `ld_mensura_order_line_item_logistics`.
+5. **Deckungsbeitrag:** Der Logistik-Schnappschuss weist zusätzlich `goodsContributionMargin` aus, also den
+   Deckungsbeitrag der Ware ohne Logistik-Erlös (= `contributionMargin` − `logisticsSale`). Er steht dort, weil er den
+   Logistikanteil verrät.
 
 ## 4. Standardformel (Engine)
 

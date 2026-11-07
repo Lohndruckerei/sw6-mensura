@@ -172,6 +172,7 @@ Rechenweg-Schnappschuss beim Umwandeln des Warenkorbs:
   "logisticsSale": 19.85,
   "productionTimeSale": 0.0,
   "sharePercent": 12.4,
+  "goodsContributionMargin": 21.30,
   "lines": [
     { "ruleId": "…", "costType": "base",  "form": "per_sqm", "value": 1.60,  "materialKey": "hartschaum-5mm",
       "longestSide": 1500, "fRamp": 1.0, "fThreshold": 1.0, "amount": 2.40, "minimumApplied": false },
