@@ -2,7 +2,7 @@
  * Darstellung beider Varianten als HTML-Zeichenkette (ohne DOM, daher in Node testbar).
  * Bedienelemente tragen data-lm-* Attribute; das JS-Plugin übersetzt Ereignisse daran in Aktionen.
  *
- * Kompakt (Vorbild Comdatek): eine Seite, Abschnitte 1 Material · 2 Endformat · 3 Auflage · 4 Druck & Weiterverarbeitung.
+ * Kompakt (Vorbild Comdatek): eine Seite, Abschnitte 1 Material · 2 Format & Auflage · 3 Druck & Weiterverarbeitung.
  * Geführt (Vorbild flyeralarm): Reiter je Schritt, Kacheln, Preismatrix Menge × Lieferzeit.
  * Rechts in beiden: Preis (nur aus der Store-API), „Ihr Produkt“, Vorschau mit Schnittmarken.
  */
@@ -71,6 +71,17 @@ export function priceHintOf(state, group, value) {
 
 function valueLabel(v, hint) {
     return hint ? `${v.name} · ${hint}` : v.name;
+}
+
+/** Materialien nach Kalkulation gruppiert (Plattenart), wie bei Comdatek: [{name, items}] */
+function materialsByCalculation(data) {
+    const byCalc = new Map();
+    for (const m of data.materials) {
+        const k = m.calculation.technicalName;
+        if (!byCalc.has(k)) byCalc.set(k, { name: m.calculation.name, items: [] });
+        byCalc.get(k).items.push(m);
+    }
+    return [...byCalc.values()];
 }
 
 /* ---------- Hinweis-Box beim Materialwechsel (KONZEPT 3.7) ---------- */
@@ -148,11 +159,11 @@ function quantityFields(ctx, state) {
  * Maßgeblich (auch abgerechnete Fläche, Mindestfläche) ist das Backend: ist das Ergebnis frisch, steht dessen price.area hier.
  */
 function areaInfo(ctx, state) {
+    if (!shows(state, 'showArea')) return '';
     const { data, config } = state;
     const material = materialById(data, config.materialId);
     const qty = material?.calculation?.motifMode === 'split' ? config.perMotif : config.motifs * config.perMotif;
     const piece = (config.format.width * config.format.height) / 1e6;
-    if (!shows(state, 'showArea')) return '';
     const price = isFresh(state) ? state.result?.price : null;
     const total = price?.area ?? piece * qty;
     const billedArea = price?.areas?.billed;
@@ -184,9 +195,9 @@ function referenceField(ctx, state) {
       <input id="${fieldId(ctx, 'reference')}" type="text" maxlength="255" value="${esc(state.config.reference || '')}" data-lm-field="reference" class="form-control" autocomplete="off"></div>`;
 }
 
+/** Liefertermin/Verfügbarkeit einer Lieferzeit aus dem letzten Ergebnis des Backends (auch wenn nicht mehr frisch) */
 function deliveryInfo(state, value) {
-    const d = isFresh(state) || state.result ? (state.result?.delivery || []).find((x) => x.value === value) : null;
-    return d || null;
+    return (state.result?.delivery || []).find((x) => x.value === value) || null;
 }
 
 function deliveryOptionText(ctx, state, v) {
@@ -218,14 +229,7 @@ function deliverySelect(ctx, state) {
 export function renderCompact(ctx, state) {
     const { data, config } = state;
     const material = materialById(data, config.materialId);
-    // Materialien nach Kalkulation gruppiert (Plattenart), wie bei Comdatek
-    const byCalc = new Map();
-    for (const m of data.materials) {
-        const k = m.calculation.technicalName;
-        if (!byCalc.has(k)) byCalc.set(k, { name: m.calculation.name, items: [] });
-        byCalc.get(k).items.push(m);
-    }
-    const matOptions = [...byCalc.values()].map((c) => `<optgroup label="${esc(c.name)}">${c.items.map((m) => `<option value="${esc(m.id)}" ${m.id === config.materialId ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</optgroup>`).join('');
+    const matOptions = materialsByCalculation(data).map((c) => `<optgroup label="${esc(c.name)}">${c.items.map((m) => `<option value="${esc(m.id)}" ${m.id === config.materialId ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</optgroup>`).join('');
     const groups = optionGroups(data, state);
     const options = groups.map((g) => {
         const id = fieldId(ctx, `g-${g.technicalName}`);
@@ -297,13 +301,7 @@ export function renderGuided(ctx, state) {
     const nav = `<nav class="lm-steps" aria-label="${esc(ctx.t('guided.stepsLabel'))}"><ol class="nav nav-tabs">${steps.map((s, i) => `<li class="nav-item"><button type="button" data-lm-action="step" data-lm-value="${esc(s.key)}" class="nav-link${i === idx ? ' active' : ''}${i < idx ? ' is-done' : ''}" ${i === idx ? 'aria-current="step"' : ''}><span class="lm-steps__n" aria-hidden="true">${i < idx ? '✓' : i + 1}</span>${esc(stepLabel(s))}</button></li>`).join('')}</ol></nav>`;
     let body = '';
     if (step.kind === 'material') {
-        const byCalc = new Map();
-        for (const m of data.materials) {
-            const k = m.calculation.technicalName;
-            if (!byCalc.has(k)) byCalc.set(k, { name: m.calculation.name, items: [] });
-            byCalc.get(k).items.push(m);
-        }
-        body = `<h3 class="lm-g-title">${esc(ctx.t('guided.materialTitle'))} ${help(ctx, ctx.t('help.material'), fieldId(ctx, 'gm-h'))}</h3>` + [...byCalc.values()].map((c) => `<div class="lm-g-group"><h4>${esc(c.name)}</h4><div class="lm-tiles">${c.items.map((m) => tile({
+        body = `<h3 class="lm-g-title">${esc(ctx.t('guided.materialTitle'))} ${help(ctx, ctx.t('help.material'), fieldId(ctx, 'gm-h'))}</h3>` + materialsByCalculation(data).map((c) => `<div class="lm-g-group"><h4>${esc(c.name)}</h4><div class="lm-tiles">${c.items.map((m) => tile({
             action: 'material', attrs: `data-lm-value="${esc(m.id)}"`, pressed: m.id === config.materialId, title: m.name, text: m.description, image: m.image,
             extra: `${badges(m.badges)}${m.fromPricePerSqm != null && shows(state, 'showFromPrice') ? `<span class="lm-tile__price">${esc(ctx.t('guided.fromPrice', { price: ctx.fmt.money(m.fromPricePerSqm) }))}</span>` : ''}`,
         })).join('')}</div></div>`).join('');

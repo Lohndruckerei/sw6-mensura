@@ -12,20 +12,16 @@ export function esc(value) {
  * Fehlt ein Schlüssel, erscheint der Schlüssel selbst (fällt in Tests sofort auf).
  */
 export function createTranslator(texts) {
-    const t = (key, params = {}) => {
-        let text = texts && Object.prototype.hasOwnProperty.call(texts, key) ? texts[key] : key;
-        for (const [name, value] of Object.entries(params)) {
-            text = text.split(`%${name}%`).join(String(value));
-        }
-        return text;
+    const has = (key) => Boolean(texts && Object.prototype.hasOwnProperty.call(texts, key));
+    const fill = (text, params) => {
+        let out = text;
+        for (const [name, value] of Object.entries(params)) out = out.split(`%${name}%`).join(String(value));
+        return out;
     };
-    t.has = (key) => Boolean(texts && Object.prototype.hasOwnProperty.call(texts, key));
+    const t = (key, params = {}) => fill(has(key) ? texts[key] : key, params);
+    t.has = has;
     /** wie t(), aber Snippet-Text wird escaped; Parameter müssen bereits sicheres HTML sein */
-    t.html = (key, htmlParams = {}) => {
-        let text = esc(texts && Object.prototype.hasOwnProperty.call(texts, key) ? texts[key] : key);
-        for (const [name, value] of Object.entries(htmlParams)) text = text.split(`%${name}%`).join(String(value));
-        return text;
-    };
+    t.html = (key, htmlParams = {}) => fill(esc(has(key) ? texts[key] : key), htmlParams);
     return t;
 }
 

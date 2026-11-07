@@ -1,10 +1,10 @@
 /**
  * Zugriff auf die Mensura-Store-API (docs/contract/store-api.yaml) – und ein Fixture-Client, der dieselbe
- * Schnittstelle gegen docs/contract/fixtures bedient, solange das Backend die Store-API noch nicht liefert
+ * Schnittstelle gegen docs/contract/fixtures bedient, für Prüfungen ohne Shop
  * (statische Testseite, Node-Tests). Beide Clients haben dieselben Methoden:
  *   configurator(productId) → Konfigurator-Daten
  *   calculate(configuration, {matrix, signal}) → Ergebnis (calculation-result.schema.json)
- *   addToCart(configuration) → {ok, result?}
+ *   addToCart(configuration) → {ok: true, cart} bzw. {ok: false, result}
  */
 
 import { activeGroupNames, allowedValues, configKey, defaultValue, deliveryGroup, findValue, getGroup, localErrors, materialById } from './state.js';
@@ -162,7 +162,7 @@ export class FixtureClient {
         const material = materialById(data, config.materialId);
         return dg.values.map((v) => ({
             value: v.technicalName,
-            available: dg.values.length > 0 && allowedValues(dg, material).includes(v),
+            available: allowedValues(dg, material).includes(v),
             date: v.deliveryDays != null ? addWorkdays(this.now(), v.deliveryDays) : null,
             reason: null,
         }));
