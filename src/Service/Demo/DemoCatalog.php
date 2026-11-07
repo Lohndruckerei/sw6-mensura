@@ -9,6 +9,8 @@ namespace Lohndruckerei\Mensura\Service\Demo;
  *
  * - Aluverbund = Comdatek-VK (KONZEPT 2): 29 €/m² + 0,50 €/Stk, min. 12,50 €; EK aus der Einkaufspreisliste 2026 (2a)
  * - Acrylglas  = Beispielwerte (62 €/m²)
+ * - Folie A    = zweites Produkt „Folie (Mensura-Demo)“: VK wie Comdatek Green Stick 12,00 €/m² + 0,10 €/Stk, min. 8,00 €,
+ *                Mindestfläche 1 m² je Position, Schrittweite 0,1 m² (Regel des Benutzers, 07.11.2026)
  *
  * Eine Quelle für beides: der Vertragstest rechnet direkt mit `catalog()`, der Befehl `mensura:demo:seed`
  * schreibt dieselben Daten (de + en) in die Datenbank. IDs sind fest, damit die Fixtures passen.
@@ -16,9 +18,17 @@ namespace Lohndruckerei\Mensura\Service\Demo;
 final class DemoCatalog
 {
     public const PRODUCT_ID = '0194e1a0000070008000000000000a01';
+    public const PRODUCT_FOLIE = '0194e1a0000070008000000000000a02';
     public const MATERIAL_ALU = '0194e1a0000070008000000000000b01';
     public const MATERIAL_ACRYL = '0194e1a0000070008000000000000b02';
+    public const MATERIAL_FOLIE = '0194e1a0000070008000000000000b03';
     public const PRODUCT_NUMBER = 'MENSURA-DEMO-ALU';
+
+    /** Demo-Produkte: productId → [Produktnummer, Name de, Name en, Profil-Schlüssel, Netto-Anzeigepreis] */
+    public const PRODUCTS = [
+        self::PRODUCT_ID => ['MENSURA-DEMO-ALU', 'Aluverbund (Mensura-Demo)', 'Aluminium composite (Mensura demo)', 'aluverbund', 29.0],
+        self::PRODUCT_FOLIE => ['MENSURA-DEMO-FOLIE', 'Folie (Mensura-Demo)', 'Film (Mensura demo)', 'folie', 12.0],
+    ];
 
     public static function id(string $key): string
     {
@@ -114,6 +124,9 @@ final class DemoCatalog
                 'schnitt' => ['recht' => [true, $none], 'kontur' => [false, $area(2.0, 1.5)]],
                 'lieferzeit' => $delivery,
             ],
+            'folie' => [
+                'lieferzeit' => $delivery,
+            ],
         ];
     }
 
@@ -187,6 +200,22 @@ final class DemoCatalog
                 'minimumPriceSale' => 12.50,
                 'materialIds' => [self::MATERIAL_ACRYL],
             ],
+            'folie' => [
+                'id' => self::id('calculation.folie'),
+                'technicalName' => 'folie',
+                'name' => 'Folie',
+                'widthMin' => 10,
+                'widthMax' => 1370,
+                'heightMin' => 10,
+                'heightMax' => 10000,
+                'minArea' => 1.0,
+                'areaRounding' => 0.1,
+                'areaScope' => 'total',
+                'priceComponents' => [['type' => 'per_piece', 'purchase' => 0.05, 'sale' => 0.10]],
+                'minimumPricePurchase' => 6.0,
+                'minimumPriceSale' => 8.0,
+                'materialIds' => [self::MATERIAL_FOLIE],
+            ] + $common,
         ];
     }
 
@@ -250,6 +279,32 @@ final class DemoCatalog
                     'en' => ['name' => 'Acrylic glass 5 mm', 'description' => 'Sample values – solid glass effect.', 'badges' => ['indoor']],
                 ],
             ],
+            self::MATERIAL_FOLIE => [
+                'id' => self::MATERIAL_FOLIE,
+                'technicalName' => 'folie-a',
+                'code' => 'FOLA',
+                'active' => true,
+                'position' => 1,
+                'pricePurchase' => 8.5,
+                'priceSale' => 12.0,
+                'minimumPricePurchase' => null,
+                'minimumPriceSale' => null,
+                'minArea' => null,
+                'areaRounding' => null,
+                'tierBasis' => null,
+                'tiers' => null,
+                'priceComponents' => null,
+                'optionSetId' => null,
+                'widthMax' => null,
+                'heightMax' => null,
+                'sheetWidth' => 1370,
+                'sheetHeight' => 50000,
+                'weightPerSqm' => 0.12,
+                'translations' => [
+                    'de' => ['name' => 'Folie A (matt, PVC-frei)', 'description' => 'Beispiel: Mindestfläche 1 m² je Position, darüber in 0,1-m²-Schritten.', 'badges' => ['innen', 'außen']],
+                    'en' => ['name' => 'Film A (matt, PVC-free)', 'description' => 'Example: minimum area 1 m² per item, above in 0.1 m² steps.', 'badges' => ['indoor', 'outdoor']],
+                ],
+            ],
         ];
     }
 
@@ -258,8 +313,39 @@ final class DemoCatalog
      *
      * @return array<string, mixed>
      */
-    public static function profileDefinition(): array
+    public static function profileDefinition(string $productId = self::PRODUCT_ID): array
     {
+        if ($productId === self::PRODUCT_FOLIE) {
+            return [
+                'id' => self::id('profile.folie'),
+                'productId' => self::PRODUCT_FOLIE,
+                'type' => 'general',
+                'active' => true,
+                'layout' => null,
+                'widthMin' => null,
+                'widthMax' => null,
+                'heightMin' => null,
+                'heightMax' => null,
+                'minQuantity' => null,
+                'maxQuantity' => null,
+                'minimumPriceSale' => null,
+                'surchargePercent' => null,
+                'priceComponents' => null,
+                'quantitySteps' => [1, 5, 10, 25, 50, 100, 250],
+                'steps' => null,
+                'defaults' => [
+                    'materialId' => self::MATERIAL_FOLIE,
+                    'format' => ['width' => 250, 'height' => 400],
+                    'motifs' => 1,
+                    'perMotif' => 5,
+                ],
+                'materials' => [
+                    ['id' => self::id('profile.material.folie'), 'calculationId' => self::id('calculation.folie'), 'materialId' => self::MATERIAL_FOLIE, 'position' => 1, 'surchargePercent' => null],
+                ],
+                'options' => [],
+            ];
+        }
+
         return [
             'id' => self::id('profile.aluverbund'),
             'productId' => self::PRODUCT_ID,
@@ -296,7 +382,7 @@ final class DemoCatalog
      *
      * @return array<string, mixed>
      */
-    public static function catalog(string $language = 'de'): array
+    public static function catalog(string $language = 'de', string $productId = self::PRODUCT_ID): array
     {
         $groups = [];
         $values = [];
@@ -386,8 +472,8 @@ final class DemoCatalog
         }
 
         return [
-            'product' => ['id' => self::PRODUCT_ID, 'name' => 'Aluverbund (Mensura-Demo)'],
-            'profile' => self::profileDefinition(),
+            'product' => ['id' => $productId, 'name' => self::PRODUCTS[$productId][1] ?? ''],
+            'profile' => self::profileDefinition($productId),
             'calculations' => $calculations,
             'materials' => $materials,
             'groups' => $groups,

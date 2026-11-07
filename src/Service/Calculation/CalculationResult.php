@@ -117,6 +117,13 @@ final class CalculationResult
                 'perSqm' => $area > 0 ? round($total / $area, 2) : 0.0,
                 'quantity' => $quantity,
                 'area' => round($area, 4),
+                'areas' => [
+                    'piece' => round((float) $this->sale['rawPieceArea'], 6),
+                    'total' => round($area, 6),
+                    'billed' => round((float) $this->sale['billedArea'], 6),
+                    'minArea' => $this->sale['minArea'],
+                    'rounding' => $this->sale['areaRounding'],
+                ],
                 'minimumApplied' => (bool) $this->sale['minimumApplied'],
                 'currency' => $this->context->currency,
             ];

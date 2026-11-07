@@ -35,8 +35,10 @@ class DemoSeedCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
 
-        $this->seedProduct($context);
-        $io->writeln('Produkt ' . DemoCatalog::PRODUCT_NUMBER . ' (' . DemoCatalog::PRODUCT_ID . ')');
+        foreach (DemoCatalog::PRODUCTS as $productId => [$number, $nameDe, $nameEn, , $netPrice]) {
+            $this->seedProduct($context, $productId, $number, $nameDe, $nameEn, $netPrice);
+            $io->writeln('Produkt ' . $number . ' (' . $productId . ')');
+        }
 
         // Optionssets zuerst ohne Gruppen (Materialien und Werte verweisen darauf)
         $sets = [];
@@ -113,22 +115,24 @@ class DemoSeedCommand extends Command
         $this->upsert('ld_mensura_calculation', $calculations, $context);
         $io->writeln(\count($calculations) . ' Kalkulationen, ' . \count($materials) . ' Materialien, ' . \count($groups) . ' Optionsgruppen');
 
-        $profile = DemoCatalog::profileDefinition();
-        $profile['productVersionId'] = Defaults::LIVE_VERSION;
-        $profile = array_filter($profile, static fn ($v) => $v !== null);
-        if (($profile['options'] ?? []) === []) {
-            unset($profile['options']);
+        foreach (array_keys(DemoCatalog::PRODUCTS) as $productId) {
+            $profile = DemoCatalog::profileDefinition($productId);
+            $profile['productVersionId'] = Defaults::LIVE_VERSION;
+            $profile = array_filter($profile, static fn ($v) => $v !== null);
+            if (($profile['options'] ?? []) === []) {
+                unset($profile['options']);
+            }
+            $this->upsert('ld_mensura_product_profile', [$profile], $context);
         }
-        $this->upsert('ld_mensura_product_profile', [$profile], $context);
 
         $this->seedAdvisor($context);
 
-        $io->success('Mensura-Demo angelegt. Store-API: GET /store-api/ld-mensura/product/' . DemoCatalog::PRODUCT_ID . '/configurator');
+        $io->success('Mensura-Demo angelegt (Aluverbund ' . DemoCatalog::PRODUCT_ID . ', Folie ' . DemoCatalog::PRODUCT_FOLIE . '). Store-API: GET /store-api/ld-mensura/product/{id}/configurator');
 
         return self::SUCCESS;
     }
 
-    private function seedProduct(Context $context): void
+    private function seedProduct(Context $context, string $productId, string $number, string $nameDe, string $nameEn, float $netPrice): void
     {
         $taxId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM tax ORDER BY tax_rate = 19 DESC, position LIMIT 1');
         $salesChannels = $this->connection->fetchFirstColumn(
@@ -141,21 +145,22 @@ class DemoSeedCommand extends Command
             [Defaults::SALES_CHANNEL_TYPE_STOREFRONT],
         );
         $product = [
-            'id' => DemoCatalog::PRODUCT_ID,
-            'productNumber' => DemoCatalog::PRODUCT_NUMBER,
+            'id' => $productId,
+            'productNumber' => $number,
             'active' => true,
             'stock' => 999999,
             // Menge kommt aus der Konfiguration (Motive × Stück); Shopware-Standard (100) würde kürzen
             'maxPurchase' => 999999,
             'taxId' => $taxId,
-            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 34.51, 'net' => 29.0, 'linked' => true]],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => round($netPrice * 1.19, 2), 'net' => $netPrice, 'linked' => true]],
             'translations' => [
-                'de-DE' => ['name' => 'Aluverbund (Mensura-Demo)', 'description' => 'Demo-Produkt für den Mensura-Konfigurator: Aluverbund 3 mm und Acrylglas 5 mm.'],
-                'en-GB' => ['name' => 'Aluminium composite (Mensura demo)', 'description' => 'Demo product for the Mensura configurator.'],
+                'de-DE' => ['name' => $nameDe, 'description' => 'Demo-Produkt für den Mensura-Konfigurator (Preise je m², berechnet im Konfigurator).'],
+                'en-GB' => ['name' => $nameEn, 'description' => 'Demo product for the Mensura configurator.'],
             ],
             'categories' => array_map(static fn (string $id) => ['id' => $id], $categories),
             'visibilities' => array_map(static fn (string $id) => [
-                'id' => md5('ld-mensura-demo:visibility:' . $id),
+                // Aluverbund behält die ID aus früheren Seeds (keine Doppelungen)
+                'id' => $productId === DemoCatalog::PRODUCT_ID ? md5('ld-mensura-demo:visibility:' . $id) : md5('ld-mensura-demo:visibility:' . $productId . ':' . $id),
                 'salesChannelId' => $id,
                 'visibility' => 30,
             ], $salesChannels),

@@ -40,7 +40,7 @@ final class ContractTest extends TestCase
         $request = self::json(self::CONTRACT . "/fixtures/calculate/$name.request.json");
         $expected = self::json(self::CONTRACT . "/fixtures/calculate/$name.expected.json");
 
-        $result = (new PriceEngine())->calculate($request, new Catalog(DemoCatalog::catalog('de')), self::context(), true);
+        $result = (new PriceEngine())->calculate($request, new Catalog(DemoCatalog::catalog('de', $request['productId'])), self::context(), true);
         $actual = self::roundTrip($result->toStoreApi());
         self::write("calculate/$name.json", $result->toStoreApi());
 
@@ -58,12 +58,21 @@ final class ContractTest extends TestCase
         self::assertNoPurchaseData($result->toStoreApi());
     }
 
-    public function testConfiguratorFixture(): void
+    /** @return iterable<string, array{string}> */
+    public static function configuratorFixtures(): iterable
     {
-        $expected = self::json(self::CONTRACT . '/fixtures/configurator/aluverbund.json');
-        $raw = (new ConfiguratorBuilder())->build(new Catalog(DemoCatalog::catalog('de')), self::context());
+        foreach (glob(self::CONTRACT . '/fixtures/configurator/*.json') ?: [] as $file) {
+            yield basename($file, '.json') => [basename($file, '.json')];
+        }
+    }
+
+    #[DataProvider('configuratorFixtures')]
+    public function testConfiguratorFixture(string $name): void
+    {
+        $expected = self::json(self::CONTRACT . "/fixtures/configurator/$name.json");
+        $raw = (new ConfiguratorBuilder())->build(new Catalog(DemoCatalog::catalog('de', $expected['productId'])), self::context());
         $actual = self::roundTrip($raw);
-        self::write('configurator/aluverbund.json', $raw);
+        self::write("configurator/$name.json", $raw);
 
         self::assertEquals($expected, $actual);
         self::assertNoPurchaseData($actual);
