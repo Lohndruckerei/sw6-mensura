@@ -54,7 +54,8 @@ Kunde ─► Mensura-Konfigurator ─► Warenkorb (Produktposition + Konfigurat
 Tabelle `ld_mensura_order_line_item`, 1:1 zur Bestellposition, als Extension `orderLineItem.extensions.ldMensura`:
 Konfiguration, kompletter Rechenweg, **EK gesamt, VK gesamt**, vorgeschlagener Lieferant, Schema-Version.
 Die Felder sind nicht `ApiAware`, sind also **nur über die Admin-API** erreichbar und nie in der Store-API.
-Einkaufspreise erscheinen damit nie im Kundenkonto. Spätere Plugins für Rechnung und Buchhaltung lesen
+Einkaufspreise erscheinen damit nie im Kundenkonto. Der geplante Logistikanteil (KONZEPT 3d) steht nicht hier, sondern in
+der eigenen Tabelle `ld_mensura_order_line_item_logistics` mit eigenem Recht (Abschnitt 7.1). Spätere Plugins für Rechnung und Buchhaltung lesen
 EK/VK und Deckungsbeitrag von hier. Preisänderungen in den Stammdaten ändern bestehende Bestellungen nicht.
 
 Umgesetzt in v0.4.0 (`Service/Cart/OrderSnapshotSubscriber`): Beim Umwandeln des Warenkorbs in die Bestellung
@@ -102,6 +103,7 @@ Lieferantenbestellung. Damit kann der Lieferant fertigen und direkt an den Kunde
 | Druckdaten-Freigabe | Position-ID als Schlüssel; Mensura reserviert `ldMensura.artwork` im Payload (Upload im Konfigurator) |
 | Auftragsstatus / Versandmitteilung | Flow-Events des LieferLotse (`lieferlotse.supplier_order.sent/failed/shipping_confirmed`) |
 | Rechnung, Buchhaltung | VK aus der Bestellung; EK und Deckungsbeitrag aus `ld_mensura_order_line_item` |
+| Vectura (Versand, geplant) | Logistikanteil und Produktionszeit-Aufschlag je Position aus `ld_mensura_order_line_item_logistics`; liefert Vorschläge für den Logistikanteil (siehe Abschnitt 7) |
 | Produktberater | Merkmale, Anwendungsfälle, Zubehörregeln, Presets, Store-API `catalog` (siehe Abschnitt 6) |
 
 Mensura stellt dafür bereit:
@@ -138,6 +140,116 @@ Vergleichstabellen und Infotexte im Konfigurator. Deshalb stehen sie in Mensura 
 Erklärtexte („Was ist der Unterschied zwischen Laminat matt, glänzend und Anti-Graffiti?“) liegen als übersetzte
 Beschreibungen an Optionswerten bzw. Merkmalen und werden in Konfigurator, Vergleichstabelle und Berater gemeinsam genutzt.
 Gepflegt wird also nur an einer Stelle.
+
+## 7. Vectura (Versand): Logistikanteil – geplant, Stand 07.11.2026
+
+Fachliche Grundlage: `sw6-vectura/docs/LOGISTIKPAUSCHALE.md` Abschnitt 5, Konzept in Mensura: [KONZEPT.md](KONZEPT.md) 3d.
+Vectura sammelt die tatsächlichen Versand- und Servicekosten der Lieferanten. Mensura rechnet einen **für den Kunden
+unsichtbaren Logistikanteil** in den VK ein. Beide laufen ohne den anderen.
+
+**Gemeinsame Sprache ohne Fremdschlüssel:**
+
+| Begriff | Mensura | Vectura |
+|---|---|---|
+| Material | `ld_mensura_material.technicalName` (im Payload `ldMensura.material.key`) | `materialKey` |
+| Materialgruppe | `ld_mensura_calculation.technicalName` | `calculationKey` |
+| Produktionszeit | `technicalName` des Optionswerts einer Gruppe vom Typ `delivery` (Payload `ldMensura.delivery`) | `deliveryKey` |
+| Kostenart | `cost_type` der Logistikregel | Kostenart der Ist-Kosten: `base`, `quantity`, `bulky`, `express`, `multi_source`, `other` |
+| Längenbereich | Rampe `rampFrom`/`rampTo` (mm, längste Seite) | Längenbereich der Auswertung (`lengthFrom`/`lengthTo`) |
+
+Ein umbenannter Schlüssel trennt die Verbindung. Die Administration warnt deshalb beim Ändern eines `technicalName`,
+wenn Logistikregeln daran hängen. Vectura meldet Vorschläge mit unbekanntem Schlüssel als „nicht zugeordnet“.
+
+### 7.1 Mensura → Vectura: Erlösseite je Position
+
+Tabelle `ld_mensura_order_line_item_logistics` (1:1 zur Bestellposition, Extension
+`orderLineItem.extensions.ldMensuraLogistics`, nur Admin-API und DAL, nie Store-API). Geschrieben wird sie zusammen mit dem
+Rechenweg-Schnappschuss beim Umwandeln des Warenkorbs:
+
+```json
+{
+  "schemaVersion": 1,
+  "logisticsSale": 19.85,
+  "productionTimeSale": 0.0,
+  "sharePercent": 12.4,
+  "lines": [
+    { "ruleId": "…", "costType": "base",  "form": "per_sqm", "value": 1.60,  "materialKey": "hartschaum-5mm",
+      "longestSide": 1500, "fRamp": 1.0, "fThreshold": 1.0, "amount": 2.40, "minimumApplied": false },
+    { "ruleId": "…", "costType": "bulky", "form": "per_sqm", "value": 11.63, "materialKey": "hartschaum-5mm",
+      "rampFrom": 1000, "rampTo": 1400, "longestSide": 1500, "fRamp": 1.0, "fThreshold": 1.0, "amount": 17.45 }
+  ]
+}
+```
+
+Beträge netto im Endpreis der Position (nach Mindestpreis-Anteil und Kundengruppen-Aufschlag). Vectura liest die Tabelle
+per DAL über den Entity-Namen, wenn Mensura installiert ist. Ohne Mensura fehlt die Erlösseite, und Vectura zeigt nur die
+Kosten. Felder werden nur ergänzt. Bei einem Bruch steigt `schemaVersion`.
+
+### 7.2 Vectura → Mensura: Vorschläge
+
+Mensura ruft `GET /api/_action/ld-vectura/logistics/suggestions?from=YYYY-MM-DD&to=YYYY-MM-DD` auf (Admin-API, Token des
+angemeldeten Benutzers):
+
+- **Nur wenn Vectura installiert ist.** Die Administration prüft das über die geladenen Bundles
+  (`Shopware.Context.app.config.bundles` enthält `LdVectura`). Fehlt Vectura, erscheint die Vorschlagskarte nicht, und
+  der Logistikanteil wird von Hand gepflegt. Antwortet die Route mit 404, gilt das ebenso.
+- **Rechte:** Mensura zeigt die Karte nur mit `ld_mensura.logistics`. Die Route prüft Vectura selbst. Bei 403 zeigt die
+  Karte „Keine Berechtigung für Vectura-Vorschläge“, alles andere bleibt bedienbar.
+- **Ohne Filter auf ein Ziel:** Mensura holt alle Vorschläge des Zeitraums (Standard: rollierend 3 Monate, offene Frage in
+  LOGISTIKPAUSCHALE 7.3) und ordnet sie über die Schlüssel der aktuellen Kalkulation, des Materials bzw. Optionswerts zu.
+
+Erwartetes Antwortformat (Vorschlag von Mensura, wird mit der Vectura-Entwicklung abgestimmt):
+
+```json
+{
+  "apiVersion": 1,
+  "period": { "from": "2026-08-01", "to": "2026-10-31" },
+  "generatedAt": "2026-11-07T08:00:00+01:00",
+  "targetMargin": 25,
+  "suggestions": [
+    {
+      "id": "hartschaum-bulky-1200-2449",
+      "cause": {
+        "materialKeys": ["hartschaum-5mm", "hartschaum-10mm"],
+        "calculationKey": null,
+        "deliveryKey": null,
+        "lengthFrom": 1200, "lengthTo": 2449,
+        "thresholdBasis": null, "thresholdFrom": null
+      },
+      "costType": "bulky",
+      "costs": 1011.00,
+      "revenue": 1090.00,
+      "coverage": 1.08,
+      "targetCoverage": 1.25,
+      "cases": 27,
+      "proposal": {
+        "form": "per_sqm", "value": 11.63,
+        "rampFrom": 1000, "rampTo": 1400,
+        "thresholdBasis": null, "thresholdFrom": null, "thresholdTo": null,
+        "minimumAmount": null, "minimumScope": null
+      },
+      "current": { "form": "per_sqm", "value": 0.0 },
+      "stable": true,
+      "warnings": ["few_cases", "step_limit_exceeded"]
+    }
+  ]
+}
+```
+
+- `stable` = Korridor zwei Zeiträume hintereinander verlassen (Hysterese, LOGISTIKPAUSCHALE 3.4 Nr. 6). Das prüft Vectura.
+  Mensura zeigt nicht stabile Vorschläge nur zur Information, ohne „Übernehmen“.
+- `warnings` (feste Codes): `few_cases` (unter 10 Aufträge), `step_limit_exceeded` (mehr als ±1 €/m² bzw. ±2 Prozentpunkte),
+  `outliers_capped` (Kosten über dem 95. Perzentil gekappt), `unmapped_key` (Schlüssel in Mensura unbekannt).
+  Mensura prüft die Schrittgrenze zusätzlich selbst gegen die gültige Regel.
+- **Revenue** zählt nur den Logistikanteil (getrennte Rechnung). Versandpauschale, Verpackungszuschlag und
+  Produktionszeit-Aufschlag zählen nicht.
+- **Übernehmen** legt in Mensura eine **neue** Regel `ld_mensura_logistics_rule` an (gültig-ab wählbar, Standard nächster
+  Montag), mit `source = vectura` und `sourceReference` (`suggestionId`, Zeitraum, `coverage`, `targetCoverage`, `cases`,
+  Benutzer, Zeitpunkt). Die bisherige Regel bleibt als Verlauf erhalten. Bei mehreren `materialKeys` legt Mensura je Material
+  eine Regel an, oder eine Regel an der Kalkulation, wenn alle Materialien der Kalkulation betroffen sind (Auswahl im Dialog).
+  Vectura bekommt keinen Rückruf. Die Wirkung sieht es an den folgenden Schnappschüssen.
+
+Mensura schreibt nie in Vectura-Tabellen und Vectura nie in Mensura-Tabellen.
 
 **Stabilitätsregel:** Payload `ldMensura` und Schnappschuss tragen `schema`. Felder werden nur ergänzt, nie
 umbenannt. Bei einem Bruch wird `schema` erhöht, und der `ConfigurationReader` liest alte Versionen weiter.

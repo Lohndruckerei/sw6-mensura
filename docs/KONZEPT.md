@@ -368,6 +368,275 @@ serverseitiger Schutz die EK-Werte beim Lesen heraus und weist Schreibzugriffe d
 eigene Tabelle ausgelagert. Das wird mit den Admin-Oberflächen umgesetzt und getestet. LieferLotse und spätere Plugins
 (Auftragsverwaltung, Rechnung, Buchhaltung) folgen demselben Muster.
 
+Ergänzung für den Logistikanteil (3d), als **Zusatzrechte** (Kategorie „Weitere Rechte“ der Rollenverwaltung):
+
+| Recht | Inhalt | typisch für |
+|---|---|---|
+| `ld_mensura.logistics` | Logistikanteile sehen: Karte „Logistikanteil“ (nur lesen), Logistik-Zeilen im Admin-Rechenweg und im Schnappschuss, Vectura-Vorschläge ansehen | Chef, Buchhaltung, Einkauf |
+| `ld_mensura.logistics_edit` | Logistikanteile pflegen und Vectura-Vorschläge übernehmen (setzt `ld_mensura.logistics` voraus) | Chef, Einkauf |
+
+Anders als die EK-Felder liegt der Logistikanteil von Anfang an in **eigenen Tabellen** (3d.5). Die Entity-Rechte
+(`ld_mensura_logistics_rule:read` usw.) gehören nur zu diesen Zusatzrechten, nicht zu `ld_mensura.viewer`. Damit schützt
+Shopware ihn in der Admin-API ohne eigenen Filter.
+
+## 3d. Logistikanteil (unsichtbar im VK) – Konzept, Stand 07.11.2026, noch nicht umgesetzt
+
+Fachliche Vorlage: `sw6-vectura/docs/LOGISTIKPAUSCHALE.md` (Modell D, Abschnitte 3.2–3.4 und 5). Entscheidung vom
+07.11.2026: Versandpauschale (DE 11,90 €, AT 17,90 €) und Verpackungszuschlag bleiben sichtbar und decken die eigene
+Abwicklung. Sie werden **getrennt gerechnet**, also nicht angerechnet. Die tatsächlichen Versand- und Servicekosten der
+Lieferanten (Grundpaket, Paketmenge, Sperrgut, Express) deckt allein ein **Logistikanteil**, den Mensura unsichtbar in den
+VK einrechnet. Ziel ist im Schnitt 20–30 % Marge auf diese Kosten (Zielwert 25 %). Comdatek-Daten aus 500 Aufträgen:
+im Schnitt 6,9 % auf den Waren-EK, aber sehr ungleich verteilt (Aluverbund fast 0, Hartschaum 1.200–2.449 mm Sperrgut
+ca. 11,63 €/m², 24h-Express mindestens 25 € je Bestellung).
+
+### 3d.1 Woran der Logistikanteil hängt
+
+Ein Logistikanteil hängt an dem, was die Kosten **verursacht**. Jede Regel hat eine **Kostenart**, dieselbe wie in
+Vectura. So kann Vectura Kosten und Erlöse je Verursacher und Kostenart gegenüberstellen.
+
+| Ziel | Typische Kostenart | Beispiel |
+|---|---|---|
+| **Kalkulation** | `base` Grundversand | Folien: 0,43 €/m² für alle Materialien der Kalkulation |
+| **Material** | `base`, `bulky` Sperrgut, `quantity` Paketmenge | Hartschaum 5 mm: Grund 1,60 €/m² + Sperrgut 11,63 €/m² mit Rampe 1.000 → 1.400 mm |
+| **Optionswert** | `express` (Produktionszeit), selten `bulky` | 24h Express: 4,18 €/m², mindestens 25 € je Bestellung |
+
+Kostenarten: `base` (Grundversand), `quantity` (Paketmenge), `bulky` (Sperrgut), `express` (Express-Service),
+`multi_source` (zweite Sendung), `other`. Der Auslandsanteil (Zone AT) läuft weiter über die sichtbare AT-Pauschale.
+
+**Vorrang:** Je Kostenart gilt die spezifischste Regel. Eine Material-Regel `base` ersetzt die Kalkulations-Regel `base`,
+eine Material-Regel `bulky` kommt zusätzlich dazu. Regeln an Optionswerten kommen immer dazu, weil sie einen anderen
+Verursacher haben. Eine Optionswert-Regel lässt sich auf eine Kalkulation beschränken, z. B. Express bei Hartschaum
+anders als bei Folie.
+
+### 3d.2 Form, Rampe, Mengenschwelle, Mindestbetrag
+
+| Feld | Bedeutung | Beispiel |
+|---|---|---|
+| **Form** | `percent` = % vom Warenwert der Position (Basis siehe offene Frage 1) · `per_sqm` = € je abgerechnetem m² der Position · `per_piece` = € je Stück · `per_position` = € je Position | Magnet 12 % · Hartschaum 1,60 €/m² · Acryl groß 29,77 € je Position |
+| **Wert** | Betrag netto (VK-Seite, Basis Wiederverkäufer) bzw. Prozentsatz | 11,63 |
+| **Rampe längste Seite** (optional, von–bis mm) | Faktor 0 bis „von“, linear steigend bis „bis“, darüber 1. Längste Seite = max(Breite, Höhe) je Stück **inkl. Formatzugaben**. Kein Sprung, auch nicht oberhalb von „bis“ („Rampe weiterführen“). | 1.000 → 1.400 mm: bei 1.200 mm wirkt die Hälfte |
+| **Mengenschwelle** (optional, Basis Gesamtfläche m² oder Stückzahl, von–bis) | ebenfalls gleitend: Faktor 0 unter „von“, linear bis „bis“, darüber 1. Der Faktor gilt für die ganze Position. Rampe und Mengenschwelle werden multipliziert. | Papier/Karton: 10 → 15 m² |
+| **Mindestbetrag** (optional) + **Geltung** `position` / `order` | Der Anteil der Regel ist mindestens so hoch. `order`: einmal je Bestellung und Optionswert, verteilt auf alle Positionen mit diesem Wert (3d.3). Gedacht für Produktionszeit-Optionen. | Eilproduktion 15 €, 48h 18,75 €, 24h 25 € je Bestellung |
+| **Gültig ab** (Datum, optional) | Regeln werden nicht überschrieben. Eine Änderung legt eine neue Zeile mit gültig-ab an. Je Ziel und Kostenart gilt die Zeile mit dem jüngsten gültig-ab ≤ heute. So sind geplante Änderungen möglich, und der Verlauf bleibt für Vectura nachvollziehbar. | ab 01.12.2026 2,10 €/m² |
+| **Herkunft** | `manual` oder `vectura` (mit Verweis auf den Vorschlag: Zeitraum, Deckung vorher/nachher, Fallzahl) | „Vectura 01.08.–31.10.: Deckung 1,08 → 1,25, 27 Aufträge“ |
+
+Formel je Regel:
+
+```
+L          = max(Breite, Höhe) je Stück inkl. Formatzugaben (mm)
+fRampe     = Rampe ? clamp((L − von) / (bis − von), 0, 1) : 1
+fMenge     = Schwelle ? clamp((Menge − von) / (bis − von), 0, 1) : 1      (Menge = Gesamtfläche m² oder Stückzahl)
+Basis      = percent: Warenwert/100 · per_sqm: abgerechnete Fläche · per_piece: Stückzahl · per_position: 1
+Anteil     = Wert × Basis × fRampe × fMenge
+Anteil     = max(Anteil, Mindestbetrag)    (Geltung position; bei order siehe 3d.3)
+Logistik   = Σ Anteil aller wirksamen Regeln
+```
+
+Eine Rampe mit „von“ = „bis“ wäre wieder ein Sprung. Die Administration lässt das nicht zu („bis“ muss mindestens
+100 mm größer sein).
+
+### 3d.3 Rechenweg
+
+Neuer Schritt **nach den Optionen und vor dem Mindestpreis** (LOGISTIKPAUSCHALE 3.4 Nr. 3):
+
+```
+Grundpreis → Optionen → Staffelrabatt/% → Produktprofil-Aufschlag → Logistik → Mindestpreis → Kundengruppen-Aufschlag → Rundung
+```
+
+- Staffelrabatt, %-Preisanteile und Profil-Aufschlag wirken **nicht** auf den Logistikanteil. Er bleibt der Betrag, der
+  gepflegt bzw. von Vectura vorgeschlagen wurde. Den **Kundengruppen-Aufschlag** trägt er mit, so zahlt Gewerbe
+  verhältnismäßig mit.
+- **Mindestpreis:** `Gesamt = max(Mindestpreis, Zwischensumme + Logistik)`. Greift der Mindestpreis, steckt der
+  Logistikanteil anteilig darin: `Logistik im Endpreis = Endpreis × Logistik ÷ (Zwischensumme + Logistik)`. So bleibt die
+  Summe für Vectura stimmig.
+- Nur die **VK-Seite** bekommt einen Logistikanteil. Die EK-Seite rechnet wie bisher, die Ist-Kosten kennt Vectura.
+- **Überall gleich:** Produktseite (`calculate`), Preismatrix, Warenkorb (CartProcessor) und Schnappschuss nutzen dieselbe
+  Funktion `PriceEngine::price()`. Die Regeln werden mit dem Katalog geladen (`CatalogLoader`, Systemkontext, gültig am
+  Rechentag).
+- **Mindestbetrag je Bestellung** (`order`): `calculate` und die Preismatrix rechnen die Position allein, also mit dem vollen
+  Mindestbetrag. Der CartProcessor sammelt alle Positionen mit demselben Optionswert (z. B. alle mit „24h Express“) und
+  verteilt `max(Mindestbetrag, Σ lineare Anteile)` nach den linearen Anteilen, ersatzweise nach Fläche. Ergebnis: Der Preis
+  im Warenkorb ist nie höher als auf der Produktseite, bei mehreren Express-Positionen sinkt er. Kommt eine Position hinzu oder
+  fällt weg, rechnet der Warenkorb neu. Hat die Lieferzeit-Gruppe `scope = supplier`, wird zusätzlich nach Lieferant
+  getrennt (`supplierId` aus Material bzw. Kalkulation).
+- **Plausibilität:** Der Rechenweg enthält `logisticsSharePercent` = Logistik im Endpreis ÷ Endpreis. Über der Warnschwelle
+  (Plugin-Einstellung `logisticsWarnPercent`, Vorschlag 15 %) warnt die Administration in Vorschau, Testrechner und
+  Schnappschuss. Ab dort ist ein Angebot oder ein sichtbarer Sperrgutzuschlag ehrlicher. Der Kunde sieht diese Warnung nie.
+
+### 3d.4 Unsichtbar machen
+
+1. **Keine eigene Zeile für den Kunden.** Der Anteil steckt im Grundpreis (Kalkulation, Material) bzw. im Aufpreis der
+   verursachenden Option. Die Summen gehen für den Kunden immer auf.
+2. **Aufpreis-Hinweise** (`priceHint` der Konfigurator-Daten, „+ 4,18 €/m²“): Der lineare Teil einer Optionswert-Regel ohne
+   Rampe und Schwelle (`per_sqm`, `per_piece`, `per_position`) wird in den Hinweis eingerechnet. Material- und
+   Kalkulations-Regeln `per_sqm` ohne Rampe stecken im „ab“-Preis je m² (`fromPricePerSqm`). Nicht lineare Teile (Rampe,
+   Mengenschwelle, `percent`, Mindestbetrag) passen in keinen festen Text. Dann zeigt die Administration den Hinweis
+   „Aufpreis-Hinweis dieser Gruppe ist nicht exakt“ und empfiehlt, den Aufpreis-Hinweis der Gruppe auszublenden
+   (`showPriceHint = false`, gibt es schon). Exakte Hinweise je Konfiguration wären eine eigene Vertragserweiterung
+   (offene Frage 3).
+3. **Nie nach außen:** Store-API (`configurator`, `calculate`, Matrix), Payload `ldMensura`, Warenkorb, Kundenkonto,
+   Dokumente und Lieferantenbestellung (LieferLotse `options[]`/`attributes`) enthalten nur Gesamtpreise. Der
+   Logistikanteil steht nur im Admin-Rechenweg und im Logistik-Teil des Schnappschusses, beides mit `ld_mensura.logistics`.
+4. **Auch Rollen ohne Recht sehen ihn nicht:** Der Verkaufs-Rechenweg im Schnappschuss (`breakdown.sale`) enthält keine
+   Logistik-Zeile, sondern nur die Zwischensumme inklusive Logistik. Die Einzelheiten stehen in der eigenen Tabelle
+   `ld_mensura_order_line_item_logistics` (3d.5).
+5. **Prüfung im CI:** Ein Negativtest stellt sicher, dass keine Store-API-Antwort in `build/contract/` und kein Fixture ein
+   Feld oder einen Text mit `logistic` enthält (wie die Prüfung „kein Einkaufspreis“).
+
+### 3d.5 Datenmodell (Vorschlag, Migration `Migration1794180000LogisticsShare`)
+
+**Neue Tabelle `ld_mensura_logistics_rule`** (Entity `LogisticsRuleDefinition`, nicht `ApiAware`):
+
+| Spalte | Typ | Bemerkung |
+|---|---|---|
+| `id` | BINARY(16) | |
+| `calculation_id` | BINARY(16) NULL, FK → `ld_mensura_calculation` ON DELETE CASCADE | allein = Regel der Kalkulation; zusammen mit `option_value_id` = Beschränkung auf diese Kalkulation |
+| `material_id` | BINARY(16) NULL, FK → `ld_mensura_material` CASCADE | |
+| `option_value_id` | BINARY(16) NULL, FK → `ld_mensura_option_value` CASCADE | |
+| `cost_type` | VARCHAR(32) | `base` · `quantity` · `bulky` · `express` · `multi_source` · `other` |
+| `form` | VARCHAR(16) | `percent` · `per_sqm` · `per_piece` · `per_position` |
+| `value` | DOUBLE | netto, VK, Basis Wiederverkäufer |
+| `ramp_from`, `ramp_to` | INT NULL | mm, längste Seite |
+| `threshold_basis` | VARCHAR(16) NULL | `total_area` · `quantity` |
+| `threshold_from`, `threshold_to` | DOUBLE NULL | |
+| `minimum_amount` | DOUBLE NULL | |
+| `minimum_scope` | VARCHAR(16) NULL | `position` · `order` |
+| `valid_from` | DATE NULL | NULL = sofort |
+| `active` | TINYINT(1) | |
+| `source` | VARCHAR(16) | `manual` · `vectura` |
+| `source_reference` | JSON NULL | Vectura-Vorschlag: `suggestionId`, Zeitraum, Deckung vorher/nachher, Fallzahl, übernommen von/am |
+| `note` | LONGTEXT NULL | |
+| `created_at`, `updated_at` | DATETIME(3) | |
+
+Prüfungen (CHECK bzw. Validierung beim Speichern): genau ein Ziel (Kalkulation allein, Material oder Optionswert);
+`ramp_to ≥ ramp_from + 100`; Schwelle vollständig oder leer; `minimum_scope` nur zusammen mit `minimum_amount`. Indizes
+auf (`material_id`, `cost_type`, `valid_from`) und entsprechend für die anderen Ziele. Die Assoziationen
+`logisticsRules` an Kalkulation, Material und Optionswert sind **nicht** ApiAware. Der Admin lädt sie nur mit
+`ld_mensura.logistics`.
+
+**Neue Tabelle `ld_mensura_order_line_item_logistics`** (1:1 zum Schnappschuss, Extension
+`orderLineItem.extensions.ldMensuraLogistics`, nur Admin-API, nur mit `ld_mensura.logistics`):
+
+| Spalte | Inhalt |
+|---|---|
+| `order_line_item_id`, `order_line_item_version_id` | wie beim Schnappschuss, FK CASCADE |
+| `logistics_sale` | Logistikanteil im Endpreis (netto, nach Mindestpreis-Anteil und Kundengruppen-Aufschlag) |
+| `production_time_sale` | Produktionszeit-Aufschlag im Endpreis: Preis mit gewählter Lieferzeit − Preis mit der Standard-Lieferzeit, beide ohne Logistik |
+| `share_percent` | Logistik im Endpreis ÷ Endpreis |
+| `lines` | JSON: je Regel `ruleId`, `costType`, `form`, `value`, Verursacher-Schlüssel (`calculationKey`, `materialKey`, `deliveryKey`), `longestSide`, `fRamp`, `fThreshold`, `amount`, `minimumApplied`, bei `order` der verteilte Anteil |
+| `schema_version` | 1 |
+
+`production_time_sale` ist für sich nicht geheim, er ist ja ein sichtbarer Aufpreis. Er steht hier, weil Vectura ihn
+zusammen mit dem Logistikanteil braucht und der Schnappschuss ihn bisher nicht getrennt ausweist. Alternative: beide als
+Spalten in `ld_mensura_order_line_item`. Das ist einfacher, aber dann sieht jede Rolle mit `ld_mensura.orders` den
+Logistikanteil.
+
+**Plugin-Einstellung** `logisticsWarnPercent` (Standard 15). Ein Schalter „Logistik an/aus“ ist nicht nötig: Ohne Regeln
+ist der Anteil 0, und alle bisherigen Beispielfälle bleiben unverändert.
+
+### 3d.6 Administration: Karte „Logistikanteil“ (`lm-logistics-card`)
+
+Erscheint auf den Detailseiten von Kalkulation, Material und Optionswert, **nur** mit `ld_mensura.logistics`. Ohne Recht
+erscheint sie gar nicht, auch nicht als deaktivierter Platzhalter. Ohne `ld_mensura.logistics_edit` ist sie nur lesbar.
+Gestaltung nach `ld-admin-design` (Präfix `lm-`, Tokens, Bausteine `lm-chip`, `lm-status`):
+
+```
+┌ mt-card  [regular-truck] Logistikanteil · für Kunden unsichtbar ─────────────── [+ Logistikanteil hinzufügen] ┐
+│ ⓘ mt-banner info (schließbar): „Deckt die Versand- und Servicekosten des Lieferanten. Wird unsichtbar in den  │
+│   Preis eingerechnet, der Kunde sieht nur den Gesamtpreis. Versandpauschale und Verpackung bleiben getrennt.“ │
+│                                                                                                                │
+│  Kostenart        Form        Wert          Rampe / Schwelle      gültig ab    Status                          │
+│  [Grund   c1]     €/m²        1,60 €        –                     sofort       ✓ aktiv                         │
+│  [Sperrgut c2]    €/m²        11,63 €       1.000 → 1.400 mm      01.12.2026   ⚠ geplant                       │
+│  [Sperrgut c2]    €/m²        2,10 €        1.000 → 1.400 mm      –            ⊘ abgelöst ab 01.12.             │
+│                                                                                                                │
+│ ┌ Vorschlag aus Vectura (nur wenn Vectura installiert und Recht vorhanden) ─────────────────────────────────┐  │
+│ │ Sperrgut 1.200–2.449 mm: 11,63 €/m², Rampe 1.000 → 1.400 mm · Deckung 1,08 → 1,25 · 27 Aufträge,          │  │
+│ │ 01.08.–31.10.2026 · ⚠ Änderung größer als ±1 €/m²    [Vorschau]  [Übernehmen ab 01.12.2026]               │  │
+│ └────────────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                                                │
+│  Vorschau (Beispielformate änderbar)                                                                           │
+│  Format            Menge  VK ohne Logistik  Logistik (unsichtbar)  VK gesamt   Anteil                          │
+│  1.000 × 500 mm    1      38,40 €           0,80 €                 39,20 €     2 %   ✓                          │
+│  1.500 × 1.000 mm  1      82,50 €           11,13 €                93,63 €     12 %  ✓                          │
+│  2.400 × 1.200 mm  2      398,00 €          70,58 €                468,58 €    15 %  ⚠ über 15 %               │
+│  [kleine Linie: Satz €/m² über der längsten Seite 0 … 3.000 mm, Rampe sichtbar]                               │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+(Beträge in der Skizze sind Platzhalter.)
+
+**Bearbeiten** im `sw-modal` „Logistikanteil bearbeiten“, Felder mit `help-text` (de/en, je mit Beispiel):
+
+| Feld | Hilfetext (de) |
+|---|---|
+| Kostenart | „Welche Versandkosten deckt dieser Anteil? Muss zur Auswertung in Vectura passen, z. B. Sperrgut bei langen Hartschaumplatten.“ |
+| Form | „Wie der Anteil wächst: % vom Warenwert, € je m², € je Stück oder fest je Position. Z. B. Sperrgut je m², damit kleine Schilder nicht mitbezahlen.“ |
+| Wert | „Betrag netto für Wiederverkäufer. Kundengruppen-Aufschläge kommen automatisch dazu. Z. B. 11,63 €/m².“ |
+| Rampe längste Seite | „Der Anteil steigt gleitend zwischen diesen Längen von 0 auf den vollen Wert, damit beim Formatvergleich kein Preissprung auffällt. Z. B. 1.000 → 1.400 mm.“ |
+| Mengenschwelle | „Der Anteil wirkt erst ab einer Menge und steigt gleitend. Z. B. Papier ab 10 m² Gesamtfläche, voll ab 15 m².“ |
+| Mindestbetrag | „Der Anteil ist mindestens so hoch. Z. B. 25 € für 24h Express, weil der Lieferant das je Bestellung berechnet.“ |
+| Geltung Mindestbetrag | „Je Position oder einmal je Bestellung, verteilt auf alle Positionen mit dieser Option. Auf der Produktseite gilt immer der volle Betrag, im Warenkorb kann der Preis dann sinken.“ |
+| Gültig ab | „Ab diesem Tag gilt der neue Wert. Leer = sofort. Der alte Wert gilt bis dahin und bleibt danach als Verlauf erhalten.“ |
+| Nur für Kalkulation (bei Optionswerten) | „Leer = in allen Kalkulationen. Z. B. Express bei Hartschaum anders als bei Folie.“ |
+| Notiz | „Warum dieser Wert? Z. B. ‚Comdatek Sperrgut ab 1.200 mm, Auswertung 03–10/2026‘.“ |
+
+- **Warnungen beim Speichern** (`mt-banner attention`): Anteil in der Vorschau über `logisticsWarnPercent`; Rampe kürzer als
+  100 mm; Änderung größer als ±1 €/m² bzw. ±2 Prozentpunkte zum gültigen Wert; nicht lineare Regel an einer Option mit
+  sichtbarem Aufpreis-Hinweis (3d.4 Nr. 2); Mindestbetrag `order` an einem Optionswert, der keine Lieferzeit ist.
+- **Leerer Zustand:** Icon `regular-truck`, „Noch kein Logistikanteil · Lege fest, welche Versandkosten dieses Material
+  verursacht, z. B. Sperrgut ab 1.200 mm. · [Logistikanteil hinzufügen]“. Ohne Vectura darunter eine leise Zeile: „Mit
+  Vectura bekommst du Vorschläge aus den echten Versandkosten.“
+- **Vorschau** rechnet serverseitig über eine Admin-Route (3d.7) mit Demo-Formaten oder frei gewählten Formaten. Die
+  Linie „Satz über Länge“ zeichnet der Browser aus den Regelfeldern (dafür sind keine Preise nötig).
+- **Kostenart-Farben** (Kategorie-Farben c1–c4): `base` c1, `bulky` c2, `quantity` c3, `express` c4, sonst ohne Farbe.
+  Diese Zuordnung kommt in DESIGN.md, sobald Vectura dieselben Chips nutzt (vorher abstimmen).
+- **Icon:** `regular-truck` ist in DESIGN.md für „Lieferant“ belegt. Ein eigenes Paket-Icon nur nach Prüfung im
+  Icon-Kit und Eintrag in DESIGN.md.
+- Später möglich: eigener Bereich **„Logistik“** im Mensura-Menü (`constants.js` AREAS), der alle Regeln als Liste zeigt
+  (Filterchips je Kostenart, „geplant“, „aus Vectura“), für die Massenpflege.
+
+### 3d.7 Schnittstellen
+
+- **Admin-Route** `POST /api/_action/ld-mensura/logistics/preview` (ACL `ld_mensura_logistics_rule:read`): Regel(n) im
+  Entwurf + Beispielkonfigurationen → je Beispiel VK ohne/mit Logistik, Anteil, Warnung. Der Testrechner (Fahrplan 4)
+  nutzt später dieselbe Rechnung und zeigt Logistik-Zeilen nur mit Recht.
+- **Vectura → Mensura:** Mensura ruft `GET /api/_action/ld-vectura/logistics/suggestions` nur auf, wenn Vectura installiert
+  ist. Rechte, Antwortformat und Übernahme stehen in [INTEGRATION.md](INTEGRATION.md) Abschnitt 7.
+- **Mensura → Vectura:** Schnappschuss-Teil `ld_mensura_order_line_item_logistics` (3d.5).
+- **Vertrag Backend ↔ Frontend (`docs/contract/`): keine Schemaänderung.** Der Logistikanteil erscheint dort nicht. Es
+  ändern sich nur Gesamtpreise und Aufpreis-Hinweise, und das nur für Kalkulationen mit Regeln. Dazu kommen ein
+  Beispielfall mit Logistikregel in den Demo-Daten (Sollwert nur als Gesamtpreis, Herleitung im Commit) und der Negativtest
+  aus 3d.4 Nr. 5. Dafür reicht ein kleiner Branch `contract/logistik-beispiel`.
+
+### 3d.8 Umsetzungsplan (kleine Schritte, je Schritt im Shop testen, committen, pushen)
+
+| # | Branch | Inhalt | Test |
+|---|---|---|---|
+| 1 | `backend/logistikanteil` | Migration + Entity `ld_mensura_logistics_rule`, Assoziationen (nicht ApiAware), Zusatzrechte `ld_mensura.logistics` / `logistics_edit`, Snippets de/en | `dal:validate`; Regel über Admin-API anlegen; Rolle ohne Recht bekommt 403 |
+| 2 | `contract/logistik-beispiel` → `main` | Beispielfall (z. B. Demo-Material mit Sperrgut-Rampe, Format 1.500 × 1.000) nur mit Gesamtpreis; Negativtest „kein logistic in Store-API/Fixtures“ in `check-all.sh` | Vertragsprüfung grün, Backend-Test erwartungsgemäß rot |
+| 3 | `backend/logistikanteil` | Engine: Regeln im `CatalogLoader` (gültig am Rechentag, Vorrang 3d.1), Schritt „Logistik“ in `PriceEngine::price()` (nur VK), Mindestbetrag `position`, Rechenweg-Zeilen intern; Demo-Daten | PHPUnit: Rampe, Schwelle, Formen, Vorrang, gültig-ab, Mindestpreis-Anteil; alle alten Fixtures unverändert, neuer Fixture grün |
+| 4 | `backend/logistikanteil` | Unsichtbarkeit: `breakdown.sale` ohne Logistik-Zeile, Aufpreis-Hinweise und „ab“-Preis mit linearem Teil, Negativtest grün | Store-API im Shop prüfen: Gesamtpreis stimmt, kein Logistikfeld |
+| 5 | `backend/logistikanteil` | Schnappschuss `ld_mensura_order_line_item_logistics` inkl. Produktionszeit-Aufschlag | Testbestellung, Admin-API mit und ohne Recht |
+| 6 | `backend/logistikanteil` | Mindestbetrag `order`: Verteilung im CartProcessor | zwei Express-Positionen im Warenkorb, Summe = max(Minimum, Σ linear) |
+| 7 | `backend/logistikanteil` | Admin-Route `preview` + Karte `lm-logistics-card` (Liste, Modal, Hilfetexte, Vorschau, Warnungen, Einstellung `logisticsWarnPercent`), eingebunden in Kalkulation/Material/Optionswert | im Admin in Design A/B/C, mit/ohne Recht, schmales Fenster |
+| 8 | `backend/vectura-vorschlaege` (nach Vectura-Schritt 4) | Karte „Vorschlag aus Vectura übernehmen“ gegen das Antwortformat aus INTEGRATION.md 7; bis dahin mit Beispiel-JSON | ohne Vectura unsichtbar; mit Vectura legt „Übernehmen“ eine neue Regel mit gültig-ab an |
+
+Schritt 7 braucht die Detailseiten von Material, Kalkulation und Optionswert. An denen arbeitet gerade eine andere Sitzung
+(nicht committet). Die Karte wird als eigenständige Komponente gebaut und erst eingebunden, wenn diese Seiten auf `main` sind.
+
+**Offene Fragen (vor Schritt 1 zu klären):**
+1. **Basis von `percent`:** Waren-**EK** der Position (Vorschlag: passt zu Vectura „6,9 % auf den Waren-EK“ und bleibt bei
+   Margenänderungen stabil) oder VK-Zwischensumme vor Logistik (einfacher zu erklären)?
+2. **Mindestbetrag je Bestellung** wie in 3d.3 (Produktseite voller Betrag, im Warenkorb verteilt und ggf. günstiger) oder
+   vorerst nur je Position?
+3. **Aufpreis-Hinweise:** Reicht „linearer Teil im Hinweis, sonst Hinweis der Gruppe ausblenden“, oder sollen exakte
+   Hinweise je Konfiguration kommen (Vertragserweiterung + Frontend)?
+4. **Rechte und Schnappschuss:** zwei Zusatzrechte und eigene Tabelle für den Logistik-Schnappschuss (Vorschlag), oder
+   Spalten im bestehenden Schnappschuss?
+5. **Deckungsbeitrag:** `contributionMargin` im Schnappschuss enthält künftig den Logistik-Erlös, aber nicht die
+   Versandkosten. Soll Mensura zusätzlich einen „Waren-Deckungsbeitrag“ ohne Logistik ausweisen?
+
 ## 4. Standardformel (Engine)
 
 ```
@@ -380,7 +649,8 @@ Satz/m²        = (Materialpreis[Staffel] + Σ per_area) × Π factor
 Stückpreis     = Satz/m² × Fläche + Grundpreis/Stk + Σ per_piece + Umfang × Σ per_perimeter
 Zwischensumme  = Stückpreis × Menge + Motive × (Grundpreis/Motiv + Σ per_motif) + Rüstkosten + Σ per_order
 Zwischensumme  = Zwischensumme × (1 − Staffelrabatt) × (1 + Σ percent) × (1 + Preisfaktor)
-Gesamt         = runden(max(Mindestpreis, Zwischensumme))
+Logistik       = Σ Logistikanteile (nur VK, 3d.2)                                   (geplant, 3d)
+Gesamt         = runden(max(Mindestpreis, Zwischensumme + Logistik))
 ```
 
 Die Engine rechnet dieselbe Formel zweimal – mit VK-Werten (Kundenpreis) und mit EK-Werten
@@ -448,4 +718,5 @@ Shop-Frontend geprüft werden können.
    Live-Preis, Liefertermin + Annahmeschluss, Konfiguration in der URL, Angebot als PDF, Upload; umschaltbar je Profil,
    optional durch den Kunden, mit Testbetrieb; dazu Warenkorb/Bestellung + Schnappschuss
 6a. LieferLotse: Feld `attributes` in der Lieferantenposition + Mensura-Subscriber auf `SupplierOrderBuiltEvent`
+6b. Logistikanteil (unsichtbar im VK, Vorschläge aus Vectura): Konzept und Schritte in 3d, Schnittstelle INTEGRATION.md 7
 7. Weitere Artikel (Folien, Banner …) – eigene Kalkulationen/Formeln
