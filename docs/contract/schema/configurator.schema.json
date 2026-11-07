@@ -101,6 +101,15 @@
         "showPerPiece": { "type": "boolean", "description": "Preis je Stück" },
         "showFromPrice": { "type": "boolean", "description": "„ab“-Preis je m² an Material-Kacheln (fromPricePerSqm)" }
       }
+    },
+    "layoutTest": {
+      "type": "object",
+      "description": "optional: Testbetrieb der Darstellungen (KONZEPT 3c, Plugin-Einstellung layoutTestShare). Neue Besucher ohne eigene Wahl bekommen mit der Wahrscheinlichkeit share % die andere als die Standard-Darstellung (layout); die Zuteilung merkt sich der Browser. Fehlt oder share = 0: kein Test",
+      "additionalProperties": false,
+      "required": ["share"],
+      "properties": {
+        "share": { "type": "integer", "minimum": 0, "maximum": 100, "description": "Anteil in Prozent, z. B. 20 = jeder fünfte neue Besucher sieht die andere Darstellung" }
+      }
     }
   },
   "$defs": {
