@@ -64,6 +64,14 @@ gemeinte Anbieter (bitte prüfen).
   - Keine Bilder je Option, keine Vorlagen, Lücken bei der Barrierefreiheit (Felder ohne Beschriftung), Cookie-Links auf „#“.
   - Analyse- und Tag-Manager-Skripte wurden vermutlich schon vor einer Einwilligung geladen (unsicher, **bitte datenschutzrechtlich prüfen**).
 
+## Entscheidung (07.11.2026)
+
+Es werden **zwei Varianten getestet** (KONZEPT 3c):
+- **kompakt** nach dem Vorbild Comdatek, weil Stammkunden die direkte Kalkulation schätzen
+- **geführt** nach dem Vorbild flyeralarm
+
+wir-machen-druck ist kein Vorbild, weil es zu komplex ist. Die heutige Seite von lohndruckerei.eu ist nur Ausgangspunkt, kein Maßstab.
+
 ## Folgerungen für Mensura
 
 **Übernehmen (Bedienung):**

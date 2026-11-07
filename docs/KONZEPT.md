@@ -293,6 +293,39 @@ Der Funktionsumfang ist groß. Die Bedienung muss trotzdem ohne Schulung gehen:
    Profilen, CSV-Import/-Export.
 7. Die Designs A/B/C gelten auch hier. Fachbegriffe werden konsequent gleich benannt.
 
+## 3c. Zwei Konfigurator-Varianten im Shop (zum Testen)
+
+Beide Varianten nutzen **dieselben Daten, dieselbe Preis-Engine und dieselbe Store-API**. Es ändert sich nur die
+Darstellung. Optionssets, Produktprofile, Abhängigkeiten und das Verhalten beim Materialwechsel (3.7) gelten in beiden gleich.
+
+| | **Kompakt** (Vorbild Comdatek) | **Geführt** (Vorbild flyeralarm) |
+|---|---|---|
+| Für wen | Stammkunden und Profis, die wissen, was sie wollen | Neukunden, Gelegenheitskäufer, Beratungsbedarf |
+| Aufbau | **eine Seite**, nummerierte Abschnitte untereinander: 1 Material · 2 Endformat · 3 Auflage (Motive × Stück) · 4 Druck & Weiterverarbeitung | **Reiter je Schritt** (aus den Optionssets), nach jeder Wahl automatisch weiter, rechts „Ihr Produkt“ |
+| Optionen | Auswahllisten, kurze Hilfe-Symbole; nicht relevante Gruppen verschwinden | Kacheln mit Bild, Kurzinfo, Badges; Infotexte ausklappbar |
+| Menge | freie Eingabe (Stück und Motive) | **Preismatrix Menge × Lieferzeit** (ein Klick wählt beides), dazu freie Eingabe |
+| Lieferzeit | Auswahlliste mit Datum und Aufschlag | Spalten der Preismatrix mit Datum |
+| Preis | live, unten bzw. rechts: Gesamt, je Stück, je m² (netto) | live in der Zusammenfassung und in der Matrix |
+| Tastatur | durchgehend per Tastatur bedienbar (Tab, Eingaben), Formatfelder vorne | Mausbedienung im Vordergrund |
+| Wiederbestellen | „Konfiguration übernehmen“ aus früheren Bestellungen | wie kompakt |
+
+**Umschalten und Testen**
+- Plugin-Einstellung „Standard-Darstellung im Shop“ (kompakt/geführt), dazu je **Produktprofil** überschreibbar
+  (z. B. Duschrückwände geführt, Aluverbund kompakt).
+- Optional darf der Kunde selbst umschalten („Kompaktansicht“ / „Geführt“). Seine Wahl wird im Kundenkonto gespeichert und
+  bei Gästen in einem funktionalen Cookie.
+- **Testbetrieb:** Ein Anteil der neuen Besucher bekommt zufällig die andere Variante. Gemessen wird nur mit Einwilligung:
+  Konfigurator geöffnet, Preis gesehen, in den Warenkorb, bestellt, Abbruchschritt. Ausgewertet wird je Variante in der
+  Administration (Übersicht).
+- Technisch: Store-API und Konfigurationsschema sind für beide gleich. Die Varianten sind zwei Storefront-Komponenten
+  (Twig + JS-Plugin) auf demselben Zustandsmodell. Ein Wechsel der Variante behält die aktuelle Konfiguration.
+
+**Bewusst nicht übernommen:** die Art von wir-machen-druck (tiefe Kategoriebäume, Kombi-Dropdowns, Preis erst nach
+„Berechnen“). Sie ist in der Praxis zu komplex. Die heutige Seite von lohndruckerei.eu ist kein Vorbild. Vorbild für „kompakt“ ist Comdatek.
+
+Datenmodell (v0.4.0): Feld `layout` am Produktprofil (`compact`/`guided`/leer = Standard) und Plugin-Einstellungen
+`storefrontLayout`, `allowLayoutSwitch`, `layoutTestShare` (%).
+
 ## 3b. Benutzerrechte je Rolle (für alle Plugins der Familie)
 
 Alle Plugins (LieferLotse, Mensura, künftige) melden ihre Rechte bei der **Shopware-Rollenverwaltung** an
@@ -366,8 +399,9 @@ Shop-Frontend geprüft werden können.
 3. Admin: Listen & Detailseiten je Bereich, Preisfelder EK/VK mit Margenrechner
 4. Preis-Engine (PHP, mit Unit-Tests anhand der Comdatek-Werte oben) + Testrechner im Admin
 5. Produktzuordnung + Store-API „Preis berechnen“
-6. Storefront-Konfigurator als Assistent mit Reitern je Optionsset, Kacheln mit Bild/Info, Zusammenfassung „Ihr Produkt“,
-   Live-Preis, **Preismatrix Menge × Lieferzeit**, Liefertermin + Annahmeschluss, netto/brutto, Konfiguration in der URL,
-   Angebot als PDF, Upload + Warenkorb/Bestellung + Schnappschuss
+6. Storefront-Konfigurator in **zwei Varianten** (3c): **kompakt** (Comdatek: eine Seite, 4 nummerierte Abschnitte) und
+   **geführt** (flyeralarm: Reiter je Optionsset, Kacheln, Zusammenfassung, Preismatrix Menge × Lieferzeit), beide mit
+   Live-Preis, Liefertermin + Annahmeschluss, Konfiguration in der URL, Angebot als PDF, Upload; umschaltbar je Profil,
+   optional durch den Kunden, mit Testbetrieb; dazu Warenkorb/Bestellung + Schnappschuss
 6a. LieferLotse: Feld `attributes` in der Lieferantenposition + Mensura-Subscriber auf `SupplierOrderBuiltEvent`
 7. Weitere Artikel (Folien, Banner …) – eigene Kalkulationen/Formeln
