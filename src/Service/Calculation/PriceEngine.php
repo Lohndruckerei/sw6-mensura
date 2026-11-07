@@ -500,7 +500,7 @@ final class PriceEngine
         }
         if (isset($availability['maxArea'])) {
             [$width, $height] = $this->dimensions($config, $catalog);
-            $area = $this->pieceArea($calculation, $width, $height) * $quantity;
+            $area = $width * $height / 1_000_000 * $quantity;
             if ($area > (float) $availability['maxArea'] + 1e-9) {
                 return $messages->text('delivery.max_area', ['limit' => $messages->plain((float) $availability['maxArea'])]);
             }
@@ -548,7 +548,10 @@ final class PriceEngine
         $tierQuantity = ($calculation['tierScope'] ?? 'total') === 'per_motif' ? $quantity / max(1, $config->motifs) : (float) $quantity;
 
         [$width, $height] = $this->dimensions($config, $catalog);
-        $pieceArea = $this->pieceArea($calculation, $width, $height);
+        // Fläche der Position = Länge × Breite × Stück; Mindestfläche/Rundung je Position (areaScope total) oder je Stück
+        $rawPieceArea = $width * $height / 1_000_000;
+        $billedArea = $this->billedArea($calculation, $width, $height, $quantity);
+        $pieceArea = $billedArea / max(1, $quantity); // abgerechnete Fläche je Stück (für Preise je m²)
         $perimeter = 2 * ($width + $height) / 1000;
         $unitAmount = match ($calculation['unit'] ?? 'area') {
             'area' => $pieceArea,
@@ -558,7 +561,7 @@ final class PriceEngine
         $measure = static fn (string $basis) => match ($basis) {
             'quantity' => $tierQuantity,
             'total_area' => $pieceArea * $tierQuantity,
-            'piece_area' => $pieceArea,
+            'piece_area' => ($calculation['areaScope'] ?? 'total') === 'piece' ? $pieceArea : $rawPieceArea,
             default => 0.0,
         };
         $lines = [];
@@ -710,15 +713,20 @@ final class PriceEngine
             $minimum *= 1 + $customerGroupPercent / 100;
         }
         $total = self::roundPrice($total, $rounding);
-        $totalArea = $pieceArea * $quantity;
 
         return [
             'side' => $side,
             'total' => $total,
             'quantity' => $quantity,
             'perMotif' => $perMotif,
+            // Flächenwerte (auch für eigene Formeln und spätere Plugins, z. B. Versand nach Format)
             'pieceArea' => round($pieceArea, 6),
-            'area' => round($totalArea, 6),
+            'rawPieceArea' => round($rawPieceArea, 6),
+            'area' => round($rawPieceArea * $quantity, 6),
+            'billedArea' => round($billedArea, 6),
+            'minArea' => isset($calculation['minArea']) ? (float) $calculation['minArea'] : null,
+            'areaRounding' => isset($calculation['areaRounding']) ? (float) $calculation['areaRounding'] : null,
+            'areaScope' => (string) ($calculation['areaScope'] ?? 'total'),
             'perimeter' => round($perimeter, 6),
             'width' => $width,
             'height' => $height,
@@ -769,7 +777,28 @@ final class PriceEngine
         return [$width + $widthAdd, $height + $heightAdd];
     }
 
-    /** @param array<string, mixed>|null $calculation */
+    /**
+     * Abgerechnete Fläche der Position in m².
+     * areaScope `total` (Standard): Gesamtfläche L × B × Stück, aufgerundet auf `areaRounding`, mindestens `minArea`
+     * (Folie: bis 1 m² gleicher Preis, darüber in Schritten). areaScope `piece`: dasselbe je Stück, dann × Stück.
+     *
+     * @param array<string, mixed>|null $calculation
+     */
+    public function billedArea(?array $calculation, float $width, float $height, int $quantity): float
+    {
+        if (($calculation['areaScope'] ?? 'total') === 'piece') {
+            return $this->pieceArea($calculation, $width, $height) * $quantity;
+        }
+        $area = $width * $height / 1_000_000 * $quantity;
+        $rounding = (float) ($calculation['areaRounding'] ?? 0);
+        if ($rounding > 0) {
+            $area = round(ceil(round($area / $rounding, 9)) * $rounding, 9);
+        }
+
+        return max((float) ($calculation['minArea'] ?? 0), $area);
+    }
+
+    /** Abgerechnete Fläche je Stück bei areaScope `piece`. @param array<string, mixed>|null $calculation */
     public function pieceArea(?array $calculation, float $width, float $height): float
     {
         $area = $width * $height / 1_000_000;

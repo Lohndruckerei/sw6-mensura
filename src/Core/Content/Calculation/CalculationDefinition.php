@@ -49,6 +49,7 @@ class CalculationDefinition extends EntityDefinition
     public const TIER_SCOPES = ['total', 'per_motif'];
     /** Staffelsprung: none, hint (größere günstigere Menge anbieten), apply (günstigeren Preis anwenden) */
     public const BEST_PRICE_MODES = ['none', 'hint', 'apply'];
+    public const AREA_SCOPES = ['total', 'piece'];
 
     public function getEntityName(): string
     {
@@ -85,6 +86,8 @@ class CalculationDefinition extends EntityDefinition
             new BoolField('allow_rotation', 'allowRotation'),
             new FloatField('min_area', 'minArea'),
             new FloatField('area_rounding', 'areaRounding'),
+            // Mindestfläche/Flächenrundung bezogen auf die Position (total, L × B × Stück) oder je Stück (piece)
+            (new StringField('area_scope', 'areaScope', 16))->addFlags(new Required()),
             new IntField('max_motifs', 'maxMotifs', 1),
             new IntField('max_quantity', 'maxQuantity', 1),
 
@@ -142,6 +145,7 @@ class CalculationDefinition extends EntityDefinition
             'motifMode' => 'multiply',
             'tierScope' => 'total',
             'bestPriceMode' => 'hint',
+            'areaScope' => 'total',
         ];
     }
 }

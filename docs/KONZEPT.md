@@ -367,7 +367,8 @@ eigene Tabelle ausgelagert. Das wird mit den Admin-Oberflächen umgesetzt und ge
 
 ```
 B, H           = Endformat + Formatzugaben der Optionen (mm), ggf. gedreht
-Fläche         = max(Mindestfläche, aufrunden(B × H / 1e6, Flächenrundung))
+Fläche         = max(Mindestfläche, aufrunden(B × H / 1e6 × Menge, Flächenrundung)) ÷ Menge   (je Position, Standard;
+                 bei areaScope = piece wie bisher je Stück)
 Umfang         = 2 × (B + H) / 1000
 Menge          = Motive × Stück je Motiv
 Satz/m²        = (Materialpreis[Staffel] + Σ per_area) × Π factor
@@ -388,6 +389,7 @@ kommen aus Material, Kalkulation und den gewählten Optionswerten, jeweils nach 
 | Reihenfolge der Prüfung | Material (muss im Profil erlaubt sein, sonst Standard + Hinweis `material.reset`) → Festformat → Optionen in Set-Reihenfolge (Start-Set → Material-Set → Folge-Sets der gewählten Werte) → entfallene Optionen (`option.removed`) → Format (`format.*`, mit `fix`) → Menge (`quantity.*`) → Lieferzeit (`delivery.reset`) → Preis (`price.*`) |
 | Optionswerte | erlaubt = in der Kalkulation zugeordnet (Zeile je Material vor allgemeiner) ∩ Profilregel; Bedingungen gegen die bereits gewählten Werte; sonst Standard (Profil-Standard → `isDefault` → erster) mit Hinweis `option.reset` / `option.fixed` / `option.excluded` |
 | Staffeln | `tiers` im alten Format (Liste, Basis aus `tierBasis`) oder getrennt `{purchase:{basis,steps}, sale:{basis,steps}}`; Schritt `price` ersetzt, `discount` gibt Rabatt %. Material-Staffel ersetzt den Materialpreis; Kalkulations-Staffel mit `price` ebenso (wenn das Material keine hat), mit `discount` = Staffelrabatt auf die Zwischensumme; Staffel am Optionswert ersetzt dessen ersten Preisanteil (bzw. `base_area`) |
+| Fläche (Entscheidung 07.11.2026) | **Fläche der Position = Länge × Breite × Stück** (inkl. Formatzugaben). Mindestfläche und Flächenrundung gelten standardmäßig für diese Gesamtfläche (`areaScope = total`), z. B. Folie: bis 1 m² gleicher Grundpreis, darüber in Schritten von `areaRounding` (0,1 m² → 1,23 m² wird 1,3 m²). Alle Preisanteile je m² (Material, Laminat, Schnitt …) rechnen mit dieser abgerechneten Fläche, Preisanteile je Stück mit der Stückzahl. `areaScope = piece` rechnet Mindestfläche/Rundung wie früher je Stück. Die Flächenwerte (je Stück, gesamt, abgerechnet, Mindestfläche, Schrittweite, Format, Umfang) stehen im Rechenweg, im Payload `ldMensura.area` und im Schnappschuss – für eigene Formeln und spätere Plugins (z. B. Versanddienstleister nach Format). `price.area` der Store-API ist die Gesamtfläche L × B × Stück |
 | `base_area` | Optionswert ersetzt den Materialpreis je m² samt Material-Staffel (Sticker-Zuschnitt) |
 | Preistabelle | spezifischste passende Tabelle (alle Schlüsselwerte gewählt; mehr Schlüssel und Material vor ohne); Zeile mit größter Auflage ≤ Menge (darunter die erste); `total` wird auf den Stück-Preis der Zeile umgerechnet. Hat die Kalkulation Tabellen, aber keine passt → `price.not_available` |
 | Aufschläge VK | Produktprofil (% + je Material %) vor dem Mindestpreis; Mindestpreis = max(Material bzw. Kalkulation, Profil); **Kundengruppen-Aufschlag nach dem Mindestpreis** (auch der Mindestpreis steigt), danach Rundung (Regel der Kundengruppe vor Kalkulation, sonst Cent) |

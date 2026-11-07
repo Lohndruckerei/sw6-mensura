@@ -39,6 +39,7 @@ class CalculationEntity extends Entity
     protected ?bool $allowRotation = null;
     protected ?float $minArea = null;
     protected ?float $areaRounding = null;
+    protected string $areaScope = 'total';
     protected ?int $maxMotifs = null;
     protected ?int $maxQuantity = null;
 
@@ -262,6 +263,16 @@ class CalculationEntity extends Entity
     public function setAreaRounding(?float $areaRounding): void
     {
         $this->areaRounding = $areaRounding;
+    }
+
+    public function getAreaScope(): string
+    {
+        return $this->areaScope;
+    }
+
+    public function setAreaScope(string $areaScope): void
+    {
+        $this->areaScope = $areaScope;
     }
 
     public function getMaxMotifs(): ?int

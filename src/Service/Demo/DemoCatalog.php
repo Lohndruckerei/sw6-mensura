@@ -147,6 +147,7 @@ final class DemoCatalog
             'allowRotation' => true,
             'minArea' => null,
             'areaRounding' => null,
+            'areaScope' => 'total',
             'maxMotifs' => null,
             'maxQuantity' => null,
             'optionSetId' => null,

@@ -28,7 +28,7 @@ Kunde ─► Mensura-Konfigurator ─► Warenkorb (Produktposition + Konfigurat
       "calculation": "aluverbund",
       "material":    { "id": "…", "key": "alu-3mm", "name": "Aluverbundplatte 3 mm" },
       "format":      { "width": 1000, "height": 500, "rotated": false, "unit": "mm" },
-      "area":        { "piece": 0.5, "total": 5.0 },
+      "area":        { "piece": 0.5, "total": 5.0, "billed": 5.0 },
       "motifs": 2, "perMotif": 5,
       "options": [ { "group": "farbigkeit", "groupName": "Farbigkeit", "value": "4-4", "valueName": "4/4 beidseitig bedruckt" } ],
       "sku": "ALU3-1000x500-44-KON"

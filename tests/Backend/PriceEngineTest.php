@@ -246,6 +246,40 @@ final class PriceEngineTest extends TestCase
         self::assertSame('2026-12-28', $holiday->dateFor(1)->format('Y-m-d'));
     }
 
+    public function testAreaPerPositionWithMinimumAndSteps(): void
+    {
+        // Folie (Entscheidung 07.11.2026): Fläche = Länge × Breite × Stück der ganzen Position, bis 1 m² gleicher
+        // Grundpreis, darüber in Schritten (hier 0,1 m²); Optionen je m² nutzen dieselbe abgerechnete Fläche.
+        $data = DemoCatalog::catalog();
+        $calcId = DemoCatalog::id('calculation.aluverbund');
+        $data['materials'][self::ALU]['priceSale'] = 12.0;
+        $data['materials'][self::ALU]['pricePurchase'] = 7.0;
+        $data['calculations'][$calcId]['priceComponents'] = [['type' => 'per_piece', 'purchase' => 0.05, 'sale' => 0.10]];
+        $data['calculations'][$calcId]['minimumPriceSale'] = null;
+        $data['calculations'][$calcId]['minimumPricePurchase'] = null;
+        $data['calculations'][$calcId]['minArea'] = 1.0;
+        $data['calculations'][$calcId]['areaRounding'] = 0.1;
+        $data['calculations'][$calcId]['areaScope'] = 'total';
+
+        // 5 × 0,1 m² = 0,5 m² → abgerechnet 1,0 m²: 12,00 + 5 × 0,10
+        $small = (new PriceEngine())->calculate($this->config(['format' => ['width' => 250, 'height' => 400], 'perMotif' => 5]), new Catalog($data), ContractTest::context());
+        self::assertSame(12.5, $small->getSaleTotal());
+        self::assertSame(['piece' => 0.1, 'total' => 0.5, 'billed' => 1.0], array_intersect_key($small->getAreas(), ['piece' => 0, 'total' => 0, 'billed' => 0]));
+        self::assertSame(0.5, self::plain($small->toStoreApi())['price']['area']);
+
+        // 3 × 0,41 m² = 1,23 m² → 1,3 m²; Laminat matt (+8 €/m²) auf dieselbe Fläche: (12 + 8) × 1,3 + 3 × 0,10
+        $config = $this->config(['format' => ['width' => 410, 'height' => 1000], 'perMotif' => 3, 'options' => ['veredelung' => 'lam-matt']]);
+        $large = (new PriceEngine())->calculate($config, new Catalog($data), ContractTest::context());
+        self::assertSame(26.3, $large->getSaleTotal());
+        self::assertSame(1.3, $large->getAreas()['billed']);
+        self::assertSame(16.7, $large->getPurchaseTotal()); // (7 + 5,5) × 1,3 + 3 × 0,05 + 3 × 0,10 EK rechteckig
+
+        // zum Vergleich je Stück: jedes Stück mindestens 1 m² → 3 m²
+        $data['calculations'][$calcId]['areaScope'] = 'piece';
+        $perPiece = (new PriceEngine())->calculate($config, new Catalog($data), ContractTest::context());
+        self::assertSame(60.3, $perPiece->getSaleTotal());
+    }
+
     public function testEnglishTexts(): void
     {
         $api = self::plain((new PriceEngine())->calculate($this->config([]), new Catalog(DemoCatalog::catalog('en')), ContractTest::context(null, 'en'))->toStoreApi());

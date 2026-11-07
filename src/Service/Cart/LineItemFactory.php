@@ -76,7 +76,12 @@ final class LineItemFactory
             'calculation' => $calculation['technicalName'] ?? null,
             'material' => ['id' => $config->materialId, 'key' => $material['technicalName'] ?? null, 'name' => $material['name'] ?? null],
             'format' => ['width' => $config->width, 'height' => $config->height, 'rotated' => $config->rotated, 'unit' => 'mm'],
-            'area' => ['piece' => round(($api['price']['area'] ?? 0) / max(1, $api['price']['quantity'] ?? 1), 6), 'total' => $api['price']['area'] ?? null],
+            // piece/total = Länge × Breite (× Stück) inkl. Formatzugaben; billed = abgerechnet (Mindestfläche, Schrittweite)
+            'area' => [
+                'piece' => $result->getAreas()['piece'] ?? null,
+                'total' => $result->getAreas()['total'] ?? null,
+                'billed' => $result->getAreas()['billed'] ?? null,
+            ],
             'motifs' => $config->motifs,
             'perMotif' => $config->perMotif,
             'options' => $options,

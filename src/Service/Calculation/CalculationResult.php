@@ -70,6 +70,31 @@ final class CalculationResult
         return $this->purchase['total'] ?? null;
     }
 
+    /**
+     * Flächenwerte der Position (m²): je Stück, gesamt (L × B × Stück), abgerechnet (nach Mindestfläche/Rundung),
+     * dazu Mindestfläche, Schrittweite und Bezug. Für Payload, Formeln und spätere Plugins (z. B. Versand).
+     *
+     * @return array{piece: float, total: float, billed: float, minArea: float|null, rounding: float|null, scope: string, width: float, height: float, perimeter: float}|null
+     */
+    public function getAreas(): ?array
+    {
+        if ($this->sale === null) {
+            return null;
+        }
+
+        return [
+            'piece' => (float) $this->sale['rawPieceArea'],
+            'total' => (float) $this->sale['area'],
+            'billed' => (float) $this->sale['billedArea'],
+            'minArea' => $this->sale['minArea'],
+            'rounding' => $this->sale['areaRounding'],
+            'scope' => (string) $this->sale['areaScope'],
+            'width' => (float) $this->sale['width'],
+            'height' => (float) $this->sale['height'],
+            'perimeter' => (float) $this->sale['perimeter'],
+        ];
+    }
+
     /** @return array<string, mixed> */
     public function toStoreApi(): array
     {
