@@ -399,7 +399,7 @@ export function apply(state, action) {
 /* ---------- Geführte Darstellung: Schritte ---------- */
 
 /** früherer Schlüssel „quantity“ (Menge & Lieferzeit) = heute der Schritt „delivery“ (alte Links/Hashes) */
-const normalizeStep = (key) => (key === 'quantity' ? 'delivery' : key);
+export const normalizeStep = (key) => (key === 'quantity' ? 'delivery' : key);
 
 /**
  * Schritte (Reiter): Material · Format & Stückzahl · je sichtbare Optionsgruppe ein Reiter · Lieferzeit.

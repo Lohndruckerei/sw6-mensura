@@ -6,7 +6,7 @@
 import { MensuraController } from './controller.js';
 import { FixtureClient, loadFixturesFromUrl, StoreApiClient } from './api-client.js';
 import { renderConfigurator } from './render.js';
-import { decodeHash, encodeHash, nextStepKey, guidedSteps } from './state.js';
+import { decodeHash, encodeHash, nextStepKey, guidedSteps, normalizeStep } from './state.js';
 import { createFormatter, createTranslator } from './util.js';
 
 const LAYOUT_KEY = 'ldMensuraLayout';
@@ -161,7 +161,7 @@ export async function mountConfigurator(el, options = {}) {
             case 'next': goNext(); break;
             case 'back': {
                 const steps = guidedSteps(data, s);
-                const i = steps.findIndex((x) => x.key === s.step);
+                const i = steps.findIndex((x) => x.key === normalizeStep(s.step));
                 controller.dispatch({ type: 'step', key: steps[Math.max(0, i - 1)].key });
                 break;
             }
