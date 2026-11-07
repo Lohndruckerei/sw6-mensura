@@ -431,7 +431,8 @@ Shop-Frontend geprüft werden können.
    eigene Formeln (Ausdrucks-Parser), Formatklassen für Preistabellen (freies Format → nächste Klasse)
 5. ✅ v0.4.0: Store-API `configurator`, `calculate` (mit Preismatrix) und `preset/validate` laut `docs/contract`;
    Demo-Daten `bin/console mensura:demo:seed`; `cart/add` + CartProcessor (Preis serverseitig bei jeder
-   Warenkorbberechnung), Produktseite lädt das Profil; offen: Rechenweg-Schnappschuss bei der Bestellung, Store-API `catalog`
+   Warenkorbberechnung), Produktseite lädt das Profil, Rechenweg-Schnappschuss mit EK/VK bei der Bestellung;
+   offen: Store-API `catalog`
 6. Storefront-Konfigurator in **zwei Varianten** (3c): **kompakt** (Comdatek: eine Seite, 4 nummerierte Abschnitte) und
    **geführt** (flyeralarm: Reiter je Optionsset, Kacheln, Zusammenfassung, Preismatrix Menge × Lieferzeit), beide mit
    Live-Preis, Liefertermin + Annahmeschluss, Konfiguration in der URL, Angebot als PDF, Upload; umschaltbar je Profil,

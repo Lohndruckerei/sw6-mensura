@@ -101,6 +101,8 @@
             <tag name="shopware.cart.processor" priority="4900"/>
         </service>
         <service id="Lohndruckerei\Mensura\Service\Storefront\ProductPageSubscriber"/>
+        <!-- Bestellung: Rechenweg-Schnappschuss mit EK/VK (ld_mensura_order_line_item) -->
+        <service id="Lohndruckerei\Mensura\Service\Cart\OrderSnapshotSubscriber"/>
         <service id="Lohndruckerei\Mensura\Controller\StoreApi\MensuraStoreApiController" public="true">
             <tag name="controller.service_arguments"/>
         </service>

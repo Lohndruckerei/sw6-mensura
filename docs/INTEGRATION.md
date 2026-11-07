@@ -52,6 +52,13 @@ Die Felder sind nicht `ApiAware`, sind also **nur über die Admin-API** erreichb
 Einkaufspreise erscheinen damit nie im Kundenkonto. Spätere Plugins für Rechnung und Buchhaltung lesen
 EK/VK und Deckungsbeitrag von hier. Preisänderungen in den Stammdaten ändern bestehende Bestellungen nicht.
 
+Umgesetzt in v0.4.0 (`Service/Cart/OrderSnapshotSubscriber`): Beim Umwandeln des Warenkorbs in die Bestellung
+(`CartConvertedEvent`) rechnet die Engine jede konfigurierte Position ein letztes Mal und speichert den Schnappschuss
+zusammen mit der Bestellung. `breakdown` enthält `sale` und `purchase` (Rechenweg Zeile für Zeile), `contributionMargin`,
+`orderedNetTotal` (vom Kunden bestätigter Positionspreis netto, zum Abgleich) und `calculatedAt`. Shopware selbst friert
+an der Bestellposition Preis, Menge, Bezeichnung und Payload `ldMensura` (Namen von Material und Optionen) ein. Im Shop
+geprüft: Preisänderung am Material nach der Bestellung ändert weder Bestellposition noch Schnappschuss.
+
 ## 3. Lieferant und Lieferantencodes
 
 - **Lieferantenvorschlag:** Kalkulation und Material haben ein optionales `supplierId`, also eine Lieferanten-ID
