@@ -276,6 +276,128 @@ $lm-sunken: var(--color-background-tertiary-default, #f0f2f5);
     font-size: 12px;
 }
 
+// Kalkulation: Optionswerte zuordnen
+.lm-assign__value {
+    padding: 8px 0;
+    border-bottom: 1px solid $lm-border;
+
+    &:last-child {
+        border-bottom: 0;
+    }
+}
+
+.lm-assign__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    align-items: center;
+
+    .mt-field--switch,
+    .sw-field--switch {
+        min-width: 240px;
+        margin: 0;
+    }
+
+    &--material {
+        padding: 6px 0 0 40px;
+    }
+}
+
+.lm-assign__price {
+    flex: 1 1 200px;
+    color: $lm-text2;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}
+
+// Rechenweg und kleine Tabellen
+.lm-breakdown {
+    width: 100%;
+    margin: 16px 0;
+    border-collapse: collapse;
+    font-size: 13px;
+
+    th,
+    td {
+        padding: 8px;
+        border-bottom: 1px solid $lm-border;
+        text-align: left;
+    }
+
+    th.lm-num,
+    td.lm-num {
+        text-align: right;
+    }
+
+    tbody tr:last-child td {
+        font-weight: 600;
+    }
+}
+
+// Preistabellen
+.lm-table-rows {
+    margin: 8px 0 16px;
+
+    &__head,
+    &__row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr auto;
+        gap: 0 12px;
+        align-items: center;
+
+        &.is--single {
+            grid-template-columns: 1fr 1fr auto;
+        }
+
+        .mt-field {
+            margin-bottom: 8px;
+        }
+    }
+
+    &__head {
+        color: $lm-text2;
+        font-size: 12px;
+        font-weight: 600;
+    }
+}
+
+.lm-table-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.lm-price-tables > .mt-button {
+    margin-bottom: 24px;
+}
+
+// Vorlagen „Neue Kalkulation“
+.lm-templates .lm-tile {
+    font: inherit;
+    cursor: pointer;
+
+    p {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    &.is--active {
+        border-color: var(--lm-brand);
+        box-shadow: 0 0 0 1px var(--lm-brand);
+    }
+}
+
+// Testrechner
+.lm-testcalc__note {
+    margin-left: 12px;
+    font-size: 12px;
+}
+
+.lm-testcalc__kpis {
+    margin-bottom: 16px;
+}
+
 @media (max-width: 1000px) {
     .lm-price-pair__fields,
     .lm-components__row,

@@ -66,6 +66,37 @@ class CatalogLoader
         foreach ($profile->get('options') ?? [] as $row) {
             $profileData['options'][] = $this->fields($row, ['id', 'optionGroupId', 'materialId', 'mode', 'valueIds', 'defaultValueId', 'position']);
         }
+        // Steuer des Produkts (auch geerbt bei Varianten) für den Bruttopreis in der Store-API
+        $product = $context->enableInheritance(fn (Context $inherited) => $this->registry->getRepository('product')->search(new Criteria([$productId]), $inherited)->first());
+        $taxId = $product instanceof Entity && $product->has('taxId') ? $product->get('taxId') : null;
+
+        return $this->build($profileData, $productId, $taxId, $context);
+    }
+
+    /**
+     * Katalog für den Testrechner der Administration: eine Kalkulation mit allen ihren Materialien, ohne Produkt.
+     * Das „Profil“ ist neutral (keine Einschränkungen, keine Aufschläge); als Produkt-ID dient die Kalkulations-ID.
+     */
+    public function loadForCalculation(string $calculationId, Context $context): ?Catalog
+    {
+        if ($this->registry->getRepository('ld_mensura_calculation')->searchIds(new Criteria([$calculationId]), $context)->getTotal() === 0) {
+            return null;
+        }
+        $profileData = array_fill_keys(self::PROFILE_FIELDS, null);
+        $profileData['id'] = $calculationId;
+        $profileData['productId'] = $calculationId;
+        $profileData['active'] = true;
+        $profileData['materials'] = [['id' => $calculationId, 'calculationId' => $calculationId, 'materialId' => null, 'position' => 0, 'surchargePercent' => null]];
+        $profileData['options'] = [];
+
+        return $this->build($profileData, $calculationId, null, $context);
+    }
+
+    /**
+     * @param array<string, mixed> $profileData
+     */
+    private function build(array $profileData, string $productId, ?string $taxId, Context $context): ?Catalog
+    {
         $calculationIds = array_values(array_unique(array_column($profileData['materials'], 'calculationId')));
         if ($calculationIds === []) {
             return null;
@@ -133,10 +164,6 @@ class CatalogLoader
         foreach ($this->registry->getRepository('ld_mensura_customer_group_rule')->search(new Criteria(), $context)->getEntities() as $rule) {
             $rules[] = $this->fields($rule, ['calculationId', 'customerGroupId', 'surchargePercent', 'priceRounding']);
         }
-
-        // Steuer des Produkts (auch geerbt bei Varianten) für den Bruttopreis in der Store-API
-        $product = $context->enableInheritance(fn (Context $inherited) => $this->registry->getRepository('product')->search(new Criteria([$productId]), $inherited)->first());
-        $taxId = $product instanceof Entity && $product->has('taxId') ? $product->get('taxId') : null;
 
         return new Catalog([
             'product' => ['id' => $productId, 'taxId' => $taxId],

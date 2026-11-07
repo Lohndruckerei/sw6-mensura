@@ -1,3 +1,5 @@
+import { ensureTechnicalName } from '../../service/technical-name';
+
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
@@ -266,6 +268,7 @@ export default {
                 return;
             }
             this.isLoading = true;
+            ensureTechnicalName(this.group);
             try {
                 await this.repository.save(this.group, Shopware.Context.api);
                 this.isSaveSuccessful = true;

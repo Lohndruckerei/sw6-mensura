@@ -1,4 +1,4 @@
-import{A as t}from"./ld-mensura-BW-ICgwJ.js";const i={template:`
+import{A as t}from"./ld-mensura-DW74hgk3.js";const i={template:`
 <lm-page
     :title="$tc('ld-mensura.areas.' + area + '.title')"
     :active="area"

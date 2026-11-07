@@ -20,6 +20,25 @@ class ContextFactory
     }
 
     /**
+     * Kontext für den Testrechner der Administration: Plugin-Einstellungen ohne Verkaufskanal, wählbare Kundengruppe.
+     */
+    public function forAdministration(?string $customerGroupId, string $language = 'de'): CalculationContext
+    {
+        $get = fn (string $key) => $this->config->get(self::CONFIG . $key);
+        $workingDays = $get('workingDays');
+        $cutoff = $get('orderCutoff');
+
+        return new CalculationContext(
+            customerGroupId: $customerGroupId,
+            language: CalculationContext::languageFromLocale($language),
+            now: new \DateTimeImmutable('now', new \DateTimeZone('Europe/Berlin')),
+            orderCutoff: \is_string($cutoff) && preg_match('/^[0-2]\d:[0-5]\d$/', $cutoff) === 1 ? $cutoff : null,
+            workingDays: \is_array($workingDays) && $workingDays !== [] ? array_values(array_map('intval', $workingDays)) : [1, 2, 3, 4, 5],
+            holidays: array_values(array_filter(array_map('trim', preg_split('/[\s,;]+/', (string) ($get('holidays') ?? '')) ?: []), static fn (string $d) => preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) === 1)),
+        );
+    }
+
+    /**
      * @param string|null $taxId Steuer des Produkts; damit wird der Steuersatz für `price.totalGross` ermittelt
      *                           (Steuerregeln des Kunden/Lands wie im Warenkorb, z. B. 0 % bei steuerfreier Lieferung)
      */

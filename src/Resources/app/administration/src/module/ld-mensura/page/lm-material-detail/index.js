@@ -1,5 +1,6 @@
 import template from './lm-material-detail.html.twig';
 import { marginInfo, ruleOf, formatNumber } from '../../service/margin';
+import { ensureTechnicalName } from '../../service/technical-name';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -187,6 +188,7 @@ export default {
                 return;
             }
             this.isLoading = true;
+            ensureTechnicalName(this.material);
             try {
                 await this.materialRepository.save(this.material, Shopware.Context.api);
                 this.isSaveSuccessful = true;

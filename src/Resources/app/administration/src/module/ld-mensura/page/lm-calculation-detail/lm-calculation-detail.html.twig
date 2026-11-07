@@ -1,0 +1,280 @@
+{% block lm_calculation_detail %}
+<lm-detail-page
+    :title="title"
+    icon="regular-euro"
+    :status="status"
+    :tabs="tabs"
+    :groups="tabGroups"
+    v-model:active="activeTab"
+    v-model:save-success="isSaveSuccessful"
+    :ready="calculation !== null && groups !== null"
+    :is-loading="isLoading"
+    :can-edit="canEdit"
+    @save="onSave"
+    @cancel="onCancel"
+>
+    <template #header-meta>
+        <span>{{ calculation.technicalName }}</span>
+        <span>{{ $tc('ld-mensura.calculation.units.' + calculation.unit) }}</span>
+    </template>
+    <template #header-chips>
+        <lm-chip v-for="material in calculation.materials" :key="material.id" color="c2" icon="regular-layer-group" :label="material.translated?.name || material.technicalName" />
+    </template>
+    <template #header-stats>
+        <span class="lm-header__stat" :class="{ 'is--warn': !calculation.materials || calculation.materials.length === 0 }">
+            <b>{{ calculation.materials ? calculation.materials.length : 0 }}</b>{{ $tc('ld-mensura.areas.material.title') }}
+        </span>
+        <span class="lm-header__stat"><b>{{ offeredCount }}</b>{{ $tc('ld-mensura.calculation.detail.statValues') }}</span>
+        <span class="lm-header__stat"><b>{{ calculation.minimumPriceSale === null ? '–' : fmt(calculation.minimumPriceSale) + ' €' }}</b>{{ $tc('ld-mensura.calculation.detail.statMinimum') }}</span>
+    </template>
+
+    <template #default="{ active }">
+        {% block lm_calculation_detail_template %}
+        <mt-card v-if="!calculationId && active === 'base'" position-identifier="lm-calc-templates" :title="$tc('ld-mensura.calculation.templates.title')">
+            <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.calculation.templates.intro') }}</p>
+            <div class="lm-tiles lm-templates">
+                <button
+                    v-for="template in templates"
+                    :key="template.name"
+                    type="button"
+                    class="lm-tile"
+                    :class="{ 'is--active': chosenTemplate === template.name }"
+                    :aria-pressed="chosenTemplate === template.name ? 'true' : 'false'"
+                    @click="applyTemplate(template)"
+                >
+                    <div class="lm-tile__top">
+                        <span class="lm-sicon"><mt-icon :name="template.icon" size="18px" /></span>
+                        <span><b>{{ $tc('ld-mensura.calculation.templates.' + template.name + '.title') }}</b></span>
+                    </div>
+                    <p class="lm-muted">{{ $tc('ld-mensura.calculation.templates.' + template.name + '.text') }}</p>
+                </button>
+            </div>
+        </mt-card>
+        {% endblock %}
+
+        {% block lm_calculation_detail_base %}
+        <template v-if="active === 'base'">
+            <mt-card position-identifier="lm-calc-base" :title="$tc('ld-mensura.calculation.detail.cardBase')">
+                <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0 30px">
+                    <mt-text-field v-model="calculation.name" :label="$tc('ld-mensura.calculation.detail.labelName')" :help-text="$tc('ld-mensura.calculation.detail.helpName')" :disabled="!canEdit || undefined" required />
+                    <mt-text-field v-model="calculation.technicalName" :label="$tc('ld-mensura.general.labelTechnicalName')" :help-text="$tc('ld-mensura.calculation.detail.helpTechnicalName')" :disabled="!canEdit || undefined" required />
+                    <sw-single-select v-model:value="calculation.unit" :options="options('units', units)" :label="$tc('ld-mensura.calculation.detail.labelUnit')" :help-text="$tc('ld-mensura.calculation.detail.helpUnit')" :disabled="!canEdit || undefined" />
+                    <sw-single-select v-model:value="calculation.motifMode" :options="options('motifModes', motifModes)" :label="$tc('ld-mensura.calculation.detail.labelMotifMode')" :help-text="$tc('ld-mensura.calculation.detail.helpMotifMode')" :disabled="!canEdit || undefined" />
+                    <sw-single-select v-model:value="calculation.tierScope" :options="options('tierScopes', tierScopes)" :label="$tc('ld-mensura.calculation.detail.labelTierScope')" :help-text="$tc('ld-mensura.calculation.detail.helpTierScope')" :disabled="!canEdit || undefined" />
+                    <sw-single-select v-model:value="calculation.bestPriceMode" :options="options('bestPriceModes', bestPriceModes)" :label="$tc('ld-mensura.calculation.detail.labelBestPrice')" :help-text="$tc('ld-mensura.calculation.detail.helpBestPrice')" :disabled="!canEdit || undefined" />
+                    <sw-entity-single-select v-model:value="calculation.optionSetId" entity="ld_mensura_option_set" label-property="name" :label="$tc('ld-mensura.calculation.detail.labelStartSet')" :help-text="$tc('ld-mensura.calculation.detail.helpStartSet')" :disabled="!canEdit || undefined" />
+                    <sw-multi-tag-select
+                        :value="(calculation.quantitySteps || []).map(String)"
+                        :label="$tc('ld-mensura.calculation.detail.labelQuantitySteps')"
+                        :help-text="$tc('ld-mensura.calculation.detail.helpQuantitySteps')"
+                        :disabled="!canEdit || undefined"
+                        @update:value="setQuantitySteps"
+                    />
+                </sw-container>
+                <mt-textarea v-model="calculation.description" :label="$tc('ld-mensura.calculation.detail.labelDescription')" :help-text="$tc('ld-mensura.calculation.detail.helpDescription')" :disabled="!canEdit || undefined" />
+                <mt-switch v-model="calculation.active" :label="$tc('ld-mensura.general.labelActive')" :help-text="$tc('ld-mensura.calculation.detail.helpActive')" :disabled="!canEdit || undefined" bordered />
+            </mt-card>
+        </template>
+        {% endblock %}
+
+        {% block lm_calculation_detail_format %}
+        <template v-if="active === 'format'">
+            <mt-card position-identifier="lm-calc-format" :title="$tc('ld-mensura.calculation.detail.cardFormat')">
+                <sw-container columns="repeat(auto-fit, minmax(200px, 1fr))" gap="0 30px">
+                    <sw-single-select v-model:value="calculation.formatMode" :options="options('formatModes', formatModes)" :label="$tc('ld-mensura.calculation.detail.labelFormatMode')" :help-text="$tc('ld-mensura.calculation.detail.helpFormatMode')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="calculation.widthMin" number-type="int" :label="$tc('ld-mensura.calculation.detail.labelWidthMin')" :help-text="$tc('ld-mensura.calculation.detail.helpLimits')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="calculation.widthMax" number-type="int" :label="$tc('ld-mensura.calculation.detail.labelWidthMax')" :help-text="$tc('ld-mensura.calculation.detail.helpLimits')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="calculation.heightMin" number-type="int" :label="$tc('ld-mensura.calculation.detail.labelHeightMin')" :help-text="$tc('ld-mensura.calculation.detail.helpLimits')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="calculation.heightMax" number-type="int" :label="$tc('ld-mensura.calculation.detail.labelHeightMax')" :help-text="$tc('ld-mensura.calculation.detail.helpLimits')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="calculation.maxMotifs" number-type="int" :label="$tc('ld-mensura.calculation.detail.labelMaxMotifs')" :help-text="$tc('ld-mensura.calculation.detail.helpMaxMotifs')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="calculation.maxQuantity" number-type="int" :label="$tc('ld-mensura.calculation.detail.labelMaxQuantity')" :help-text="$tc('ld-mensura.calculation.detail.helpMaxQuantity')" :disabled="!canEdit || undefined" />
+                </sw-container>
+                <mt-switch v-model="calculation.allowRotation" :label="$tc('ld-mensura.calculation.detail.labelRotation')" :help-text="$tc('ld-mensura.calculation.detail.helpRotation')" :disabled="!canEdit || undefined" bordered />
+            </mt-card>
+            <mt-card position-identifier="lm-calc-area" :title="$tc('ld-mensura.calculation.detail.cardArea')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.calculation.detail.introArea') }}</p>
+                <sw-container columns="repeat(auto-fit, minmax(200px, 1fr))" gap="0 30px">
+                    <mt-number-field v-model="calculation.minArea" :digits="4" :label="$tc('ld-mensura.material.detail.labelMinArea')" :help-text="$tc('ld-mensura.calculation.detail.helpMinArea')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="calculation.areaRounding" :digits="4" :label="$tc('ld-mensura.material.detail.labelAreaRounding')" :help-text="$tc('ld-mensura.calculation.detail.helpAreaRounding')" :disabled="!canEdit || undefined" />
+                    <sw-single-select v-model:value="calculation.areaScope" :options="options('areaScopes', areaScopes)" :label="$tc('ld-mensura.calculation.detail.labelAreaScope')" :help-text="$tc('ld-mensura.calculation.detail.helpAreaScope')" :disabled="!canEdit || undefined" />
+                </sw-container>
+            </mt-card>
+        </template>
+        {% endblock %}
+
+        {% block lm_calculation_detail_prices %}
+        <template v-if="active === 'prices'">
+            <mt-card position-identifier="lm-calc-rule" :title="$tc('ld-mensura.calculation.detail.cardRule')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.calculation.detail.introRule') }}</p>
+                <sw-container columns="repeat(auto-fit, minmax(200px, 1fr))" gap="0 30px">
+                    <sw-single-select v-model:value="calculation.saleRule" :options="options('saleRule', saleRules, 'ld-mensura.')" :label="$tc('ld-mensura.calculation.detail.labelSaleRule')" :help-text="$tc('ld-mensura.calculation.detail.helpSaleRule')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="calculation.saleRuleValue" :digits="2" :label="$tc('ld-mensura.calculation.detail.labelSaleRuleValue')" :help-text="$tc('ld-mensura.calculation.detail.helpSaleRuleValue')" :disabled="!canEdit || calculation.saleRule === 'free' || undefined" />
+                    <mt-number-field v-model="calculation.marginMin" :digits="1" :label="$tc('ld-mensura.calculation.detail.labelMarginMin')" :help-text="$tc('ld-mensura.calculation.detail.helpCorridor')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="calculation.marginMax" :digits="1" :label="$tc('ld-mensura.calculation.detail.labelMarginMax')" :help-text="$tc('ld-mensura.calculation.detail.helpCorridor')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="calculation.priceRounding" :digits="2" :label="$tc('ld-mensura.calculation.detail.labelPriceRounding')" :help-text="$tc('ld-mensura.calculation.detail.helpPriceRounding')" :disabled="!canEdit || undefined" />
+                </sw-container>
+            </mt-card>
+            <mt-card position-identifier="lm-calc-base-prices" :title="$tc('ld-mensura.calculation.detail.cardBasePrices')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.calculation.detail.introBasePrices') }}</p>
+                <lm-price-components v-model:value="calculation.priceComponents" :show-purchase="showPurchase" :disabled="!canEdit" />
+                <lm-price-pair
+                    v-model:purchase="calculation.minimumPricePurchase"
+                    v-model:sale="calculation.minimumPriceSale"
+                    :label="$tc('ld-mensura.material.detail.labelMinimumPrice')"
+                    :help-sale="$tc('ld-mensura.calculation.detail.helpMinimum')"
+                    :help-purchase="$tc('ld-mensura.calculation.detail.helpMinimum')"
+                    unit="€"
+                    :rule="rule"
+                    :show-purchase="showPurchase"
+                    :disabled="!canEdit"
+                />
+                <lm-price-pair
+                    v-model:purchase="calculation.setupPricePurchase"
+                    v-model:sale="calculation.setupPriceSale"
+                    :label="$tc('ld-mensura.calculation.detail.labelSetup')"
+                    :help-sale="$tc('ld-mensura.calculation.detail.helpSetup')"
+                    :help-purchase="$tc('ld-mensura.calculation.detail.helpSetup')"
+                    unit="€"
+                    :rule="rule"
+                    :show-purchase="showPurchase"
+                    :disabled="!canEdit"
+                />
+            </mt-card>
+            <mt-card position-identifier="lm-calc-tiers" :title="$tc('ld-mensura.material.detail.cardTiers')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.calculation.detail.introTiers') }}</p>
+                <lm-tier-editor v-model:value="calculation.tiers" :legacy-basis="calculation.tierBasis" :show-purchase="showPurchase" :disabled="!canEdit" />
+            </mt-card>
+        </template>
+        {% endblock %}
+
+        {% block lm_calculation_detail_materials %}
+        <template v-if="active === 'materials'">
+            <mt-card position-identifier="lm-calc-materials" :title="$tc('ld-mensura.calculation.detail.cardMaterials')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.calculation.detail.introMaterials') }}</p>
+                <sw-entity-multi-select
+                    v-model:entity-collection="calculation.materials"
+                    label-property="name"
+                    :label="$tc('ld-mensura.areas.material.title')"
+                    :help-text="$tc('ld-mensura.calculation.detail.helpMaterials')"
+                    :disabled="!canEdit || undefined"
+                />
+                <table v-if="calculation.materials && calculation.materials.length" class="lm-breakdown">
+                    <thead>
+                        <tr>
+                            <th>{{ $tc('ld-mensura.material.list.columnName') }}</th>
+                            <th class="lm-num">{{ $tc('ld-mensura.material.list.columnPrice') }}</th>
+                            <th v-if="showPurchase">{{ $tc('ld-mensura.material.list.columnMargin') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="material in calculation.materials" :key="material.id">
+                            <td><router-link :to="{ name: 'ld.mensura.materialDetail', params: { id: material.id } }">{{ material.translated?.name || material.technicalName }}</router-link></td>
+                            <td class="lm-num">{{ material.priceSale === null ? '–' : fmt(material.priceSale) + ' €/m²' }}</td>
+                            <td v-if="showPurchase">
+                                <lm-status v-if="materialMargin(material)" :state="materialMargin(material).state" :label="fmt(materialMargin(material).margin, 1) + ' %'" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </mt-card>
+        </template>
+        {% endblock %}
+
+        {% block lm_calculation_detail_options %}
+        <template v-if="active === 'options'">
+            <lm-info-card name="calculation-options" :title="$tc('ld-mensura.calculation.options.infoTitle')">
+                {{ $tc('ld-mensura.calculation.options.infoText') }}
+            </lm-info-card>
+            <mt-card
+                v-for="group in sortedGroups"
+                :key="group.id"
+                :position-identifier="'lm-calc-group-' + group.id"
+                :title="(group.translated?.name || group.technicalName) + ' · ' + $tc('ld-mensura.option.types.' + group.type)"
+            >
+                <div class="lm-assign">
+                    <div v-for="value in sortedValues(group)" :key="value.id" class="lm-assign__value">
+                        <div class="lm-assign__row">
+                            <mt-switch
+                                :model-value="isOffered(value)"
+                                :label="value.translated?.name || value.technicalName"
+                                :disabled="!canEdit || undefined"
+                                @update:model-value="toggleOffered(value, $event)"
+                            />
+                            <span class="lm-assign__price">{{ priceSummary(generalRow(value)) }}</span>
+                            <lm-status v-if="generalRow(value)?.isDefault" state="ok" :label="$tc('ld-mensura.calculation.options.default')" />
+                            <mt-button v-if="generalRow(value) && !generalRow(value).isDefault" size="small" variant="secondary" :disabled="!canEdit || undefined" @click="setDefault(group, value)">
+                                {{ $tc('ld-mensura.calculation.options.makeDefault') }}
+                            </mt-button>
+                            <mt-button v-if="generalRow(value)" size="small" variant="secondary" @click="openRow(generalRow(value), value)">
+                                {{ $tc('ld-mensura.calculation.options.editPrice') }}
+                            </mt-button>
+                            <mt-button v-if="isOffered(value)" size="small" variant="secondary" :disabled="!canEdit || undefined" @click="addMaterialRow(value)">
+                                {{ $tc('ld-mensura.calculation.options.addMaterialRow') }}
+                            </mt-button>
+                        </div>
+                        <div v-for="row in materialRows(value)" :key="row.id" class="lm-assign__row lm-assign__row--material">
+                            <lm-chip color="c2" icon="regular-layer-group" :label="materialName(row.materialId)" />
+                            <span class="lm-assign__price">{{ priceSummary(row) }}</span>
+                            <mt-button size="small" variant="secondary" @click="openRow(row, value)">{{ $tc('ld-mensura.calculation.options.editPrice') }}</mt-button>
+                            <mt-button size="small" variant="secondary" square :aria-label="$tc('ld-mensura.components.remove')" :disabled="!canEdit || undefined" @click="calculation.optionValues.remove(row.id)">
+                                <mt-icon name="regular-trash" size="14px" />
+                            </mt-button>
+                        </div>
+                    </div>
+                </div>
+            </mt-card>
+            <lm-assignment-modal
+                v-if="editRow"
+                :assignment="editRow.row"
+                :value-name="editRow.name"
+                :materials="materialList"
+                :legacy-basis="calculation.tierBasis"
+                :show-purchase="showPurchase"
+                :disabled="!canEdit"
+                @close="editRow = null"
+            />
+        </template>
+        {% endblock %}
+
+        {% block lm_calculation_detail_customer_groups %}
+        <template v-if="active === 'customerGroups'">
+            <mt-card position-identifier="lm-calc-groups" :title="$tc('ld-mensura.calculation.customerGroups.card')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.calculation.customerGroups.intro') }}</p>
+                <div v-for="rule in calculation.customerGroups" :key="rule.id" class="lm-codes__row">
+                    <sw-entity-single-select v-model:value="rule.customerGroupId" entity="customer_group" label-property="name" :label="$tc('ld-mensura.calculation.customerGroups.group')" :help-text="$tc('ld-mensura.calculation.customerGroups.helpGroup')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="rule.surchargePercent" :digits="2" :label="$tc('ld-mensura.calculation.customerGroups.surcharge')" :help-text="$tc('ld-mensura.calculation.customerGroups.helpSurcharge')" :disabled="!canEdit || undefined" />
+                    <mt-button size="small" variant="secondary" square :aria-label="$tc('ld-mensura.components.remove')" :disabled="!canEdit || undefined" @click="calculation.customerGroups.remove(rule.id)">
+                        <mt-icon name="regular-trash" size="14px" />
+                    </mt-button>
+                </div>
+                <mt-button size="small" variant="secondary" :disabled="!canEdit || undefined" @click="addCustomerGroupRule">
+                    <mt-icon name="regular-plus-circle" size="14px" /> {{ $tc('ld-mensura.calculation.customerGroups.add') }}
+                </mt-button>
+            </mt-card>
+        </template>
+        {% endblock %}
+
+        {% block lm_calculation_detail_tables %}
+        <template v-if="active === 'priceTables'">
+            <lm-info-card name="calculation-tables" :title="$tc('ld-mensura.calculation.tables.infoTitle')">
+                {{ $tc('ld-mensura.calculation.tables.infoText') }}
+            </lm-info-card>
+            <lm-price-tables
+                :tables="calculation.priceTables"
+                :calculation-id="calculation.id"
+                :materials="materialList"
+                :show-purchase="showPurchase"
+                :disabled="!canEdit"
+            />
+        </template>
+        {% endblock %}
+
+        {% block lm_calculation_detail_test %}
+        <template v-if="active === 'test'">
+            <lm-test-calculator v-if="calculationId" :key="testKey" :calculation="calculation" :groups="groups" />
+            <sw-empty-state v-else :title="$tc('ld-mensura.calculation.test.saveFirstTitle')" :subline="$tc('ld-mensura.calculation.test.saveFirstSubline')" icon="regular-euro" :absolute="false" />
+        </template>
+        {% endblock %}
+    </template>
+</lm-detail-page>
+{% endblock %}

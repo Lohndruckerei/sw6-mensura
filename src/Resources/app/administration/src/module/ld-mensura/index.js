@@ -12,12 +12,17 @@ Shopware.Component.register('lm-supplier-codes', () => import('./component/lm-su
 Shopware.Component.register('lm-entity-list', () => import('./component/lm-entity-list'));
 Shopware.Component.register('lm-detail-page', () => import('./component/lm-detail-page'));
 Shopware.Component.register('lm-value-modal', () => import('./component/lm-value-modal'));
+Shopware.Component.register('lm-assignment-modal', () => import('./component/lm-assignment-modal'));
+Shopware.Component.register('lm-price-tables', () => import('./component/lm-price-tables'));
+Shopware.Component.register('lm-test-calculator', () => import('./component/lm-test-calculator'));
 
 // Seiten
 Shopware.Component.register('lm-overview', () => import('./page/lm-overview'));
 Shopware.Component.register('lm-area-placeholder', () => import('./page/lm-area-placeholder'));
 Shopware.Component.register('lm-material-list', () => import('./page/lm-material-list'));
 Shopware.Component.register('lm-material-detail', () => import('./page/lm-material-detail'));
+Shopware.Component.register('lm-calculation-list', () => import('./page/lm-calculation-list'));
+Shopware.Component.register('lm-calculation-detail', () => import('./page/lm-calculation-detail'));
 Shopware.Component.register('lm-option-list', () => import('./page/lm-option-list'));
 Shopware.Component.register('lm-option-detail', () => import('./page/lm-option-detail'));
 Shopware.Component.register('lm-option-set-list', () => import('./page/lm-option-set-list'));
@@ -69,12 +74,7 @@ Shopware.Module.register('ld-mensura', {
             path: 'overview',
             meta: { privilege: 'ld_mensura.viewer' },
         },
-        calculation: {
-            component: 'lm-area-placeholder',
-            path: 'calculation',
-            props: { default: { area: 'calculation' } },
-            meta: viewer,
-        },
+        ...areaRoutes('calculation', 'lm-calculation-list', 'lm-calculation-detail', 'calculationId'),
         ...areaRoutes('material', 'lm-material-list', 'lm-material-detail', 'materialId'),
         ...areaRoutes('option', 'lm-option-list', 'lm-option-detail', 'groupId'),
         ...areaRoutes('optionSet', 'lm-option-set-list', 'lm-option-set-detail', 'setId'),
