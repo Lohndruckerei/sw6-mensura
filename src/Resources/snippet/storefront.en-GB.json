@@ -163,7 +163,9 @@
       "reference": "Reference:",
       "deliveryDate": "Delivery date:",
       "edit": "Change configuration",
-      "quantityHint": "Change the quantity in the configurator"
+      "quantityHint": "Change the quantity in the configurator",
+      "area": "Area:",
+      "areaBilled": "billed %area% m²"
     }
   },
   "checkout": {

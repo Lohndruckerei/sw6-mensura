@@ -163,7 +163,9 @@
       "reference": "Referenz:",
       "deliveryDate": "Liefertermin:",
       "edit": "Konfiguration ändern",
-      "quantityHint": "Menge im Konfigurator ändern"
+      "quantityHint": "Menge im Konfigurator ändern",
+      "area": "Fläche:",
+      "areaBilled": "abgerechnet %area% m²"
     }
   },
   "checkout": {

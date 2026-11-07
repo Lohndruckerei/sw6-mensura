@@ -17,6 +17,14 @@
                 {% for option in lm.options ?? [] %}
                     <dt>{{ option.groupName }}</dt><dd>{{ option.valueName }}</dd>
                 {% endfor %}
+                {% if lm.area.total ?? false %}
+                    <dt>{{ 'ldMensura.lineItem.area'|trans|sw_sanitize }}</dt>
+                    <dd>{{ lm.area.total|format_number(locale=app.request.locale) }} m²
+                        {% if (lm.area.billed ?? 0) > lm.area.total %}
+                            <span class="lm-line-billed">({{ 'ldMensura.lineItem.areaBilled'|trans({ '%area%': lm.area.billed|format_number(locale=app.request.locale) })|sw_sanitize }})</span>
+                        {% endif %}
+                    </dd>
+                {% endif %}
                 {% if (lm.motifs ?? 1) > 1 %}
                     <dt>{{ 'ldMensura.lineItem.motifs'|trans|sw_sanitize }}</dt><dd>{{ lm.motifs }} × {{ lm.perMotif }}</dd>
                 {% endif %}
