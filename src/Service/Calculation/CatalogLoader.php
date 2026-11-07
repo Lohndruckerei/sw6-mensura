@@ -134,8 +134,12 @@ class CatalogLoader
             $rules[] = $this->fields($rule, ['calculationId', 'customerGroupId', 'surchargePercent', 'priceRounding']);
         }
 
+        // Steuer des Produkts (auch geerbt bei Varianten) für den Bruttopreis in der Store-API
+        $product = $context->enableInheritance(fn (Context $inherited) => $this->registry->getRepository('product')->search(new Criteria([$productId]), $inherited)->first());
+        $taxId = $product instanceof Entity && $product->has('taxId') ? $product->get('taxId') : null;
+
         return new Catalog([
-            'product' => ['id' => $productId],
+            'product' => ['id' => $productId, 'taxId' => $taxId],
             'profile' => $profileData,
             'calculations' => $calculations,
             'materials' => $materials,

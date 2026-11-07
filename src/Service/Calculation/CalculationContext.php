@@ -36,6 +36,8 @@ final class CalculationContext
         public readonly bool $allowLayoutSwitch = true,
         public readonly int $layoutTestShare = 0,
         public readonly array $display = self::DISPLAY_DEFAULTS,
+        /** Steuersatz in % für `price.totalGross` (null = unbekannt, dann ohne Bruttopreis) */
+        public readonly ?float $taxRate = null,
     ) {
     }
 

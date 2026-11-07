@@ -56,8 +56,7 @@ final class ConfiguratorBuilder
                     'motifMode' => (string) ($calculation['motifMode'] ?? 'multiply'),
                 ],
                 'optionSet' => (string) ($catalog->optionSet($setId)['technicalName'] ?? ''),
-                'fromPricePerSqm' => ($calculation['unit'] ?? 'area') === 'area' && isset($material['priceSale'])
-                    ? round((float) $material['priceSale'] * $surcharge, 2) : null,
+                'fromPricePerSqm' => $this->fromPricePerSqm($catalog, $calculation, $material, $entry, $surcharge),
                 'limits' => $limits,
             ];
         }
@@ -243,6 +242,35 @@ final class ConfiguratorBuilder
         }
 
         return [array_keys($visited), $groups];
+    }
+
+    /**
+     * „ab“-Preis je m² für Material-Kacheln – so, wie die Engine den Satz je m² rechnet, ohne gewählte Optionen:
+     * (Materialpreis + Preisanteile je m² aus Kalkulation, Material und Produktprofil)
+     * × (1 + Aufschlag Produktprofil % + Aufschlag Profil-Material %) × (1 + Kundengruppen-Aufschlag %).
+     * Nur bei Mengeneinheit Fläche; Staffeln und Mindestpreis bleiben außen vor (es ist ein „ab“-Preis).
+     *
+     * @param array<string, mixed>                       $calculation
+     * @param array<string, mixed>                       $material
+     * @param array{surchargePercent: float, ...}        $entry
+     */
+    private function fromPricePerSqm(Catalog $catalog, array $calculation, array $material, array $entry, float $customerGroupFactor): ?float
+    {
+        if (($calculation['unit'] ?? 'area') !== 'area' || !isset($material['priceSale'])) {
+            return null;
+        }
+        $profile = $catalog->profile();
+        $perArea = 0.0;
+        foreach ([$calculation['priceComponents'] ?? null, $material['priceComponents'] ?? null, $profile['priceComponents'] ?? null] as $components) {
+            foreach (\is_array($components) ? $components : [] as $component) {
+                if (\is_array($component) && ($component['type'] ?? null) === 'per_area' && is_numeric($component['sale'] ?? null)) {
+                    $perArea += (float) $component['sale'];
+                }
+            }
+        }
+        $profileFactor = 1 + ((float) ($profile['surchargePercent'] ?? 0) + (float) ($entry['surchargePercent'] ?? 0)) / 100;
+
+        return round(((float) $material['priceSale'] + $perArea) * $profileFactor * $customerGroupFactor, 2);
     }
 
     /**

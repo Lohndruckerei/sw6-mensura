@@ -59,6 +59,12 @@ final class Catalog
         return (string) ($this->data['product']['id'] ?? $this->data['profile']['productId']);
     }
 
+    /** Steuer des Shopware-Produkts (für den Bruttopreis), null wenn unbekannt. */
+    public function productTaxId(): ?string
+    {
+        return $this->data['product']['taxId'] ?? null;
+    }
+
     /** @return array<string, mixed> */
     public function profile(): array
     {

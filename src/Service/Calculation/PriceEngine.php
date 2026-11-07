@@ -568,15 +568,7 @@ final class PriceEngine
         };
         $lines = [];
 
-        // Gewählte Werte: Optionen + Lieferzeit + Festformat
-        $valueIds = array_values($config->options);
-        $deliveryValueId ??= $config->deliveryValueId;
-        if ($deliveryValueId !== null) {
-            $valueIds[] = $deliveryValueId;
-        }
-        if ($config->formatValueId !== null) {
-            $valueIds[] = $config->formatValueId;
-        }
+        $valueIds = $this->selectedValueIds($config, $deliveryValueId);
 
         // Preisanteile sammeln
         $components = [];
@@ -639,7 +631,7 @@ final class PriceEngine
 
         // Preistabelle (ersetzt Satz × Fläche)
         $tablePiece = null;
-        $tables = array_values(array_filter($calculation['priceTables'] ?? [], static fn (array $t) => ($t['active'] ?? true) !== false));
+        $tables = self::activePriceTables($calculation);
         if ($tables !== []) {
             $table = $this->matchPriceTable($tables, (string) $config->materialId, $valueIds);
             if ($table === null) {
@@ -815,7 +807,19 @@ final class PriceEngine
         if (($rules['areaScope'] ?? 'total') === 'piece') {
             return $this->pieceArea($rules, $width, $height) * $quantity;
         }
-        $area = $width * $height / 1_000_000 * $quantity;
+
+        return self::roundArea($width * $height / 1_000_000 * $quantity, $rules);
+    }
+
+    /**
+     * Gemeinsame Flächenrundung für beide Bezüge (Position und Stück): auf `areaRounding` aufrunden, mindestens `minArea`.
+     * Vor dem Aufrunden wird auf 9 Stellen gerundet, damit Fließkomma-Reste an der Schwelle (1,3 / 0,1 = 12,999…)
+     * nicht einen Schritt zu viel ergeben – eine Fläche genau auf der Schwelle bleibt auf der Schwelle.
+     *
+     * @param array<string, mixed>|null $rules Flächenregeln aus areaRules()
+     */
+    public static function roundArea(float $area, ?array $rules): float
+    {
         $rounding = (float) ($rules['areaRounding'] ?? 0);
         if ($rounding > 0) {
             $area = round(ceil(round($area / $rounding, 9)) * $rounding, 9);
@@ -831,13 +835,39 @@ final class PriceEngine
      */
     public function pieceArea(?array $rules, float $width, float $height): float
     {
-        $area = $width * $height / 1_000_000;
-        $rounding = (float) ($rules['areaRounding'] ?? 0);
-        if ($rounding > 0) {
-            $area = ceil($area / $rounding - 1e-9) * $rounding;
+        return self::roundArea($width * $height / 1_000_000, $rules);
+    }
+
+    /**
+     * Gewählte Werte, die Preise tragen: Optionen + Lieferzeit (ggf. überschrieben, Matrix) + Festformat.
+     * Dieselbe Quelle für price() und bestPrice().
+     *
+     * @return list<string>
+     */
+    private function selectedValueIds(NormalizedConfiguration $config, ?string $deliveryValueId = null): array
+    {
+        $valueIds = array_values($config->options);
+        $deliveryValueId ??= $config->deliveryValueId;
+        if ($deliveryValueId !== null) {
+            $valueIds[] = $deliveryValueId;
+        }
+        if ($config->formatValueId !== null) {
+            $valueIds[] = $config->formatValueId;
         }
 
-        return max((float) ($rules['minArea'] ?? 0), $area);
+        return $valueIds;
+    }
+
+    /**
+     * Aktive Preistabellen der Kalkulation (inaktive zählen weder für den Preis noch für den Bestpreis).
+     *
+     * @param array<string, mixed> $calculation
+     *
+     * @return list<array<string, mixed>>
+     */
+    private static function activePriceTables(array $calculation): array
+    {
+        return array_values(array_filter($calculation['priceTables'] ?? [], static fn (array $t) => ($t['active'] ?? true) !== false));
     }
 
     /**
@@ -914,29 +944,9 @@ final class PriceEngine
         $motifMode = (string) ($calculation['motifMode'] ?? 'multiply');
         $perMotifScope = ($calculation['tierScope'] ?? 'total') === 'per_motif';
         $pieceArea = (float) $sale['pieceArea'];
-
-        // Schwellen sammeln: [basis, from]
-        $thresholds = [];
-        $collect = static function (?array $tier) use (&$thresholds): void {
-            if ($tier === null || !\in_array($tier['basis'], ['quantity', 'total_area'], true)) {
-                return;
-            }
-            foreach ($tier['steps'] as $step) {
-                $thresholds[] = [$tier['basis'], $step['from']];
-            }
-        };
         $material = $catalog->material($config->materialId) ?? [];
-        $collect(Tiers::forSide($material['tiers'] ?? null, $material['tierBasis'] ?? $calculation['tierBasis'] ?? null, 'sale'));
-        $collect(Tiers::forSide($calculation['tiers'] ?? null, $calculation['tierBasis'] ?? null, 'sale'));
-        foreach ($config->options as $valueId) {
-            $assignment = $catalog->assignment((string) $config->calculationId, $valueId, (string) $config->materialId);
-            $collect(Tiers::forSide($assignment['tiers'] ?? null, $calculation['tierBasis'] ?? null, 'sale'));
-        }
-        foreach ($calculation['priceTables'] ?? [] as $table) {
-            foreach ($table['rows'] ?? [] as $row) {
-                $thresholds[] = ['quantity', (float) $row['quantity']];
-            }
-        }
+
+        $thresholds = $this->bestPriceThresholds($config, $catalog);
         if ($thresholds === []) {
             return null;
         }
@@ -974,6 +984,40 @@ final class PriceEngine
         }
 
         return $best;
+    }
+
+    /**
+     * Staffelschwellen für die Bestpreisregel – aus denselben Quellen wie price(): Material, Kalkulation, alle gewählten
+     * Werte (Optionen, Lieferzeit, Festformat) und nur aktive Preistabellen. Nur Basis Menge oder Gesamtfläche.
+     *
+     * @return list<array{0: string, 1: float}> [basis, from]
+     */
+    public function bestPriceThresholds(NormalizedConfiguration $config, Catalog $catalog): array
+    {
+        $calculation = $catalog->calculation($config->calculationId) ?? [];
+        $material = $catalog->material($config->materialId) ?? [];
+        $thresholds = [];
+        $collect = static function (?array $tier) use (&$thresholds): void {
+            if ($tier === null || !\in_array($tier['basis'], ['quantity', 'total_area'], true)) {
+                return;
+            }
+            foreach ($tier['steps'] as $step) {
+                $thresholds[] = [$tier['basis'], $step['from']];
+            }
+        };
+        $collect(Tiers::forSide($material['tiers'] ?? null, $material['tierBasis'] ?? $calculation['tierBasis'] ?? null, 'sale'));
+        $collect(Tiers::forSide($calculation['tiers'] ?? null, $calculation['tierBasis'] ?? null, 'sale'));
+        foreach ($this->selectedValueIds($config) as $valueId) {
+            $assignment = $catalog->assignment((string) $config->calculationId, $valueId, (string) $config->materialId);
+            $collect(Tiers::forSide($assignment['tiers'] ?? null, $calculation['tierBasis'] ?? null, 'sale'));
+        }
+        foreach (self::activePriceTables($calculation) as $table) {
+            foreach ($table['rows'] ?? [] as $row) {
+                $thresholds[] = ['quantity', (float) $row['quantity']];
+            }
+        }
+
+        return $thresholds;
     }
 
     /**

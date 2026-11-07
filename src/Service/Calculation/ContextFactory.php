@@ -19,7 +19,11 @@ class ContextFactory
     {
     }
 
-    public function fromSalesChannelContext(SalesChannelContext $context): CalculationContext
+    /**
+     * @param string|null $taxId Steuer des Produkts; damit wird der Steuersatz für `price.totalGross` ermittelt
+     *                           (Steuerregeln des Kunden/Lands wie im Warenkorb, z. B. 0 % bei steuerfreier Lieferung)
+     */
+    public function fromSalesChannelContext(SalesChannelContext $context, ?string $taxId = null): CalculationContext
     {
         $salesChannelId = $context->getSalesChannelId();
         $get = fn (string $key) => $this->config->get(self::CONFIG . $key, $salesChannelId);
@@ -47,6 +51,7 @@ class ContextFactory
             allowLayoutSwitch: (bool) ($get('allowLayoutSwitch') ?? true),
             layoutTestShare: (int) ($get('layoutTestShare') ?? 0),
             display: $display,
+            taxRate: $taxId !== null ? (float) array_sum($context->buildTaxRules($taxId)->map(static fn ($rule) => $rule->getTaxRate())) : null,
         );
     }
 }

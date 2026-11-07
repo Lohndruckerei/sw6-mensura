@@ -330,6 +330,71 @@ final class PriceEngineTest extends TestCase
         self::assertArrayNotHasKey('showPriceHint', $groups['farbigkeit']);
     }
 
+    public function testTotalGrossOnlyWithKnownTaxRate(): void
+    {
+        $config = $this->config(['format' => ['width' => 1000, 'height' => 500], 'perMotif' => 10, 'options' => ['farbigkeit' => '4-4', 'veredelung' => 'ag-2', 'bohrung' => 'ja', 'schnitt' => 'kontur']]);
+        $withTax = new CalculationContext(now: new \DateTimeImmutable('2026-11-06 10:00', new \DateTimeZone('Europe/Berlin')), taxRate: 19.0);
+        $price = self::plain((new PriceEngine())->calculate($config, new Catalog(DemoCatalog::catalog()), $withTax)->toStoreApi())['price'];
+        self::assertSame(353.0, (float) $price['total']);
+        self::assertSame(420.07, $price['totalGross']); // wie im Warenkorb: 353,00 × 1,19
+
+        $taxFree = new CalculationContext(taxRate: 0.0);
+        self::assertSame(353.0, (float) self::plain((new PriceEngine())->calculate($config, new Catalog(DemoCatalog::catalog()), $taxFree)->toStoreApi())['price']['totalGross']);
+        self::assertArrayNotHasKey('totalGross', self::plain($this->calc($config)->toStoreApi())['price']);
+    }
+
+    public function testFromPriceIncludesProfileSurcharges(): void
+    {
+        // Spezialprodukt: Profil +10 % und +2,00 €/m², Profil-Material Alu +5 % → (29 + 2) × 1,15 = 35,65 €/m²
+        $data = DemoCatalog::catalog();
+        $data['profile']['surchargePercent'] = 10.0;
+        $data['profile']['priceComponents'] = [['type' => 'per_area', 'sale' => 2.0]];
+        $data['profile']['materials'][0]['surchargePercent'] = 5.0;
+        $out = self::plain((new \Lohndruckerei\Mensura\Service\Calculation\ConfiguratorBuilder())->build(new Catalog($data), ContractTest::context()));
+        self::assertSame(35.65, $out['materials'][0]['fromPricePerSqm']);
+        self::assertSame(70.4, $out['materials'][1]['fromPricePerSqm']); // Acryl (62 + 2) × 1,10 – ohne Material-Aufschlag
+    }
+
+    public function testBestPriceUsesDeliveryTiersAndIgnoresInactiveTables(): void
+    {
+        // Express wird ab 20 Stück günstiger (Staffel am Lieferzeit-Wert ersetzt den Aufschlag +30 % durch −50 %)
+        $data = DemoCatalog::catalog();
+        $calcId = DemoCatalog::id('calculation.aluverbund');
+        foreach ($data['calculations'][$calcId]['optionValues'] as &$row) {
+            if ($row['optionValueId'] === DemoCatalog::id('value.lieferzeit.express')) {
+                $row['tiers'] = ['sale' => ['basis' => 'quantity', 'steps' => [['from' => 20, 'price' => -50.0]]]];
+            }
+        }
+        unset($row);
+        // inaktive Preistabelle darf keine Schwellen liefern
+        $data['calculations'][$calcId]['priceTables'] = [['id' => 'off', 'materialId' => null, 'optionValueIds' => [], 'priceType' => 'piece', 'active' => false, 'position' => 0, 'rows' => [['quantity' => 500, 'priceSale' => 0.01, 'pricePurchase' => 0.01]]]];
+
+        $config = $this->config(['format' => ['width' => 1000, 'height' => 500], 'perMotif' => 15, 'deliveryValue' => 'express']);
+        $engine = new PriceEngine();
+        $catalog = new Catalog($data);
+        $api = self::plain($engine->calculate($config, $catalog, ContractTest::context())->toStoreApi());
+        self::assertSame(292.5, (float) $api['price']['total']); // 15 × 15,00 × 1,30
+        self::assertSame('price.best_price', $api['hints'][0]['code']);
+        self::assertSame(['perMotif' => 20], $api['hints'][0]['fix']); // 20 × 15,00 × 0,50 = 150,00 €
+
+        $normalized = $engine->normalize($config, $catalog, new \Lohndruckerei\Mensura\Service\Calculation\Messages(), ContractTest::context());
+        self::assertSame([['quantity', 20.0]], $engine->bestPriceThresholds($normalized, $catalog));
+    }
+
+    public function testAreaRoundingSameForPositionAndPiece(): void
+    {
+        // Fläche genau auf der Schwelle (1000 × 1300 mm = 1,3 m², Schrittweite 0,1) bleibt in beiden Bezügen 1,3 m²
+        $rules = ['minArea' => null, 'areaRounding' => 0.1, 'areaScope' => 'total'];
+        $engine = new PriceEngine();
+        self::assertSame(1.3, $engine->billedArea($rules, 1000, 1300, 1));
+        self::assertSame(1.3, $engine->billedArea(['areaScope' => 'piece'] + $rules, 1000, 1300, 1));
+        self::assertSame(1.3, $engine->pieceArea($rules, 1000, 1300));
+        // knapp darüber → nächster Schritt; je Stück × Stückzahl
+        self::assertSame(1.4, $engine->billedArea($rules, 1000, 1301, 1));
+        self::assertSame(2.8, $engine->billedArea(['areaScope' => 'piece'] + $rules, 1000, 1301, 2));
+        self::assertSame(0.3, PriceEngine::roundArea(0.30000000000000004, $rules));
+    }
+
     public function testEnglishTexts(): void
     {
         $api = self::plain((new PriceEngine())->calculate($this->config([]), new Catalog(DemoCatalog::catalog('en')), ContractTest::context(null, 'en'))->toStoreApi());

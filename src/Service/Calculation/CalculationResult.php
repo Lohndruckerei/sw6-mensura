@@ -123,6 +123,12 @@ final class CalculationResult
             $total = (float) $this->sale['total'];
             $response['price'] = [
                 'total' => $total,
+            ];
+            // Bruttopreis nur, wenn der Steuersatz bekannt ist (Store-API: Steuer des Produkts für den Kunden)
+            if ($this->context->taxRate !== null) {
+                $response['price']['totalGross'] = round($total * (1 + $this->context->taxRate / 100), 2);
+            }
+            $response['price'] += [
                 'perPiece' => round($total / max(1, $quantity), 2),
                 'perSqm' => $area > 0 ? round($total / $area, 2) : 0.0,
                 'quantity' => $quantity,

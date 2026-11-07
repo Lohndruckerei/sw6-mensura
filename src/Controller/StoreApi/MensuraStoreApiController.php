@@ -47,7 +47,7 @@ class MensuraStoreApiController
             return $this->error(404, 'product.not_configurable', 'Produkt hat kein Mensura-Profil');
         }
 
-        return $this->json($this->builder->build($catalog, $this->contextFactory->fromSalesChannelContext($context)));
+        return $this->json($this->builder->build($catalog, $this->contextFactory->fromSalesChannelContext($context, $catalog->productTaxId())));
     }
 
     #[Route(path: '/store-api/ld-mensura/calculate', name: 'store-api.ld-mensura.calculate', methods: ['POST'])]
@@ -92,7 +92,7 @@ class MensuraStoreApiController
             return $loaded;
         }
         [$configuration, $catalog] = $loaded;
-        $result = $this->engine->calculate($configuration, $catalog, $this->contextFactory->fromSalesChannelContext($context), $matrix === true);
+        $result = $this->engine->calculate($configuration, $catalog, $this->contextFactory->fromSalesChannelContext($context, $catalog->productTaxId()), $matrix === true);
 
         return $this->json($result->toStoreApi());
     }
