@@ -7,10 +7,10 @@ import { apply, CONFIG_ACTIONS, createState, toConfiguration, configKey } from '
 import { debounce } from './util.js';
 
 export class MensuraController {
-    constructor({ data, client, onChange = () => {}, debounceMs = 250, initial = null, layout = null, step = null }) {
+    constructor({ data, client, onChange = () => {}, debounceMs = 250, initial = null, layout = null, step = null, layoutForced = false }) {
         this.client = client;
         this.onChange = onChange;
-        this.state = createState(data, { initial, layout, step });
+        this.state = createState(data, { initial, layout, step, layoutForced });
         this.seq = 0;
         this.inflight = null;
         this.abort = null;

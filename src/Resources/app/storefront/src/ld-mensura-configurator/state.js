@@ -217,7 +217,7 @@ function initialConfig(data, partial) {
  * Neuer Zustand aus den Konfigurator-Daten (GET …/configurator), optional mit einer Teil-Konfiguration
  * (z. B. aus dem URL-Hash) und einer gewünschten Darstellung.
  */
-export function createState(data, { initial = null, layout = null, step = null } = {}) {
+export function createState(data, { initial = null, layout = null, step = null, layoutForced = false } = {}) {
     const config = initialConfig(data, initial);
     const synced = syncOptions(data, config, config, {});
     config.options = synced.options;
@@ -227,7 +227,8 @@ export function createState(data, { initial = null, layout = null, step = null }
     const wanted = layout === 'compact' || layout === 'guided' ? layout : null;
     return {
         data,
-        layout: wanted && (data.allowLayoutSwitch || wanted === data.layout) ? wanted : data.layout,
+        // layoutForced: Testzuteilung (layout-test.js) gilt auch, wenn der Kunde selbst nicht umschalten darf
+        layout: wanted && (layoutForced || data.allowLayoutSwitch || wanted === data.layout) ? wanted : data.layout,
         step: normalizeStep(step) || 'material',
         gross: false,
         config,

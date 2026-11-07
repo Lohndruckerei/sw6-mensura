@@ -8,17 +8,9 @@ import { FixtureClient, loadFixturesFromUrl, StoreApiClient } from './api-client
 import { renderConfigurator } from './render.js';
 import { decodeHash, encodeHash, nextStepKey, guidedSteps, normalizeStep } from './state.js';
 import { createFormatter, createTranslator } from './util.js';
+import { browserStorage, rememberChoice, resolveLayout } from './layout-test.js';
 
-const LAYOUT_KEY = 'ldMensuraLayout';
 let counter = 0;
-
-function readLayoutPreference() {
-    try { return window.localStorage.getItem(LAYOUT_KEY); } catch (e) { return null; }
-}
-
-function writeLayoutPreference(value) {
-    try { window.localStorage.setItem(LAYOUT_KEY, value); } catch (e) { /* privat-Modus: ohne Merken */ }
-}
 
 export async function createClient(options) {
     if (options.fixtures) {
@@ -53,7 +45,14 @@ export async function mountConfigurator(el, options = {}) {
     el.append(app, toast);
 
     const fromHash = decodeHash(data, window.location.hash);
-    const preferred = fromHash?.layout || readLayoutPreference();
+    // Link → eigene Wahl → Testzuteilung (layoutTest.share) → Standard; Gruppe als data-Attribut für eine spätere Messung
+    const storage = options.storage || browserStorage();
+    const chosen = resolveLayout(data, { linkLayout: fromHash?.layout || null, storage, random: options.random || Math.random });
+    el.setAttribute('data-lm-layout-source', chosen.source);
+    if (chosen.group) {
+        el.setAttribute('data-lm-test-group', chosen.group);
+        el.setAttribute('data-lm-test-layout', chosen.group === 'test' ? (data.layout === 'guided' ? 'compact' : 'guided') : data.layout);
+    }
     let frame = null;
 
     const controller = new MensuraController({
@@ -61,7 +60,8 @@ export async function mountConfigurator(el, options = {}) {
         client,
         debounceMs: options.debounceMs ?? 250,
         initial: fromHash?.config || null,
-        layout: preferred,
+        layout: chosen.layout,
+        layoutForced: chosen.forced,
         step: fromHash?.step || null,
         onChange: () => {
             // gebündelt neu zeichnen; requestAnimationFrame pausiert in verdeckten Tabs, daher Zeitgeber als Rückfall
@@ -134,7 +134,8 @@ export async function mountConfigurator(el, options = {}) {
         switch (action) {
             case 'layout':
                 controller.dispatch({ type: 'layout', value });
-                writeLayoutPreference(controller.state.layout);
+                rememberChoice(controller.state.layout, storage);
+                el.setAttribute('data-lm-layout-source', 'choice');
                 break;
             case 'material':
                 controller.dispatch({ type: 'material', id: value });

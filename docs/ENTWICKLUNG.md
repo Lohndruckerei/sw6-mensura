@@ -97,6 +97,13 @@ Im laufenden Shop: `bin/console mensura:demo:seed` legt das Demo-Produkt aus den
   einspaltig, auf voller Breite zweispaltig.
 - **Variante:** `layout` aus den Konfigurator-Daten; mit `allowLayoutSwitch` kann der Kunde umschalten (gemerkt im Browser,
   `localStorage`), die Auswahl bleibt erhalten. Konfiguration steht im URL-Hash (teilen/wiederherstellen).
+- **Testbetrieb** (`layout-test.js`, Vertrag `layoutTest.share` = Plugin-Einstellung `layoutTestShare`): Reihenfolge Link (`v=`) →
+  eigene Wahl (`ldMensuraLayout`) → Testzuteilung → Standard. Neue Besucher ohne eigene Wahl werden einmalig zufällig zugeteilt
+  (`share` % = Gruppe `test` mit der anderen als der Standard-Darstellung, sonst `control`); gemerkt unter `ldMensuraLayoutTest`
+  (die Gruppe, nicht die Darstellung, weil der Standard je Produktprofil abweichen kann). Die Zuteilung gilt auch ohne
+  `allowLayoutSwitch`; selbst umschalten bleibt möglich, wenn erlaubt, und gewinnt danach. Am Konfigurator-Element stehen
+  `data-lm-layout-source` (link/choice/test/default), `data-lm-test-group` und `data-lm-test-layout` für eine spätere Messung
+  (nur mit Einwilligung, noch nicht umgesetzt). Testseite: `?layoutTest=30` simuliert den Anteil.
 
 **Prüfen ohne Shop**
 

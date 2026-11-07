@@ -33,7 +33,7 @@
     <div id="place"></div>
   </div>
   <script type="module">
-    import { mountConfigurator } from '/src/Resources/app/storefront/src/ld-mensura-configurator/mount.js';
+    import { createClient, mountConfigurator } from '/src/Resources/app/storefront/src/ld-mensura-configurator/mount.js';
     import { flattenSnippets } from '/src/Resources/app/storefront/src/ld-mensura-configurator/util.js';
 
     const q = new URLSearchParams(location.search);
@@ -53,7 +53,13 @@
     } else {
       const base = '/docs/contract/fixtures';
       const fixtureIndex = await (await fetch(`${base}/index.json`)).json();
-      window.lm = await mountConfigurator(el, { fixtures: base, fixtureIndex, texts, locale: lang, currency: 'EUR' });
+      // ?layoutTest=30 simuliert den Testbetrieb (Vertrag layoutTest.share), solange die Fixtures ihn nicht enthalten
+      const client = await createClient({ fixtures: base, fixtureIndex });
+      if (q.get('layoutTest')) {
+        const original = client.configurator.bind(client);
+        client.configurator = async (id) => ({ ...(await original(id)), layoutTest: { share: Number(q.get('layoutTest')) } });
+      }
+      window.lm = await mountConfigurator(el, { client, fixtures: base, texts, locale: lang, currency: 'EUR' });
     }
   </script>
 </body>
