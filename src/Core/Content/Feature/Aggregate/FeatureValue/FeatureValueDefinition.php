@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * Merkmalswert: Merkmal × (Material | Optionswert | Produktprofil), genau eines davon gesetzt.
- * `value` als JSON passend zum Typ des Merkmals: true, 4, 5.5, "aussen", ["innen","aussen"].
+ * `value` als JSON-Objekt {"value": …} passend zum Typ des Merkmals: true, 4, 5.5, "aussen", ["innen","aussen"].
  * Beispiel: Laminat Anti-Graffiti → kratzfest 4; Aluverbund 3 mm → einsatz ["innen","aussen"].
  */
 class FeatureValueDefinition extends EntityDefinition

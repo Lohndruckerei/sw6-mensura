@@ -21,4 +21,10 @@ find src -name '*.php' -print0 | xargs -0 -n1 php -l | grep -v '^No syntax error
 if find src -name '*.php' -print0 | xargs -0 -n1 php -l 2>&1 | grep -q 'Parse error'; then echo "PHP-Syntaxfehler"; exit 1; fi
 echo "== Snippets"
 node .github/scripts/check-snippets.mjs
+
+echo "== Backend gegen Vertrag: Preis-Engine trifft alle Beispielfälle (PHPUnit)"
+bash .github/scripts/phpunit.sh
+echo "== Backend gegen Vertrag: Antworten der Engine passen zu den Schemas"
+$AJV validate $OPTS -s $S/calculation-result.schema.json -r $S/configuration.schema.json -d "build/contract/calculate/*.json"
+$AJV validate $OPTS -s $S/configurator.schema.json -r $S/configuration.schema.json -d "build/contract/configurator/*.json"
 echo "✓ Alle Prüfungen bestanden."

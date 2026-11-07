@@ -34,7 +34,7 @@ Jeder Bereich ändert nur seine eigenen Ordner. Braucht das Frontend ein neues F
 |---|---|---|
 | **Vertrag** | Schemas gültig; jeder Beispielfall passt zu seinem Schema; kein Einkaufspreis in Vertrag oder Fixtures; Sollpreise in sich stimmig (Gesamt = je Stück × Menge, außer bei Mindestpreis) | jetzt |
 | **Backend** | PHP-Syntax aller Dateien; Snippets de-DE/en-GB vollständig | jetzt |
-| **Backend gegen Vertrag** | Preis-Engine rechnet alle Beispielfälle aus `fixtures/calculate/` und muss die Sollwerte treffen; Antworten der Store-API passen zu den Schemas | mit der Preis-Engine (Fahrplan Schritt 4) |
+| **Backend gegen Vertrag** | Preis-Engine rechnet alle Beispielfälle aus `fixtures/calculate/` (und baut `fixtures/configurator/`) und muss die Sollwerte exakt treffen (PHPUnit, `tests/Backend/`, Demo-Daten aus `src/Service/Demo/DemoCatalog.php`); die Antworten landen in `build/contract/` und werden gegen die Schemas geprüft | jetzt (v0.4.0) |
 | **Frontend gegen Vertrag** | Konfigurator-JS wird mit `fixtures/configurator/*.json` und `fixtures/calculate/*.expected.json` getestet (ohne Shop) | mit dem Konfigurator (Schritt 6) |
 
 Damit fällt sofort auf, wenn eine Seite den Vertrag verlässt: Das Backend rechnet anders als im Beispielfall, oder das
@@ -45,6 +45,15 @@ Lokal dieselben Prüfungen ausführen:
 ```bash
 docker exec shopware bash -c "cd /var/www/html/custom/plugins/LdMensura && bash .github/scripts/check-all.sh"
 ```
+
+Nur die Backend-Tests (PHPUnit als Phar in `.cache/`, ohne Shopware-Kernel):
+
+```bash
+docker exec shopware bash -c "cd /var/www/html/custom/plugins/LdMensura && bash .github/scripts/phpunit.sh"
+```
+
+Im laufenden Shop: `bin/console mensura:demo:seed` legt das Demo-Produkt aus den Beispielfällen an
+(Produkt-ID `0194e1a0000070008000000000000a01`); danach liefert die Store-API dieselben Sollwerte wie die Fixtures.
 
 ## Beispielfall anlegen (Ablauf)
 

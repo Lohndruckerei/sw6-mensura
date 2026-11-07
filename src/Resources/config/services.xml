@@ -90,6 +90,16 @@
         <service id="Lohndruckerei\Mensura\Core\Checkout\OrderLineItem\MensuraOrderLineItemDefinition">
             <tag name="shopware.entity.definition" entity="ld_mensura_order_line_item"/>
         </service>
+        <!-- Preis-Engine, Store-API, Demo-Daten -->
+        <service id="Lohndruckerei\Mensura\Service\Calculation\PriceEngine"/>
+        <service id="Lohndruckerei\Mensura\Service\Calculation\ConfiguratorBuilder"/>
+        <service id="Lohndruckerei\Mensura\Service\Calculation\CatalogLoader"/>
+        <service id="Lohndruckerei\Mensura\Service\Calculation\ContextFactory"/>
+        <service id="Lohndruckerei\Mensura\Service\Demo\DemoSeedCommand"/>
+        <service id="Lohndruckerei\Mensura\Controller\StoreApi\MensuraStoreApiController" public="true">
+            <tag name="controller.service_arguments"/>
+        </service>
+
         <service id="Lohndruckerei\Mensura\Extension\ProductExtension">
             <tag name="shopware.entity.extension"/>
         </service>

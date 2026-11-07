@@ -1,0 +1,5 @@
+{
+  "private": true,
+  "description": "Nur für Node: die Module dieses Ordners sind ES-Module (Tests in tests/Frontend laden sie direkt). Keine Abhängigkeiten.",
+  "type": "module"
+}

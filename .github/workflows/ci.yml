@@ -37,7 +37,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          tools: none
+          tools: phpunit:11
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -48,7 +48,14 @@ jobs:
           exit $status
       - name: Snippets de-DE/en-GB vollständig
         run: node .github/scripts/check-snippets.mjs
-      # Ab Fahrplan Schritt 4: Preis-Engine gegen docs/contract/fixtures/calculate (PHPUnit)
+      - name: Preis-Engine gegen Vertrag (alle fixtures/calculate + fixtures/configurator, PHPUnit)
+        run: bash .github/scripts/phpunit.sh
+      - name: Antworten der Engine passen zu den Schemas
+        run: |
+          S=docs/contract/schema
+          AJV="npx --yes ajv-cli@5.0.0"; OPTS="--spec=draft2020 --strict=false"
+          $AJV validate $OPTS -s $S/calculation-result.schema.json -r $S/configuration.schema.json -d "build/contract/calculate/*.json"
+          $AJV validate $OPTS -s $S/configurator.schema.json -r $S/configuration.schema.json -d "build/contract/configurator/*.json"
 
   frontend:
     name: Frontend

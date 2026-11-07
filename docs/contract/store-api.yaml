@@ -23,14 +23,16 @@ paths:
               schema: { $ref: 'schema/configurator.schema.json' }
               examples:
                 aluverbund: { externalValue: 'fixtures/configurator/aluverbund.json' }
-        '404': { description: Produkt hat kein Mensura-Profil }
+        '404': { description: 'Produkt hat kein Mensura-Profil', content: { application/json: { schema: { $ref: '#/components/schemas/Errors' } } } }
   /ld-mensura/calculate:
     post:
       summary: Konfiguration prüfen, normalisieren und berechnen
       description: |
         Wird bei jeder Änderung im Konfigurator aufgerufen (entprellt). Ungültige Werte werden durch den Standard ersetzt
         und als Hinweis gemeldet; Formatverletzungen liefern `valid: false` mit `errors[].fix`.
-        Mit `matrix: true` zusätzlich Preise für `quantitySteps` × Lieferzeiten (geführte Darstellung).
+        Mit `matrix: true` zusätzlich Preise für `quantitySteps` × Lieferzeiten (geführte Darstellung). `matrix[].quantity`
+        ist der Wert für `perMotif` (Stück je Motiv; bei `motifMode: split` die Gesamtmenge), `total: null` = Lieferzeit
+        für diese Menge nicht verfügbar. `delivery` listet jede Lieferzeit mit Termin bzw. Grund (z. B. „nur bis 50 Stück“).
       operationId: mensuraCalculate
       requestBody:
         required: true
@@ -52,6 +54,8 @@ paths:
                 mindestpreis: { externalValue: 'fixtures/calculate/alu-mindestpreis.expected.json' }
                 comdatek353: { externalValue: 'fixtures/calculate/alu-comdatek-353.expected.json' }
                 acrylZuHoch: { externalValue: 'fixtures/calculate/acryl-hoehe-zu-gross.expected.json' }
+        '400': { description: 'Anfrage unvollständig (configuration.productId fehlt/ungültig)', content: { application/json: { schema: { $ref: '#/components/schemas/Errors' } } } }
+        '404': { description: 'Produkt hat kein Mensura-Profil', content: { application/json: { schema: { $ref: '#/components/schemas/Errors' } } } }
   /ld-mensura/cart/add:
     post:
       summary: Konfigurierte Position in den Warenkorb (Backend rechnet erneut, nie Frontend-Preise übernehmen)
@@ -91,3 +95,16 @@ paths:
           content:
             application/json:
               schema: { $ref: 'schema/calculation-result.schema.json' }
+        '404': { description: 'Produkt hat kein Mensura-Profil', content: { application/json: { schema: { $ref: '#/components/schemas/Errors' } } } }
+components:
+  schemas:
+    Errors:
+      description: Fehlerantwort wie bei Shopware (nur 400/404; Konfigurationsfehler kommen als 200 mit valid=false)
+      type: object
+      required: [errors]
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties: { status: { type: string }, code: { type: string }, detail: { type: string } }

@@ -19,7 +19,7 @@ class FeatureValueEntity extends Entity
     protected ?string $materialId = null;
     protected ?string $optionValueId = null;
     protected ?string $productProfileId = null;
-    protected mixed $value = null;
+    protected ?array $value = null;
     protected ?FeatureEntity $feature = null;
     protected ?MaterialEntity $material = null;
     protected ?OptionValueEntity $optionValue = null;
@@ -65,12 +65,12 @@ class FeatureValueEntity extends Entity
         $this->productProfileId = $productProfileId;
     }
 
-    public function getValue(): mixed
+    public function getValue(): ?array
     {
         return $this->value;
     }
 
-    public function setValue(mixed $value): void
+    public function setValue(?array $value): void
     {
         $this->value = $value;
     }
