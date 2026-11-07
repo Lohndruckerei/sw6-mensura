@@ -21,7 +21,19 @@
         "perPiece": { "type": "number" },
         "perSqm": { "type": "number" },
         "quantity": { "type": "integer" },
-        "area": { "type": "number", "description": "Gesamtfläche in m²" },
+        "area": { "type": "number", "description": "Gesamtfläche in m² = Breite × Höhe × Stück (Endformat inkl. Formatzugaben)" },
+        "areas": {
+          "type": "object",
+          "description": "optional: Flächenwerte der Position (m²) – Anzeige z. B. „abgerechnet: 1,30 m²“. Fläche gilt je Position (L × B × Stück); Mindestfläche und Schrittweite aus Material bzw. Kalkulation",
+          "required": ["piece", "total", "billed"],
+          "properties": {
+            "piece": { "type": "number", "description": "Fläche je Stück (B × H)" },
+            "total": { "type": "number", "description": "Gesamtfläche = piece × Stück (wie price.area)" },
+            "billed": { "type": "number", "description": "abgerechnete Fläche nach Mindestfläche und Schrittweite; Preise je m² rechnen damit" },
+            "minArea": { "type": ["number", "null"], "description": "Mindestfläche der Position, z. B. 1.0" },
+            "rounding": { "type": ["number", "null"], "description": "Schrittweite, auf die aufgerundet wird, z. B. 0.1" }
+          }
+        },
         "minimumApplied": { "type": "boolean" },
         "currency": { "type": "string" }
       }

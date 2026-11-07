@@ -54,6 +54,8 @@ paths:
                 mindestpreis: { externalValue: 'fixtures/calculate/alu-mindestpreis.expected.json' }
                 comdatek353: { externalValue: 'fixtures/calculate/alu-comdatek-353.expected.json' }
                 acrylZuHoch: { externalValue: 'fixtures/calculate/acryl-hoehe-zu-gross.expected.json' }
+                folieMindestflaeche: { externalValue: 'fixtures/calculate/folie-mindestflaeche.expected.json' }
+                folieSchrittweite: { externalValue: 'fixtures/calculate/folie-schrittweite.expected.json' }
         '400': { description: 'Anfrage unvollständig (configuration.productId fehlt/ungültig)', content: { application/json: { schema: { $ref: '#/components/schemas/Errors' } } } }
         '404': { description: 'Produkt hat kein Mensura-Profil', content: { application/json: { schema: { $ref: '#/components/schemas/Errors' } } } }
   /ld-mensura/cart/add:

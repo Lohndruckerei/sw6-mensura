@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "productId": "0194e1a0000070008000000000000a02",
+  "materialId": "0194e1a0000070008000000000000b03",
+  "format": { "width": 410, "height": 1000 },
+  "motifs": 1,
+  "perMotif": 3,
+  "options": {},
+  "deliveryValue": "standard"
+}
