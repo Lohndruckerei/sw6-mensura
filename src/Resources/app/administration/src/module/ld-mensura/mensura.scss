@@ -233,6 +233,49 @@ $lm-sunken: var(--color-background-tertiary-default, #f0f2f5);
     margin-top: 16px;
 }
 
+// Optionssets: Gruppen in Reihenfolge
+.lm-set-row {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 2fr) minmax(160px, 1fr) auto auto auto;
+    gap: 0 8px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid $lm-border;
+
+    .sw-field {
+        margin-bottom: 0;
+    }
+
+    &__pos {
+        color: $lm-text2;
+        font-variant-numeric: tabular-nums;
+        text-align: center;
+    }
+
+    &__name {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+
+        small {
+            font-size: 12px;
+        }
+    }
+}
+
+.lm-usage {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.lm-option-list__preview {
+    margin-left: 8px;
+    font-size: 12px;
+}
+
 @media (max-width: 1000px) {
     .lm-price-pair__fields,
     .lm-components__row,

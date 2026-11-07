@@ -1,4 +1,4 @@
-import{C as l}from"./ld-mensura-sRn5qiHD.js";const i={template:`
+import{C as l}from"./ld-mensura-BW-ICgwJ.js";const i={template:`
 <span
     class="lm-chip"
     :style="{ '--lm-t': 'var(--lm-' + color + ')' }"

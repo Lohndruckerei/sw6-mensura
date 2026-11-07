@@ -1,4 +1,4 @@
-import{A as a}from"./ld-mensura-sRn5qiHD.js";const s={template:`
+import{A as a}from"./ld-mensura-BW-ICgwJ.js";const s={template:`
 <lm-page
     :title="$tc('ld-mensura.general.mainMenuItem')"
     active="overview"

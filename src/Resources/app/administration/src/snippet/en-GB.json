@@ -26,6 +26,8 @@
             "labelSupplierId": "Supplier ID",
             "helpSupplierId": "ID of the supplier in LieferLotse (32 characters), e.g. for Comdatek. Leave empty without LieferLotse.",
             "groupConnection": "Connection",
+            "yes": "Yes",
+            "no": "No",
             "errorDuplicateTechnicalName": "This technical name is already in use – please choose another one."
         },
         "groups": {
@@ -58,6 +60,172 @@
             "option": {
                 "title": "Options",
                 "description": "Option groups such as colours, cutting or finishing with values and surcharges (€/m², €/pc, %, flat)."
+            },
+            "optionSet": {
+                "title": "Option sets",
+                "description": "Configuration steps: which option groups appear after choosing a material or value."
+            }
+        },
+        "option": {
+            "types": {
+                "standard": "Standard",
+                "delivery": "Delivery time",
+                "format": "Fixed format"
+            },
+            "scopes": {
+                "position": "per item",
+                "supplier": "per supplier"
+            },
+            "displayTypes": {
+                "select": "Select list",
+                "tiles": "Tiles with image",
+                "radio": "Radio buttons",
+                "checkbox": "Checkbox",
+                "number": "Number field",
+                "multi": "Multiple choice"
+            },
+            "list": {
+                "placeholderSearch": "Search option groups …",
+                "buttonAdd": "Add option group",
+                "emptyTitle": "No option group yet",
+                "emptySubline": "Add the first group, e.g. “Colours” with the values 4/0 and 4/4.",
+                "confirmDelete": "Really delete option group “{name}” with all values? Value prices in calculations and rules in product profiles are deleted as well.",
+                "deleteRestricted": "Cannot delete – the group is still in use.",
+                "columnName": "Option group",
+                "columnType": "Type",
+                "columnValues": "Values",
+                "columnSets": "In sets",
+                "columnRequired": "Required",
+                "valueCount": "1 value | {count} values",
+                "info": {
+                    "title": "What is an option group?",
+                    "text": "An option group is a choice in the configurator, e.g. “Colours” with the values 4/0 and 4/4. Groups and values are a shared library: “Matt laminate” is the same value for aluminium composite and acrylic. Prices are maintained per calculation. Delivery times and fixed formats (e.g. A1 = 594 × 841 mm) are separate group types."
+                }
+            },
+            "detail": {
+                "newTitle": "New option group",
+                "tabBase": "General",
+                "tabValues": "Values",
+                "cardBase": "Option group",
+                "labelName": "Name",
+                "helpName": "How the choice is called in the configurator, e.g. “Colours”.",
+                "helpTechnicalName": "Unique key without spaces, e.g. “farbigkeit”. Stored in the configuration of every order – do not change later.",
+                "labelType": "Type",
+                "helpType": "Standard for normal options, “Delivery time” for values with working days (e.g. standard 5 days, express 3 days), “Fixed format” for formats with dimensions (e.g. A1).",
+                "labelDisplayType": "Display",
+                "helpDisplayType": "How the customer chooses, e.g. select list for colours, tiles with image for finishings.",
+                "labelScope": "Applies",
+                "helpScope": "“per item”: each order item has its own choice. “per supplier”: one choice for all items of the same supplier, e.g. delivery time.",
+                "helpPosition": "Order when no set order applies, e.g. 10 = near the top.",
+                "labelHelpText": "Help text in the shop",
+                "helpHelpText": "One sentence with an example for the customer, e.g. “4/0 means: full colour front, blank back.”",
+                "labelDescription": "Description (internal)",
+                "helpDescription": "Note for the team, e.g. “Only offer for boards up to 5 mm”.",
+                "labelRequired": "Required choice",
+                "helpRequired": "The customer must choose a value; without a choice the calculation's default applies, e.g. “4/0”.",
+                "labelShowPriceHint": "Show surcharges",
+                "helpShowPriceHint": "Off = no surcharges such as “+ €9.00/m²” on the values of this group in the shop; the customer only sees the total price.",
+                "cardValues": "Values",
+                "introValues": "Maintain name, image, badges, follow-up set and exclusions of a value here. Prices per value are in the calculation.",
+                "columnDetail": "Details",
+                "emptyValuesTitle": "No values yet",
+                "emptyValuesSubline": "A group needs at least one value, e.g. “4/0 printed one side”.",
+                "buttonAddValue": "Add value",
+                "days": "1 working day | {days} working days"
+            },
+            "value": {
+                "newTitle": "New value",
+                "labelName": "Name",
+                "helpName": "How the customer sees the value, e.g. “4/4 printed both sides”.",
+                "helpTechnicalName": "Unique within the group, e.g. “4-4”. Stored in every order – do not change later.",
+                "labelCode": "Code",
+                "helpCode": "Short code for the article number, e.g. “44” → ALU3-1000x500-44.",
+                "labelDescription": "Description",
+                "helpDescription": "Explanation for tile and info text, e.g. “Anti-graffiti can be cleaned of paint.”",
+                "helpBadges": "Short features on the tile, e.g. “UV-resistant”. Confirm each with Enter.",
+                "headingDelivery": "Delivery time",
+                "labelDeliveryDays": "Working days",
+                "helpDeliveryDays": "Production and shipping in working days from the order cut-off, e.g. 5 for standard, 3 for express.",
+                "labelMaxQuantity": "Only up to pieces",
+                "helpMaxQuantity": "Above this the delivery time cannot be chosen, e.g. express only up to 50 pieces. Empty = no limit.",
+                "labelMaxArea": "Only up to total area (m²)",
+                "helpMaxArea": "Not available above, e.g. express only up to 20 m². Empty = no limit.",
+                "labelMaterials": "Only for materials",
+                "helpMaterials": "Empty = for all materials; otherwise only for the selected ones, e.g. express only for aluminium composite.",
+                "headingFormat": "Fixed format",
+                "labelWidth": "Width (mm)",
+                "labelHeight": "Height (mm)",
+                "helpFormat": "Dimensions of the format for the area calculation, e.g. A1 = 594 × 841 mm.",
+                "headingAdditions": "Format additions",
+                "labelWidthAdd": "Width addition (mm)",
+                "labelHeightAdd": "Height addition (mm)",
+                "helpAdd": "Added to the final format, e.g. hem 40 mm. The larger format is calculated.",
+                "labelWidthFactor": "Width factor",
+                "labelHeightFactor": "Height factor",
+                "helpFactor": "Open format, e.g. vertical fold: width × 2. Default 1.",
+                "headingFlow": "Configuration flow",
+                "helpOptionSet": "After choosing this value these groups appear in addition, e.g. “Lamination on aluminium” → “Aluminium finishing”.",
+                "labelExclusions": "Not combinable with",
+                "helpExclusions": "Values of other groups that do not work with this value, e.g. anti-graffiti not with “0/0 unprinted”.",
+                "buttonDone": "Done"
+            },
+            "warnings": {
+                "noValues": "The group has no values yet – there is nothing to choose in the configurator.",
+                "noDays": "At least one delivery value has no working days – no delivery date can be shown for it.",
+                "noFormat": "At least one fixed format has no dimensions – the area cannot be calculated."
+            }
+        },
+        "optionSet": {
+            "list": {
+                "placeholderSearch": "Search option sets …",
+                "buttonAdd": "Add option set",
+                "emptyTitle": "No option set yet",
+                "emptySubline": "Add a set, e.g. “Board finishing aluminium composite” with colours, finishing, drilling and cutting.",
+                "confirmDelete": "Really delete option set “{name}”? Calculations, materials and values lose their reference to it.",
+                "deleteRestricted": "Deleting failed.",
+                "columnName": "Option set",
+                "columnGroups": "Groups in order",
+                "columnUsage": "Used",
+                "filterUnused": "Unused",
+                "info": {
+                    "title": "What is an option set?",
+                    "text": "An option set is a configuration step: a list of option groups in order. Which groups the customer sees follows from the calculation's start set → the material's follow-up set → follow-up sets of the chosen values. Example: aluminium composite → “Board finishing aluminium composite” (colours, finishing, drilling, cutting)."
+                }
+            },
+            "usage": {
+                "calculations": "1 calculation | {count} calculations",
+                "materials": "1 material | {count} materials",
+                "values": "1 value | {count} values",
+                "none": "Not used anywhere"
+            },
+            "detail": {
+                "newTitle": "New option set",
+                "statGroups": "Groups",
+                "statUsage": "Uses",
+                "cardBase": "Option set",
+                "labelName": "Name",
+                "helpName": "Name for the administration, e.g. “Board finishing aluminium composite”.",
+                "helpTechnicalName": "Unique key, e.g. “plattenveredelung-alu”. Used in the configurator data.",
+                "labelDescription": "Description",
+                "helpDescription": "Note for the team, e.g. “Applies to all aluminium composite thicknesses”.",
+                "cardGroups": "Groups in order",
+                "introGroups": "Groups appear in the configurator in this order. Required can differ per set, e.g. finishing optional here.",
+                "moveUp": "Move up",
+                "moveDown": "Move down",
+                "emptyGroups": "No group in the set yet.",
+                "labelAddGroup": "Add group",
+                "helpAddGroup": "Standard groups only; delivery time and fixed format appear automatically.",
+                "requiredInherit": "Required as group",
+                "requiredYes": "Required",
+                "requiredNo": "optional",
+                "cardUsage": "Used in",
+                "introUsage": "Start set of a calculation, follow-up set of a material or of an option value.",
+                "usageStart": "Start set",
+                "usageMaterial": "Material",
+                "usageValue": "Value"
+            },
+            "warnings": {
+                "noGroups": "The set does not contain any group yet."
             }
         },
         "price": {

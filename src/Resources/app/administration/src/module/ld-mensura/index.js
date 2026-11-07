@@ -9,12 +9,19 @@ Shopware.Component.register('lm-price-pair', () => import('./component/lm-price-
 Shopware.Component.register('lm-price-components', () => import('./component/lm-price-components'));
 Shopware.Component.register('lm-tier-editor', () => import('./component/lm-tier-editor'));
 Shopware.Component.register('lm-supplier-codes', () => import('./component/lm-supplier-codes'));
+Shopware.Component.register('lm-entity-list', () => import('./component/lm-entity-list'));
+Shopware.Component.register('lm-detail-page', () => import('./component/lm-detail-page'));
+Shopware.Component.register('lm-value-modal', () => import('./component/lm-value-modal'));
 
 // Seiten
 Shopware.Component.register('lm-overview', () => import('./page/lm-overview'));
 Shopware.Component.register('lm-area-placeholder', () => import('./page/lm-area-placeholder'));
 Shopware.Component.register('lm-material-list', () => import('./page/lm-material-list'));
 Shopware.Component.register('lm-material-detail', () => import('./page/lm-material-detail'));
+Shopware.Component.register('lm-option-list', () => import('./page/lm-option-list'));
+Shopware.Component.register('lm-option-detail', () => import('./page/lm-option-detail'));
+Shopware.Component.register('lm-option-set-list', () => import('./page/lm-option-set-list'));
+Shopware.Component.register('lm-option-set-detail', () => import('./page/lm-option-set-detail'));
 
 const COLOR = '#0B6E79';
 
@@ -69,12 +76,8 @@ Shopware.Module.register('ld-mensura', {
             meta: viewer,
         },
         ...areaRoutes('material', 'lm-material-list', 'lm-material-detail', 'materialId'),
-        option: {
-            component: 'lm-area-placeholder',
-            path: 'option',
-            props: { default: { area: 'option' } },
-            meta: viewer,
-        },
+        ...areaRoutes('option', 'lm-option-list', 'lm-option-detail', 'groupId'),
+        ...areaRoutes('optionSet', 'lm-option-set-list', 'lm-option-set-detail', 'setId'),
     },
 
     navigation: [

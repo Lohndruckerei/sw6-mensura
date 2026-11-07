@@ -26,6 +26,8 @@
             "labelSupplierId": "Lieferanten-ID",
             "helpSupplierId": "ID des Lieferanten aus dem LieferLotse (32 Zeichen), z. B. für Comdatek. Ohne LieferLotse leer lassen.",
             "groupConnection": "Anbindung",
+            "yes": "Ja",
+            "no": "Nein",
             "errorDuplicateTechnicalName": "Dieser technische Name ist schon vergeben – bitte einen anderen wählen."
         },
         "groups": {
@@ -58,6 +60,172 @@
             "option": {
                 "title": "Optionen",
                 "description": "Optionsgruppen wie Farbigkeit, Schnitt oder Veredelung mit Werten und Aufschlägen (€/m², €/Stk, %, pauschal)."
+            },
+            "optionSet": {
+                "title": "Optionssets",
+                "description": "Konfigurationsschritte: welche Optionsgruppen nach Wahl eines Materials oder Werts erscheinen."
+            }
+        },
+        "option": {
+            "types": {
+                "standard": "Standard",
+                "delivery": "Lieferzeit",
+                "format": "Festformat"
+            },
+            "scopes": {
+                "position": "je Position",
+                "supplier": "je Lieferant"
+            },
+            "displayTypes": {
+                "select": "Auswahlliste",
+                "tiles": "Kacheln mit Bild",
+                "radio": "Optionsfelder",
+                "checkbox": "Kontrollkästchen",
+                "number": "Zahlenfeld",
+                "multi": "Mehrfachauswahl"
+            },
+            "list": {
+                "placeholderSearch": "Optionsgruppen durchsuchen …",
+                "buttonAdd": "Optionsgruppe anlegen",
+                "emptyTitle": "Noch keine Optionsgruppe",
+                "emptySubline": "Lege die erste Gruppe an, z. B. „Farbigkeit“ mit den Werten 4/0 und 4/4.",
+                "confirmDelete": "Optionsgruppe „{name}“ mit allen Werten wirklich löschen? Preise der Werte in Kalkulationen und Regeln in Produktprofilen werden mitgelöscht.",
+                "deleteRestricted": "Löschen nicht möglich – die Gruppe wird noch verwendet.",
+                "columnName": "Optionsgruppe",
+                "columnType": "Typ",
+                "columnValues": "Werte",
+                "columnSets": "In Sets",
+                "columnRequired": "Pflicht",
+                "valueCount": "1 Wert | {count} Werte",
+                "info": {
+                    "title": "Was ist eine Optionsgruppe?",
+                    "text": "Eine Optionsgruppe ist eine Auswahl im Konfigurator, z. B. „Farbigkeit“ mit den Werten 4/0 und 4/4. Gruppen und Werte sind eine gemeinsame Bibliothek: „Laminat matt“ ist bei Aluverbund und Acryl derselbe Wert. Die Preise pflegst du je Kalkulation. Lieferzeiten und Festformate (z. B. DIN A1 = 594 × 841 mm) sind eigene Gruppentypen."
+                }
+            },
+            "detail": {
+                "newTitle": "Neue Optionsgruppe",
+                "tabBase": "Grunddaten",
+                "tabValues": "Werte",
+                "cardBase": "Optionsgruppe",
+                "labelName": "Bezeichnung",
+                "helpName": "So heißt die Auswahl im Konfigurator, z. B. „Farbigkeit“.",
+                "helpTechnicalName": "Eindeutiger Schlüssel ohne Leerzeichen, z. B. „farbigkeit“. Steht in der Konfiguration jeder Bestellung – später nicht mehr ändern.",
+                "labelType": "Typ",
+                "helpType": "Standard für normale Optionen, „Lieferzeit“ für Werte mit Werktagen (z. B. Standard 5 Tage, Express 3 Tage), „Festformat“ für Formate mit Maßen (z. B. DIN A1).",
+                "labelDisplayType": "Darstellung",
+                "helpDisplayType": "Wie der Kunde wählt, z. B. Auswahlliste für Farbigkeit, Kacheln mit Bild für Veredelungen.",
+                "labelScope": "Gilt",
+                "helpScope": "„je Position“: jede Bestellposition hat ihre eigene Wahl. „je Lieferant“: eine Wahl für alle Positionen desselben Lieferanten, z. B. Lieferzeit.",
+                "helpPosition": "Reihenfolge, wenn keine Set-Reihenfolge gilt, z. B. 10 = weit vorne.",
+                "labelHelpText": "Hilfetext im Shop",
+                "helpHelpText": "Ein Satz mit Beispiel für den Kunden, z. B. „4/0 heißt: vorne vierfarbig, hinten unbedruckt.“",
+                "labelDescription": "Beschreibung (intern)",
+                "helpDescription": "Notiz für das Team, z. B. „Nur bei Platten bis 5 mm anbieten“.",
+                "labelRequired": "Pflichtauswahl",
+                "helpRequired": "Der Kunde muss einen Wert wählen; ohne Wahl gilt der Standardwert der Kalkulation, z. B. „4/0“.",
+                "labelShowPriceHint": "Aufpreise anzeigen",
+                "helpShowPriceHint": "Aus = im Shop keine Aufpreise wie „+ 9,00 €/m²“ an den Werten dieser Gruppe, der Kunde sieht nur den Gesamtpreis.",
+                "cardValues": "Werte",
+                "introValues": "Hier pflegst du Bezeichnung, Bild, Badges, Folge-Set und Ausschlüsse eines Werts. Preise je Wert stehen in der Kalkulation.",
+                "columnDetail": "Angaben",
+                "emptyValuesTitle": "Noch keine Werte",
+                "emptyValuesSubline": "Eine Gruppe braucht mindestens einen Wert, z. B. „4/0 einseitig bedruckt“.",
+                "buttonAddValue": "Wert hinzufügen",
+                "days": "1 Werktag | {days} Werktage"
+            },
+            "value": {
+                "newTitle": "Neuer Wert",
+                "labelName": "Bezeichnung",
+                "helpName": "So sieht der Kunde den Wert, z. B. „4/4 beidseitig bedruckt“.",
+                "helpTechnicalName": "Eindeutig innerhalb der Gruppe, z. B. „4-4“. Steht in jeder Bestellung – später nicht mehr ändern.",
+                "labelCode": "Kürzel",
+                "helpCode": "Kurzzeichen für die Artikelnummer, z. B. „44“ → ALU3-1000x500-44.",
+                "labelDescription": "Beschreibung",
+                "helpDescription": "Erklärung für Kachel und Infotext, z. B. „Anti-Graffiti lässt sich von Farbe reinigen.“",
+                "helpBadges": "Kurze Merkmale an der Kachel, z. B. „UV-fest“. Eingabe mit Enter bestätigen.",
+                "headingDelivery": "Lieferzeit",
+                "labelDeliveryDays": "Werktage",
+                "helpDeliveryDays": "Produktion und Versand in Arbeitstagen ab Annahmeschluss, z. B. 5 für Standard, 3 für Express.",
+                "labelMaxQuantity": "Nur bis Stück",
+                "helpMaxQuantity": "Darüber ist diese Lieferzeit nicht wählbar, z. B. Express nur bis 50 Stück. Leer = ohne Grenze.",
+                "labelMaxArea": "Nur bis Gesamtfläche (m²)",
+                "helpMaxArea": "Darüber nicht wählbar, z. B. Express nur bis 20 m². Leer = ohne Grenze.",
+                "labelMaterials": "Nur für Materialien",
+                "helpMaterials": "Leer = für alle Materialien; sonst nur für die gewählten, z. B. Express nur für Aluverbund.",
+                "headingFormat": "Festformat",
+                "labelWidth": "Breite (mm)",
+                "labelHeight": "Höhe (mm)",
+                "helpFormat": "Maße des Formats für die Flächenberechnung, z. B. DIN A1 = 594 × 841 mm.",
+                "headingAdditions": "Formatzugaben",
+                "labelWidthAdd": "Zugabe Breite (mm)",
+                "labelHeightAdd": "Zugabe Höhe (mm)",
+                "helpAdd": "Wird zum Endformat addiert, z. B. Hohlsaum 40 mm. Gerechnet wird mit dem größeren Format.",
+                "labelWidthFactor": "Faktor Breite",
+                "labelHeightFactor": "Faktor Höhe",
+                "helpFactor": "Offenes Format, z. B. Falz vertikal: Breite × 2. Standard 1.",
+                "headingFlow": "Konfigurationsfluss",
+                "helpOptionSet": "Nach Wahl dieses Werts erscheinen zusätzlich diese Gruppen, z. B. „Kaschierung auf Alu“ → „Alu-Weiterverarbeitung“.",
+                "labelExclusions": "Nicht kombinierbar mit",
+                "helpExclusions": "Werte anderer Gruppen, die mit diesem Wert nicht gehen, z. B. Anti-Graffiti nicht mit „0/0 unbedruckt“.",
+                "buttonDone": "Fertig"
+            },
+            "warnings": {
+                "noValues": "Die Gruppe hat noch keine Werte – im Konfigurator gibt es nichts zu wählen.",
+                "noDays": "Mindestens ein Lieferzeit-Wert hat keine Werktage – dafür gibt es keinen Liefertermin.",
+                "noFormat": "Mindestens ein Festformat hat keine Maße – die Fläche kann nicht berechnet werden."
+            }
+        },
+        "optionSet": {
+            "list": {
+                "placeholderSearch": "Optionssets durchsuchen …",
+                "buttonAdd": "Optionsset anlegen",
+                "emptyTitle": "Noch kein Optionsset",
+                "emptySubline": "Lege ein Set an, z. B. „Plattenveredelung Aluverbund“ mit Farbigkeit, Veredelung, Bohrung und Schnitt.",
+                "confirmDelete": "Optionsset „{name}“ wirklich löschen? Kalkulationen, Materialien und Werte verlieren den Verweis darauf.",
+                "deleteRestricted": "Löschen ist fehlgeschlagen.",
+                "columnName": "Optionsset",
+                "columnGroups": "Gruppen in Reihenfolge",
+                "columnUsage": "Verwendet",
+                "filterUnused": "Unbenutzt",
+                "info": {
+                    "title": "Was ist ein Optionsset?",
+                    "text": "Ein Optionsset ist ein Konfigurationsschritt: eine Liste von Optionsgruppen in Reihenfolge. Welche Gruppen der Kunde sieht, ergibt sich aus Start-Set der Kalkulation → Folge-Set des Materials → Folge-Sets der gewählten Werte. Beispiel: Aluverbund → „Plattenveredelung Aluverbund“ (Farbigkeit, Veredelung, Bohrung, Schnitt)."
+                }
+            },
+            "usage": {
+                "calculations": "1 Kalkulation | {count} Kalkulationen",
+                "materials": "1 Material | {count} Materialien",
+                "values": "1 Wert | {count} Werte",
+                "none": "Nirgends verwendet"
+            },
+            "detail": {
+                "newTitle": "Neues Optionsset",
+                "statGroups": "Gruppen",
+                "statUsage": "Verwendungen",
+                "cardBase": "Optionsset",
+                "labelName": "Bezeichnung",
+                "helpName": "Name für die Administration, z. B. „Plattenveredelung Aluverbund“.",
+                "helpTechnicalName": "Eindeutiger Schlüssel, z. B. „plattenveredelung-alu“. Wird in den Konfigurator-Daten verwendet.",
+                "labelDescription": "Beschreibung",
+                "helpDescription": "Notiz für das Team, z. B. „Gilt für alle Aluverbund-Stärken“.",
+                "cardGroups": "Gruppen in Reihenfolge",
+                "introGroups": "In dieser Reihenfolge erscheinen die Gruppen im Konfigurator. Pflicht kann je Set abweichen, z. B. Veredelung hier freiwillig.",
+                "moveUp": "Nach oben",
+                "moveDown": "Nach unten",
+                "emptyGroups": "Noch keine Gruppe im Set.",
+                "labelAddGroup": "Gruppe hinzufügen",
+                "helpAddGroup": "Nur Standard-Gruppen; Lieferzeit und Festformat erscheinen automatisch.",
+                "requiredInherit": "Pflicht wie Gruppe",
+                "requiredYes": "Pflicht",
+                "requiredNo": "freiwillig",
+                "cardUsage": "Verwendet in",
+                "introUsage": "Start-Set einer Kalkulation, Folge-Set eines Materials oder eines Optionswerts.",
+                "usageStart": "Start-Set",
+                "usageMaterial": "Material",
+                "usageValue": "Wert"
+            },
+            "warnings": {
+                "noGroups": "Das Set enthält noch keine Gruppe."
             }
         },
         "price": {

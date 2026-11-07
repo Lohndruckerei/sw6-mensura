@@ -3,27 +3,34 @@
   "entryPoints": {
     "ld-mensura": {
       "css": [
-        "/bundles/ldmensura/administration/assets/ld-mensura-B2oqPsEj.css"
+        "/bundles/ldmensura/administration/assets/ld-mensura-BMIlLDQs.css"
       ],
       "dynamic": [
-        "/bundles/ldmensura/administration/assets/index--4Bo2Vrp.js",
-        "/bundles/ldmensura/administration/assets/index-C4OEADgP.js",
-        "/bundles/ldmensura/administration/assets/index-DhSkOCE3.js",
-        "/bundles/ldmensura/administration/assets/index-BZ1aas7F.js",
+        "/bundles/ldmensura/administration/assets/index-ClN5v659.js",
+        "/bundles/ldmensura/administration/assets/index-DlJ4IQUE.js",
+        "/bundles/ldmensura/administration/assets/index--LOp8LLJ.js",
+        "/bundles/ldmensura/administration/assets/index-YRNyf3af.js",
         "/bundles/ldmensura/administration/assets/index-DTj9rShN.js",
-        "/bundles/ldmensura/administration/assets/index-DnuFm8EI.js",
+        "/bundles/ldmensura/administration/assets/index-CToiTKOj.js",
         "/bundles/ldmensura/administration/assets/index-OFdTLoqR.js",
         "/bundles/ldmensura/administration/assets/index-DBbP0Rlf.js",
         "/bundles/ldmensura/administration/assets/index-bXCfjHYk.js",
         "/bundles/ldmensura/administration/assets/index-D_KPnwDd.js",
         "/bundles/ldmensura/administration/assets/index-Bqb2NiDf.js",
-        "/bundles/ldmensura/administration/assets/index-CjQpidXW.js",
-        "/bundles/ldmensura/administration/assets/index-DmALwfma.js",
+        "/bundles/ldmensura/administration/assets/index-DPVa53Zt.js",
+        "/bundles/ldmensura/administration/assets/index-BJoTS7jy.js",
+        "/bundles/ldmensura/administration/assets/index-Dh-O8Q6n.js",
+        "/bundles/ldmensura/administration/assets/index-DQLzw8sR.js",
+        "/bundles/ldmensura/administration/assets/index-CQuyiRJb.js",
         "/bundles/ldmensura/administration/assets/index-DFZkEtAP.js",
-        "/bundles/ldmensura/administration/assets/index-B7yieuAb.js"
+        "/bundles/ldmensura/administration/assets/index-B7yieuAb.js",
+        "/bundles/ldmensura/administration/assets/index-CrKz1iN6.js",
+        "/bundles/ldmensura/administration/assets/index-ps_zoSKh.js",
+        "/bundles/ldmensura/administration/assets/index-BrLDe0uj.js",
+        "/bundles/ldmensura/administration/assets/index-CQoCcr7X.js"
       ],
       "js": [
-        "/bundles/ldmensura/administration/assets/ld-mensura-sRn5qiHD.js"
+        "/bundles/ldmensura/administration/assets/ld-mensura-BW-ICgwJ.js"
       ],
       "legacy": false,
       "preload": []
