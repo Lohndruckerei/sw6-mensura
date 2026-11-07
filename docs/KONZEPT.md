@@ -361,7 +361,8 @@ Shop-Frontend geprüft werden können.
 2b. v0.4.0: Preistabellen (Flyer, Broschüren) mit CSV-Import/-Export; getrennte EK/VK-Staffeln; aus dem
    Wettbewerbsvergleich ([WETTBEWERB.md](WETTBEWERB.md)): Verfügbarkeitsregeln und Annahmeschluss für Lieferzeiten,
    Arbeitstage-Kalender, Einrichtepauschale, Versand im Preis (optional), Badges/Infotexte je Wert, Services
-   (Muster, Proof, Datencheck – nie vorausgewählt), Referenztext je Position
+   (Muster, Proof, Datencheck – nie vorausgewählt), Referenztext je Position; für den künftigen **Produktberater**
+   (INTEGRATION.md Abschnitt 6): Merkmal-Katalog + Merkmalswerte, Anwendungsfälle, Zubehörregeln mit Mengenregel
 3. Admin: Listen & Detailseiten je Bereich, Preisfelder EK/VK mit Margenrechner
 4. Preis-Engine (PHP, mit Unit-Tests anhand der Comdatek-Werte oben) + Testrechner im Admin
 5. Produktzuordnung + Store-API „Preis berechnen“

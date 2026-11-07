@@ -86,11 +86,39 @@ Lieferantenbestellung. Damit kann der Lieferant fertigen und direkt an den Kunde
 | Druckdaten-Freigabe | Position-ID als Schlüssel; Mensura reserviert `ldMensura.artwork` im Payload (Upload im Konfigurator) |
 | Auftragsstatus / Versandmitteilung | Flow-Events des LieferLotse (`lieferlotse.supplier_order.sent/failed/shipping_confirmed`) |
 | Rechnung, Buchhaltung | VK aus der Bestellung; EK und Deckungsbeitrag aus `ld_mensura_order_line_item` |
+| Produktberater | Merkmale, Anwendungsfälle, Zubehörregeln, Presets, Store-API `catalog` (siehe Abschnitt 6) |
 
 Mensura stellt dafür bereit (mit der Preis-Engine, Schritt 4):
 - `ConfigurationReader::fromLineItem()`: liest die Konfiguration einer Bestellposition typisiert, unabhängig von der Schema-Version
 - `MensuraPriceCalculatedEvent`: nach jeder Berechnung; andere Plugins können Zu- und Abschläge ergänzen, z. B. Kundenrabatte
 - Store-API `POST /store-api/ld-mensura/calculate`: Live-Preis für das Frontend
+
+## 6. Produktberater (künftiges eigenes Plugin)
+
+Vorbild: pepeprint.de → „Produktberater“. Es gibt 9 Fragen, die je nach vorheriger Antwort verzweigen (Küche, Bad, Wohnzimmer).
+Jede Antwort gewichtet **Kriterien** wie wasserfest, UV-fest, rückstandslos entfernbar, hitzebeständig, günstig,
+einfache Montage oder untergrundtolerant. Materialien haben je Kriterium einen Wert, empfohlen wird das Material mit der höchsten
+gewichteten Summe. Einzelne Antworten **erzwingen** ein Material (Gaskochfeld → Glas) oder geben einen **Hinweis** für
+den nächsten Schritt (Außenbereich → UV-geschützte Veredelung). Dazu gibt es eine Vergleichstabelle der Materialien, und
+„Auswahl übernehmen“ springt in den Konfigurator mit vorgewähltem Material.
+
+**Aufgabenteilung:** Der Berater besitzt Fragen, Verzweigung, Gewichte, Bewertung und Oberfläche (inkl. Video-Erklärungen).
+**Mensura liefert die Fachdaten und nimmt das Ergebnis entgegen.** Die Merkmale werden so oder so gebraucht, für Badges,
+Vergleichstabellen und Infotexte im Konfigurator. Deshalb stehen sie in Mensura und nicht im Berater.
+
+| Baustein in Mensura | Zweck für den Berater | geplant |
+|---|---|---|
+| **Merkmal-Katalog** `ld_mensura_feature` (+ Übersetzung): Schlüssel, Art (`bool`, `level` 0–5, `number` + Einheit, `enum`/`multi`), Gruppe (Haltbarkeit, Umgebung, Montage, Pflege, Nachhaltigkeit), Bezeichnung, Hilfetext, Icon | gemeinsame Sprache der Kriterien: `haltbarkeit_jahre`, `einsatz` (innen/außen), `uv`, `wasserfest`, `kratzfest`, `hitzebestaendig_c`, `rueckstandslos_entfernbar`, `brandschutz` (B1), `pvc_frei`, `selbst_zuschneidbar` … | v0.4.0, ersetzt das freie JSON `material.properties` |
+| **Merkmalswerte** `ld_mensura_feature_value`: Merkmal × Material / Optionswert / Produktprofil | Material- und Optionsbewertung, z. B. Laminat Anti-Graffiti: kratzfest 4, Glaslaminat: Optik 5 | v0.4.0 |
+| **Anwendungsfälle** `ld_mensura_use_case` (+ Übersetzung): Schild innen/außen, Fahrzeugbeschriftung, Schaufenster, Fußboden, Fassade, Rückwand Küche/Bad, Messe …; Zuordnung zu Produktprofilen und Materialien mit Eignung (0–5) und optionaler Vorbelegung | Einstieg „Wofür brauchst du es?“, Filter, Empfehlungen | v0.4.0 |
+| **Zubehörregeln** `ld_mensura_accessory_rule`: Auslöser (Material, Optionswert, Anwendungsfall oder Merkmalbedingung) → Shopware-Produkt (Abstandshalter, Klebeband, Spanngummis, Montagekleber, Profile) mit **Mengenregel** (fest, je Stück, je Bohrung, je lfm Umfang, je m²), Begründungstext, „empfohlen“ oder „erforderlich“ | Zubehörempfehlung im Berater **und** im Konfigurator/Warenkorb (z. B. 4 Bohrungen × 10 Stk = 40 Abstandshalter) | v0.4.0 |
+| **Konfigurations-Vorlage (Preset)**: gleiches Schema wie Payload `ldMensura` (Produkt/Profil, Material, Format, Menge, Optionen), optional Felder als „gesperrt“ markiert; als URL-Parameter `?mensura=…` oder kurze ID | „Auswahl übernehmen“ → Konfigurator vorbelegt; ungültige Teile werden mit Hinweis korrigiert (gleiche Regeln wie beim Materialwechsel, KONZEPT 3.7) | mit dem Konfigurator (Schritt 6) |
+| **Store-API** (ohne EK) | `GET /store-api/ld-mensura/catalog` (Profile, Materialien, Optionswerte mit Merkmalen, Anwendungsfällen, Bildern, „ab“-Preisen), `POST /store-api/ld-mensura/preset/validate` (Vorlage prüfen → gültige Konfiguration + Hinweise), `POST /store-api/ld-mensura/calculate` (Preis für Vergleichslisten) | mit Schritt 5/6 |
+| **Events** | `MensuraCatalogLoadedEvent` (Berater ergänzt Daten), `MensuraPresetAppliedEvent` (Statistik: welche Empfehlung wurde übernommen), Zubehör als eigene Warenkorbpositionen mit Verweis auf die Mensura-Position (`payload.ldMensuraParent`) | mit Schritt 6 |
+
+Erklärtexte („Was ist der Unterschied zwischen Laminat matt, glänzend und Anti-Graffiti?“) liegen als übersetzte
+Beschreibungen an Optionswerten bzw. Merkmalen und werden in Konfigurator, Vergleichstabelle und Berater gemeinsam genutzt.
+Gepflegt wird also nur an einer Stelle.
 
 **Stabilitätsregel:** Payload `ldMensura` und Schnappschuss tragen `schema`. Felder werden nur ergänzt, nie
 umbenannt. Bei einem Bruch wird `schema` erhöht, und der `ConfigurationReader` liest alte Versionen weiter.
