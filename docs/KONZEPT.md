@@ -76,13 +76,19 @@ Das Verhältnis ist nicht einheitlich (×1,12 bis ×2) → EK und VK müssen get
 | Banner: Textil Greyback, PVC-Linoleum-Boden | €/m² fest, Konturschnitt €/m² | – |
 | Textilbanner: Auflicht, Blockout, Pro-Light | €/m² nach Flächenstaffel (ab 1/10/50 m²), Saum/Hohlsaum €/m², **Flauschband/Gummilippe €/lfm** | Preis je laufendem Meter (Umfang) |
 
-Offene Rückfragen: Sind Konfektionspreise beim Banner (Saum + Ösen, Hohlsaum, Keder) wirklich je m² oder
-je lfm Umfang? Gilt die Flächenstaffel auf die Fläche der Position oder des ganzen Auftrags?
-Mindestpreise je Position oder je Auftrag?
+**Entscheidungen (geklärt am 07.11.2026):**
+- **Flächenstaffel je Position:** Fläche × Menge einer Konfiguration (5 Banner à 3 m² = 15 m² → „ab 10 m²“).
+  Andere Positionen im Warenkorb zählen nicht mit.
+- **Mindestpreis je Position:** jede Konfiguration kostet mindestens den Mindestpreis, wie im Comdatek-Shop.
+- **Banner-Konfektion (Saum + Ösen, Hohlsaum, Keder):** noch offen, wird bei Comdatek erfragt. Deshalb bekommt
+  jeder Optionswert beide Preisanteile (je m² und je lfm Umfang); was gilt, wird je Option eingestellt.
+- **EK und VK werden getrennt gepflegt**, dazu ein **Margenrechner** (siehe 3.5). Bei Comdatek liegt die Marge
+  meist bei 20–30 %; bei anderen Lieferanten kann der VK anders entstehen.
 
 **Folgerungen fürs Datenmodell** (unten eingearbeitet):
-1. Preise immer als **EK** und **VK** (VK direkt oder per Aufschlag % aus EK) – Testrechner zeigt den Deckungsbeitrag.
-   Damit liegen auch die Einkaufspreise, die der LieferLotse bewusst nicht führt, in Mensura.
+1. Jeder Preis hat ein **EK**- und ein **VK**-Feld, beide selbst gepflegt; der Margenrechner hilft beim Ausfüllen.
+   Testrechner und Listen zeigen die Marge. Damit liegen auch die Einkaufspreise, die der LieferLotse bewusst
+   nicht führt, in Mensura.
 2. Optionswerte bekommen **Preisanteile** (beliebig kombinierbar: €/m², €/Stk, €/lfm, pauschal, %) statt einer einzigen Preisart.
 3. Optionen sind eine wiederverwendbare Bibliothek (Name, Werte); **Preise werden je Kalkulation** gepflegt,
    optional je Material überschrieben.
@@ -106,7 +112,7 @@ Tabellen-/Entity-Präfix: `ld_mensura_`.
 | Grundpreis je Stück, je Motiv, je Auftrag (Rüstkosten) | |
 | Mindestpreis je Position | Comdatek: 12,50 € |
 | Staffelbasis | keine / Stückzahl / Gesamtfläche / Fläche je Stück / Gesamtpreis |
-| Standard-Aufschlag EK → VK (%) | gilt, wenn ein Preis keinen eigenen VK hat |
+| VK-Regel (Vorgabe für den Margenrechner) | Zielmarge %, Aufschlag %, Faktor oder frei (siehe 3.5) |
 | Preisfaktor (Aufschlag %) und Endpreis-Rundung | z. B. auf 0,05 € |
 | Max. Motive, max. Menge | |
 | Formel (optional) | eigener Ausdruck statt Standardformel |
@@ -143,7 +149,28 @@ Gehört zu Kalkulation, Material oder Optionswert. Felder: ab Menge (Stück, Ges
 je Staffelbasis), Wert als **Preis** (ersetzt, EK/VK) oder **Rabatt %**.
 Beispiele: PVC-Banner ab 0/10/25/50/100/200 m² Gesamtfläche; Blockout unter/über 1 m² je Stück.
 
-### 3.5 Produktzuordnung
+### 3.5 Margenrechner (EK → VK)
+EK und VK sind getrennte Felder; gespeichert wird immer, was im VK-Feld steht. Der Margenrechner
+schlägt den VK nur vor, er rechnet nicht still im Hintergrund.
+
+- **VK-Regel** je Kalkulation (optional je Material oder Lieferant überschreibbar):
+  | Regel | VK-Vorschlag | Beispiel EK 26,00 € |
+  |---|---|---|
+  | Zielmarge % (auf den VK) | EK ÷ (1 − Marge) | 25 % → 34,67 € |
+  | Aufschlag % (auf den EK) | EK × (1 + Aufschlag) | 25 % → 32,50 € |
+  | Faktor | EK × Faktor | 1,3 → 33,80 € |
+  | frei | kein Vorschlag, VK wird von Hand gepflegt | – |
+- Optional **Rundung** des Vorschlags (z. B. auf 0,10 € oder auf ,50/,90).
+- Neben jedem Preis zeigt die Administration **Marge % und Aufschlag %** in Farbe: grün im Zielkorridor,
+  gelb darunter, rot bei VK ≤ EK. Der Korridor ist je VK-Regel einstellbar, für Comdatek als Vorgabe 20–30 %.
+- **Sammelfunktion** „VK neu vorschlagen“ für eine Kalkulation, ein Material oder alle Preise eines Lieferanten.
+  Die Änderungen werden als Vorschau gezeigt und erst nach Bestätigung übernommen.
+- Wichtig: Marge (auf den VK) und Aufschlag (auf den EK) sind verschiedene Zahlen (25 % Marge = 33,3 % Aufschlag),
+  daher werden immer beide angezeigt.
+- Der Testrechner zeigt für eine Beispielkonfiguration EK gesamt, VK gesamt, Deckungsbeitrag in € und die Marge in %.
+  Bei einer Position mit Mindestpreis ist die Marge oft deutlich höher; das wird dort sichtbar.
+
+### 3.6 Produktzuordnung
 Shopware-Produkt bekommt per Extension eine Kalkulation und die erlaubten Materialien/Optionen.
 Warenkorb: eigener Line-Item-Typ bzw. Preis über CartProcessor, Konfiguration als Payload
 (Material, Format, Motive, Menge, Optionen) – erscheint so auch in Bestellung und für LieferLotse.
@@ -186,8 +213,8 @@ Shop-Frontend geprüft werden können.
 ## 6. Fahrplan
 
 1. ✅ Grundgerüst, Menü, Designs, Konzept
-2. Entitäten + Migrationen (Kalkulation, Material, Optionsgruppe/-wert, Staffel)
-3. Admin: Listen & Detailseiten je Bereich
+2. Entitäten + Migrationen (Kalkulation, Material, Optionsgruppe/-wert, Preisanteile EK/VK, Staffel, VK-Regel)
+3. Admin: Listen & Detailseiten je Bereich, Preisfelder EK/VK mit Margenrechner
 4. Preis-Engine (PHP, mit Unit-Tests anhand der Comdatek-Werte oben) + Testrechner im Admin
 5. Produktzuordnung + Store-API „Preis berechnen“
 6. Storefront-Konfigurator (4 Schritte, Live-Preis) + Warenkorb/Bestellung
