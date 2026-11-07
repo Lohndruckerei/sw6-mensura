@@ -33,15 +33,6 @@
             }
         }
     },
-    "lm-design": {
-        "switchLabel": "Design",
-        "default": "Standard",
-        "designs": {
-            "a": "A · Hafen – nah am Shopware-Standard",
-            "b": "B · Druckbogen – Markenfarbe und CMYK",
-            "c": "C · Kompass – Cockpit mit Seitennavigation"
-        }
-    },
     "sw-privileges": {
         "permissions": {
             "ld_mensura": {

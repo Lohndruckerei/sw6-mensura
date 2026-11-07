@@ -1,7 +1,9 @@
+/* GENERIERT aus ld-admin-design 1.0.0 (bd4dc06) – nicht hier ändern, sondern in ~/projekte/ld-admin-design/vorlage und ./sync.sh ausführen. */
 import { DESIGNS } from '../../constants';
 
 /**
- * Schalter „Design A | B | C“. Speichert die Wahl je Benutzer.
+ * Schalter „Design A | B | C“ für den Praxistest. Speichert die Wahl je Benutzer.
+ * Platz: Smart-Bar (#smart-bar-actions), vor „Speichern“.
  */
 export default {
     template: `

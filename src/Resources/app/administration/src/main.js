@@ -1,4 +1,5 @@
-import './design';
+// Admin-Design: generiert aus ~/projekte/ld-admin-design (dort ändern, nicht hier)
+import './ld-admin-design';
 import './module/ld-mensura';
 
 import deDE from './snippet/de-DE.json';

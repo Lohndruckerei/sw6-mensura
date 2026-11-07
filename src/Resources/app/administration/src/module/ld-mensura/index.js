@@ -1,4 +1,5 @@
 import './acl';
+import './mensura.scss';
 import { NAV_ITEMS } from './constants';
 
 Shopware.Component.register('lm-page', () => import('./component/lm-page'));

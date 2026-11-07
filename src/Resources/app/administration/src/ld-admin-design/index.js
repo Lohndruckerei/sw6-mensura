@@ -1,25 +1,31 @@
+/* GENERIERT aus ld-admin-design 1.0.0 (bd4dc06) – nicht hier ändern, sondern in ~/projekte/ld-admin-design/vorlage und ./sync.sh ausführen. */
 /**
- * Umschaltbares Admin-Design (A · Hafen, B · Druckbogen, C · Kompass) – gleiche Designsprache
- * wie im LieferLotse, aber eigenständig (eigener Store, eigene Klassen mit Präfix `lm-`),
- * damit Mensura ohne LieferLotse läuft und sich die Plugins nicht gegenseitig überschreiben.
+ * Lohndruckerei Admin-Design (A · Hafen, B · Druckbogen, C · Kompass) für LdMensura.
  *
- * - Standard für alle: Plugin-Konfiguration `LdMensura.config.adminDesign`
+ * - Standard für alle: Plugin-Konfiguration `LdMensura.config.adminDesign` (a|b|c)
  * - Eigene Wahl je Benutzer: user_config `ld-mensura.admin-design` (Schalter „Design“)
  *
  * Komponenten nutzen das Mixin `lm-design` (`lmDesign`, `lmDesignClass`) und setzen
- * `lmDesignClass` an ihr Wurzelelement; Farben und Varianten stecken in lm-design.scss.
+ * `lmDesignClass` an ihr Wurzelelement. Bausteine: lm-design-switch, lm-status,
+ * lm-chip, lm-transport-chip, lm-tabs; Klassen siehe design.scss und DESIGN.md.
  */
-import './lm-design.scss';
+import './design.scss';
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
 import { DESIGNS, DEFAULT_DESIGN } from './constants';
 
+const STORE_ID = 'lmDesign';
 const USER_CONFIG_KEY = 'ld-mensura.admin-design';
 const SYSTEM_CONFIG_DOMAIN = 'LdMensura.config';
 const SYSTEM_CONFIG_KEY = 'LdMensura.config.adminDesign';
 
 const normalize = (value) => (DESIGNS.includes(value) ? value : null);
 
+Shopware.Locale.extend('de-DE', deDE);
+Shopware.Locale.extend('en-GB', enGB);
+
 Shopware.Store.register({
-    id: 'lmDesign',
+    id: STORE_ID,
 
     state: () => ({
         design: DEFAULT_DESIGN,
@@ -109,7 +115,7 @@ Shopware.Store.register({
 Shopware.Mixin.register('lm-design', {
     computed: {
         lmDesign() {
-            return Shopware.Store.get('lmDesign').design;
+            return Shopware.Store.get(STORE_ID).design;
         },
 
         lmDesignClass() {
@@ -118,10 +124,12 @@ Shopware.Mixin.register('lm-design', {
     },
 
     created() {
-        Shopware.Store.get('lmDesign').ensureLoaded();
+        Shopware.Store.get(STORE_ID).ensureLoaded();
     },
 });
 
-Shopware.Component.register('lm-design-switch', () => import('./component/lm-design-switch'));
-Shopware.Component.register('lm-status', () => import('./component/lm-status'));
-Shopware.Component.register('lm-tabs', () => import('./component/lm-tabs'));
+Shopware.Component.register('lm-design-switch', () => import('./component/design-switch'));
+Shopware.Component.register('lm-status', () => import('./component/status'));
+Shopware.Component.register('lm-chip', () => import('./component/chip'));
+Shopware.Component.register('lm-transport-chip', () => import('./component/transport-chip'));
+Shopware.Component.register('lm-tabs', () => import('./component/tabs'));

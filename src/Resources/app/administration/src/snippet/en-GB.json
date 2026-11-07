@@ -33,15 +33,6 @@
             }
         }
     },
-    "lm-design": {
-        "switchLabel": "Design",
-        "default": "default",
-        "designs": {
-            "a": "A · Harbour – close to Shopware",
-            "b": "B · Print sheet – brand colour and CMYK",
-            "c": "C · Compass – cockpit with side navigation"
-        }
-    },
     "sw-privileges": {
         "permissions": {
             "ld_mensura": {

@@ -3,18 +3,20 @@
   "entryPoints": {
     "ld-mensura": {
       "css": [
-        "/bundles/ldmensura/administration/assets/ld-mensura-CdQMXNej.css"
+        "/bundles/ldmensura/administration/assets/ld-mensura-MKS7vtci.css"
       ],
       "dynamic": [
-        "/bundles/ldmensura/administration/assets/index-B2pfL9NL.js",
-        "/bundles/ldmensura/administration/assets/index-DiLywElE.js",
+        "/bundles/ldmensura/administration/assets/index--6kcb-jq.js",
+        "/bundles/ldmensura/administration/assets/index-DvYjSIgH.js",
+        "/bundles/ldmensura/administration/assets/index-DyWMJX6S.js",
+        "/bundles/ldmensura/administration/assets/index-D3v6dmMp.js",
         "/bundles/ldmensura/administration/assets/index-DTj9rShN.js",
-        "/bundles/ldmensura/administration/assets/index-Cei6m4R0.js",
-        "/bundles/ldmensura/administration/assets/index-CX7grjuR.js",
-        "/bundles/ldmensura/administration/assets/index-CVfHt6Sm.js"
+        "/bundles/ldmensura/administration/assets/index-BAKXYBFe.js",
+        "/bundles/ldmensura/administration/assets/index-DI_swnuX.js",
+        "/bundles/ldmensura/administration/assets/index-C8syIM4j.js"
       ],
       "js": [
-        "/bundles/ldmensura/administration/assets/ld-mensura-Dheoe78c.js"
+        "/bundles/ldmensura/administration/assets/ld-mensura-z8Pk-lci.js"
       ],
       "legacy": false,
       "preload": []

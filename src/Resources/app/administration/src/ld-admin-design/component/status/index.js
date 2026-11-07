@@ -1,12 +1,9 @@
-const ICONS = {
-    ok: 'regular-checkmark-s',
-    warn: 'regular-exclamation-triangle',
-    err: 'regular-times-circle',
-    off: 'regular-ban',
-};
+/* GENERIERT aus ld-admin-design 1.0.0 (bd4dc06) – nicht hier ändern, sondern in ~/projekte/ld-admin-design/vorlage und ./sync.sh ausführen. */
+import { STATES, STATUS_ICONS } from '../../constants';
 
 /**
  * Status als Label (A), Pill mit Icon (B) oder Farbpunkt mit Text (C).
+ * Immer mit Wort – nie nur Farbe.
  */
 export default {
     template: `
@@ -26,7 +23,7 @@ export default {
         state: {
             type: String,
             required: true,
-            validator: (value) => ['ok', 'warn', 'err', 'off'].includes(value),
+            validator: (value) => STATES.includes(value),
         },
 
         label: {
@@ -37,7 +34,7 @@ export default {
 
     computed: {
         icon() {
-            return ICONS[this.state];
+            return STATUS_ICONS[this.state];
         },
     },
 };

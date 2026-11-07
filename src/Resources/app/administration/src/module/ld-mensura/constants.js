@@ -2,7 +2,7 @@
  * Bereiche von Mensura. Eine Liste für Hauptmenü, Übersichtskacheln und Bereichsnavigation –
  * neue Oberflächen hier ergänzen (plus Route in ../index.js und Snippets).
  *
- * color: Bereichsfarbe c1–c4 aus lm-design.scss
+ * color: Bereichsfarbe c1–c4 (Kategorie-Farben aus ld-admin-design)
  */
 export const AREAS = [
     { name: 'calculation', route: 'ld.mensura.calculation', icon: 'regular-euro', color: 'c1', group: 'setup' },

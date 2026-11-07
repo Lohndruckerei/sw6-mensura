@@ -1,0 +1,26 @@
+{
+    "lm-design": {
+        "switchLabel": "Design",
+        "default": "default",
+        "designs": {
+            "a": "A · Harbour – close to Shopware",
+            "b": "B · Print sheet – brand colour and CMYK",
+            "c": "C · Compass – cockpit with side navigation"
+        },
+        "states": {
+            "ok": "Active",
+            "warn": "Check",
+            "err": "Error",
+            "off": "Inactive"
+        },
+        "transports": {
+            "email": "Email",
+            "ftp": "FTP",
+            "sftp": "SFTP",
+            "portal_manual": "Portal (manual)",
+            "rest_api": "REST API",
+            "soap": "SOAP",
+            "webhook": "Webhook"
+        }
+    }
+}

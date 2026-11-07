@@ -1,0 +1,97 @@
+// Mensura-eigene Seitenstile (Seitenrahmen, Bereichskacheln der Übersicht).
+// Gemeinsame Bausteine und Farben kommen aus ../../ld-admin-design (generiert, dort nicht ändern).
+
+$lm-text: var(--color-text-primary-default, #1c1c1c);
+$lm-text2: var(--color-text-secondary-default, #52667a);
+$lm-border: var(--color-border-primary-default, #d1d9e0);
+$lm-surface: var(--color-elevation-surface-raised, #ffffff);
+$lm-sunken: var(--color-background-tertiary-default, #f0f2f5);
+
+// ---------- Seitenrahmen ----------
+.lm-page__content > .lm-header,
+.lm-page__content > .lm-areas,
+.lm-page__content > .lm-split,
+.lm-page__content > .lm-tabs {
+    margin-left: 24px;
+    margin-right: 24px;
+}
+
+.lm-page__content > .lm-header,
+.lm-page__content > .lm-split {
+    margin-top: 24px;
+}
+
+// A: ohne Bereichsnavigation, Kacheln brauchen eigenen Abstand oben
+.lm-design--a.lm-page__content > .lm-areas {
+    margin-top: 24px;
+}
+
+// ---------- Übersicht: Bereichskacheln ----------
+.lm-areas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.lm-area {
+    --lm-t: var(--lm-c1);
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px;
+    border: 1px solid $lm-border;
+    border-radius: 8px;
+    background: $lm-surface;
+    color: $lm-text;
+    text-align: left;
+    text-decoration: none;
+
+    &:hover {
+        border-color: var(--lm-accent);
+    }
+
+    &__icon {
+        display: grid;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        border-radius: 10px;
+        background: color-mix(in srgb, var(--lm-t) 14%, transparent);
+        color: var(--lm-t);
+    }
+
+    b {
+        font-size: 15px;
+    }
+
+    p {
+        margin: 0;
+        color: $lm-text2;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    &__foot {
+        margin-top: auto;
+        padding-top: 10px;
+        border-top: 1px solid $lm-border;
+    }
+
+    &--c2 { --lm-t: var(--lm-c2); }
+    &--c3 { --lm-t: var(--lm-c3); }
+    &--c4 { --lm-t: var(--lm-c4); }
+}
+
+.lm-design--a .lm-area__icon {
+    background: $lm-sunken;
+}
+
+.lm-design--b .lm-area {
+    border-top: 4px solid var(--lm-t);
+}
+
+.lm-design--c .lm-areas {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}

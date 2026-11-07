@@ -22,8 +22,10 @@
 - PHP 8.2+, strict_types, Shopware-Coding-Standards
 - Texte und Snippets auf Deutsch (de-DE) und Englisch (en-GB)
 - Keine Fremdplugins als Abhängigkeit; Composer-Bibliotheken sind erlaubt
-- Unabhängig vom LieferLotse lauffähig; dessen Designsprache (A · Hafen, B · Druckbogen, C · Kompass)
-  ist hier als eigene Kopie mit Präfix `lm-` enthalten (Store `lmDesign`, Mixin `lm-design`)
+- Unabhängig vom LieferLotse lauffähig. Admin-Design kommt aus ~/projekte/ld-admin-design – dort ändern,
+  nicht lokal: `src/Resources/app/administration/src/ld-admin-design/` ist generiert (`./sync.sh mensura`
+  im Design-Projekt, Präfix `lm-`, Store `lmDesign`, Mixin `lm-design`); Regeln in dessen DESIGN.md.
+  Mensura-eigene Seitenstile liegen in `module/ld-mensura/mensura.scss`.
 - Eigener Hauptmenüpunkt: Modul ist als `type: 'core'` registriert, weil Shopware Plugin-Module nicht auf
   die erste Menüebene lässt. Neue Oberflächen in `module/ld-mensura/constants.js` (AREAS) + Route ergänzen.
 - Admin einfach und übersichtlich halten – verbindliche Bedienregeln in docs/KONZEPT.md Abschnitt 3a

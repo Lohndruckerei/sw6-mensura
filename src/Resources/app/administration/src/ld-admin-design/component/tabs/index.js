@@ -1,7 +1,9 @@
+/* GENERIERT aus ld-admin-design 1.0.0 (bd4dc06) – nicht hier ändern, sondern in ~/projekte/ld-admin-design/vorlage und ./sync.sh ausführen. */
 /**
  * Reiter mit Icon, Zähler und Warnhinweis.
  * - horizontal (Design B): bricht auf schmalen Bildschirmen um statt überzulaufen
  * - vertikal (Design C): Seitennavigation mit Gruppen, wie in den Shopware-Einstellungen
+ * Design A nutzt stattdessen `sw-tabs`.
  *
  * items: [{ name, label, icon, count?, warn?, warnText?, group? }]
  */

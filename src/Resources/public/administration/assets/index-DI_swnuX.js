@@ -1,4 +1,4 @@
-import{A as a}from"./ld-mensura-Dheoe78c.js";const s={template:`
+import{A as a}from"./ld-mensura-z8Pk-lci.js";const s={template:`
 <lm-page
     :title="$tc('ld-mensura.general.mainMenuItem')"
     active="overview"
@@ -37,4 +37,4 @@ import{A as a}from"./ld-mensura-Dheoe78c.js";const s={template:`
         </router-link>
     </div>
 </lm-page>`,computed:{areas(){return a}}};export{s as default};
-//# sourceMappingURL=index-CX7grjuR.js.map
+//# sourceMappingURL=index-DI_swnuX.js.map
