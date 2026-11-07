@@ -71,6 +71,16 @@ final class CalculationResult
     }
 
     /**
+     * Gewicht der Position in kg (Material: Gewicht je m² × Fläche), null wenn am Material nicht gepflegt.
+     *
+     * @return array{perSqm: float, piece: float, total: float}|null
+     */
+    public function getWeight(): ?array
+    {
+        return $this->sale['weight'] ?? null;
+    }
+
+    /**
      * Flächenwerte der Position (m²): je Stück, gesamt (L × B × Stück), abgerechnet (nach Mindestfläche/Rundung),
      * dazu Mindestfläche, Schrittweite und Bezug. Für Payload, Formeln und spätere Plugins (z. B. Versand).
      *

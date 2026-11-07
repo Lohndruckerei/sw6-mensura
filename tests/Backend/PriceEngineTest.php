@@ -28,6 +28,8 @@ final class PriceEngineTest extends TestCase
         self::assertSame(353.0, $result->getSaleTotal());
         self::assertSame(286.5, $result->getPurchaseTotal());
         self::assertSame(66.5, $result->toSnapshot()['contributionMargin']);
+        // Gewicht aus Material (3,8 kg/m²) × Fläche: 0,5 m² je Stück → 1,9 kg, 10 Stück → 19 kg
+        self::assertSame(['perSqm' => 3.8, 'piece' => 1.9, 'total' => 19.0], $result->getWeight());
         ContractTest::assertNoPurchaseData($result->toStoreApi());
     }
 

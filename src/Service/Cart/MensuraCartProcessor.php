@@ -64,6 +64,20 @@ class MensuraCartProcessor implements CartProcessorInterface
             }
 
             LineItemFactory::applyResult($lineItem, $result, $catalog);
+            // Lieferinformation je Stück: Gewicht (kg) und Format (mm) der Konfiguration statt der Produkt-Stammdaten,
+            // damit Versandregeln (Warenkorbgewicht) und Versand-Plugins mit den echten Werten rechnen
+            $delivery = $lineItem->getDeliveryInformation();
+            if ($delivery !== null) {
+                $weight = $result->getWeight();
+                if ($weight !== null) {
+                    $delivery->setWeight($weight['piece']);
+                }
+                $areas = $result->getAreas();
+                if ($areas !== null) {
+                    $delivery->setWidth($areas['width']);
+                    $delivery->setHeight($areas['height']);
+                }
+            }
             $quantity = $lineItem->getQuantity();
             $taxRules = $lineItem->getPrice()?->getTaxRules() ?? new TaxRuleCollection();
             $total = (float) $result->getSaleTotal();

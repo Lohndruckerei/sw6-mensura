@@ -728,6 +728,12 @@ final class PriceEngine
             'minArea' => isset($areaRules['minArea']) ? (float) $areaRules['minArea'] : null,
             'areaRounding' => isset($areaRules['areaRounding']) ? (float) $areaRules['areaRounding'] : null,
             'areaScope' => (string) ($calculation['areaScope'] ?? 'total'),
+            // Gewicht (kg) aus Gewicht je m² des Materials × tatsächliche Fläche – für Versand-/Verpackungskosten
+            'weight' => isset($material['weightPerSqm']) ? [
+                'perSqm' => (float) $material['weightPerSqm'],
+                'piece' => round($rawPieceArea * (float) $material['weightPerSqm'], 4),
+                'total' => round($rawPieceArea * (float) $material['weightPerSqm'] * $quantity, 4),
+            ] : null,
             'perimeter' => round($perimeter, 6),
             'width' => $width,
             'height' => $height,

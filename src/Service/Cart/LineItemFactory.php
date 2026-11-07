@@ -82,6 +82,8 @@ final class LineItemFactory
                 'total' => $result->getAreas()['total'] ?? null,
                 'billed' => $result->getAreas()['billed'] ?? null,
             ],
+            // Gewicht in kg (Gewicht je m² des Materials × Fläche) – für ein späteres Versand-Plugin
+            'weight' => $result->getWeight() !== null ? $result->getWeight() + ['unit' => 'kg'] : null,
             'motifs' => $config->motifs,
             'perMotif' => $config->perMotif,
             'options' => $options,

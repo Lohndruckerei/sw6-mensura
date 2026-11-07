@@ -29,6 +29,7 @@ Kunde ─► Mensura-Konfigurator ─► Warenkorb (Produktposition + Konfigurat
       "material":    { "id": "…", "key": "alu-3mm", "name": "Aluverbundplatte 3 mm" },
       "format":      { "width": 1000, "height": 500, "rotated": false, "unit": "mm" },
       "area":        { "piece": 0.5, "total": 5.0, "billed": 5.0 },
+      "weight":      { "perSqm": 3.8, "piece": 1.9, "total": 19.0, "unit": "kg" },
       "motifs": 2, "perMotif": 5,
       "options": [ { "group": "farbigkeit", "groupName": "Farbigkeit", "value": "4-4", "valueName": "4/4 beidseitig bedruckt" } ],
       "sku": "ALU3-1000x500-44-KON"
@@ -40,6 +41,10 @@ Kunde ─► Mensura-Konfigurator ─► Warenkorb (Produktposition + Konfigurat
   `configuration` (normalisierte Konfiguration laut `docs/contract/schema/configuration.schema.json`, daraus rechnet der
   `MensuraCartProcessor` bei jeder Warenkorbberechnung neu). Menge der Position = Gesamtmenge der Konfiguration; das
   Shopware-Produkt braucht eine ausreichende Höchstbestellmenge (`maxPurchase`), sonst kürzt Shopware vorher.
+- **Gewicht und Maße für den Versand:** `weight` = Gewicht je m² des Materials × Fläche (kg). Zusätzlich setzt der
+  CartProcessor die Shopware-Lieferinformation der Position (Gewicht je Stück in kg, Breite/Höhe in mm aus der
+  Konfiguration). So rechnen Shopware-Versandregeln (z. B. Warenkorbgewicht) und ein späteres Versand-Plugin mit den
+  echten Werten statt mit den Produkt-Stammdaten. Ohne Gewicht am Material bleibt `weight` null.
 - `ldDeliveryDate` setzt Mensura, wenn der Kunde eine Lieferzeit gewählt hat. Der `DeliveryDateResolver`
   des LieferLotse übernimmt den Termin dann in die Lieferantenbestellung.
 - **Positionen, die mit Mensura berechnet wurden, gehen nur zusammen mit ihrer Konfiguration an einen Lieferanten.**
