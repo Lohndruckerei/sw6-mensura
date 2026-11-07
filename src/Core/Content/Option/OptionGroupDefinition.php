@@ -1,0 +1,77 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Lohndruckerei\Mensura\Core\Content\Option;
+
+use Lohndruckerei\Mensura\Core\Content\Option\Aggregate\OptionGroupTranslation\OptionGroupTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+
+/**
+ * Optionsgruppe der Bibliothek (z. B. Farbigkeit, Schneiden, Veredelung, Lieferzeit).
+ *
+ * - `type`: `standard` oder `delivery` (Werte tragen Werktage; Mensura errechnet den Liefertermin)
+ * - `scope`: `position` (je Position wählbar) oder `supplier` (eine Wahl für alle Positionen eines
+ *   Lieferanten – wird im Warenkorb erzwungen, sobald so eingestellt)
+ * - `displayType`: select, tiles, radio, checkbox, number
+ */
+class OptionGroupDefinition extends EntityDefinition
+{
+    public const ENTITY_NAME = 'ld_mensura_option_group';
+
+    public const TYPES = ['standard', 'delivery'];
+    public const SCOPES = ['position', 'supplier'];
+    public const DISPLAY_TYPES = ['select', 'tiles', 'radio', 'checkbox', 'number'];
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    public function getEntityClass(): string
+    {
+        return OptionGroupEntity::class;
+    }
+
+    public function getCollectionClass(): string
+    {
+        return OptionGroupCollection::class;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new StringField('technical_name', 'technicalName', 64))->addFlags(new Required()),
+            (new StringField('type', 'type', 16))->addFlags(new Required()),
+            (new StringField('scope', 'scope', 16))->addFlags(new Required()),
+            (new StringField('display_type', 'displayType', 16))->addFlags(new Required()),
+            new BoolField('required', 'required'),
+            new IntField('position', 'position'),
+
+            new TranslatedField('name'),
+            new TranslatedField('description'),
+            new TranslatedField('helpText'),
+            new TranslatedField('customFields'),
+            (new TranslationsAssociationField(OptionGroupTranslationDefinition::class, 'ld_mensura_option_group_id'))->addFlags(new Required()),
+
+            (new OneToManyAssociationField('values', OptionValueDefinition::class, 'option_group_id'))->addFlags(new CascadeDelete()),
+        ]);
+    }
+
+    public function getDefaults(): array
+    {
+        return ['type' => 'standard', 'scope' => 'position', 'displayType' => 'select', 'required' => true, 'position' => 0];
+    }
+}

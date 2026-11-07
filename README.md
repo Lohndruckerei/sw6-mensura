@@ -13,8 +13,10 @@ Fläche, Staffeln, Mindestpreisen und Optionsaufschlägen, bei Bedarf mit eigene
 
 ## Stand
 
-Version 0.1.0 – Grundgerüst: Plugin, Hauptmenü mit Untermenüs, Designsystem, Konzept.
-Nächster Schritt: Datenmodell (siehe Fahrplan im Konzept).
+Version 0.2.0 – Grundgerüst (Hauptmenü mit Untermenüs, Design A/B/C) und Datenmodell
+(12 Tabellen `ld_mensura_*`, per Admin-API nutzbar, Rechte für die Rollenverwaltung).
+Schnittstellen zu LieferLotse und künftigen Plugins: [docs/INTEGRATION.md](docs/INTEGRATION.md).
+Nächster Schritt: Admin-Oberflächen für Kalkulationen, Materialien und Optionen (siehe Fahrplan im Konzept).
 
 ## Entwicklung
 

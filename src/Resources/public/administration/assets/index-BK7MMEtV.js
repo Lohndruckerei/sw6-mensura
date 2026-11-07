@@ -1,4 +1,4 @@
-import{D as s}from"./ld-mensura-DRVPV6e8.js";const n={template:`
+import{D as s}from"./ld-mensura-CQ591_cw.js";const n={template:`
 <div class="lm-design-switch" role="group" :aria-label="$tc('lm-design.switchLabel')">
     <span class="lm-design-switch__label">{{ $tc('lm-design.switchLabel') }}</span>
     <button
@@ -14,4 +14,4 @@ import{D as s}from"./ld-mensura-DRVPV6e8.js";const n={template:`
         {{ design.key.toUpperCase() }}
     </button>
 </div>`,computed:{store(){return Shopware.Store.get("lmDesign")},current(){return this.store.design},designs(){return s.map(e=>{const t=e===this.store.defaultDesign;return{key:e,title:this.$tc(`lm-design.designs.${e}`)+(t?` (${this.$tc("lm-design.default")})`:"")}})}},created(){this.store.ensureLoaded()},methods:{async select(e){if(e!==this.current)try{await this.store.setDesign(e)}catch{}}}};export{n as default};
-//# sourceMappingURL=index-h7iFNOzo.js.map
+//# sourceMappingURL=index-BK7MMEtV.js.map

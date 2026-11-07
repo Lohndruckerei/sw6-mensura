@@ -6,5 +6,60 @@
 
     <services>
         <defaults autowire="true" autoconfigure="true"/>
+
+        <!-- Stammdaten -->
+        <service id="Lohndruckerei\Mensura\Core\Content\Calculation\CalculationDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_calculation"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationMaterial\CalculationMaterialDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_calculation_material"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationOptionValue\CalculationOptionValueDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_calculation_option_value"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\Calculation\Aggregate\CalculationCustomerGroup\CalculationCustomerGroupDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_customer_group_rule"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\Material\MaterialDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_material"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\Material\Aggregate\MaterialTranslation\MaterialTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_material_translation"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\Option\OptionGroupDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_option_group"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\Option\Aggregate\OptionGroupTranslation\OptionGroupTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_option_group_translation"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\Option\OptionValueDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_option_value"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Content\Option\Aggregate\OptionValueTranslation\OptionValueTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_option_value_translation"/>
+        </service>
+
+        <!-- Verknüpfungen zu Shopware -->
+        <service id="Lohndruckerei\Mensura\Core\Content\ProductCalculation\ProductCalculationDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_product_calculation"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Core\Checkout\OrderLineItem\MensuraOrderLineItemDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_order_line_item"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Extension\ProductExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Extension\OrderLineItemExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Extension\CustomerGroupExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Extension\MediaExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Extension\LanguageExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
     </services>
 </container>

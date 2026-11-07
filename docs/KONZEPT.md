@@ -95,7 +95,40 @@ Das Verhältnis ist nicht einheitlich (×1,12 bis ×2) → EK und VK müssen get
 4. Staffelbasis zusätzlich **Fläche je Stück**.
 5. Mindestpreis auch am Material (überschreibt die Kalkulation).
 
-## 3. Kalkulationsfelder (Datenmodell, geplant)
+## 2b. Weitere Entscheidungen (07.11.2026)
+
+- **Nur B2B, immer netto.** Basis-VK = Kundengruppe **Wiederverkäufer**. Andere Gruppen bekommen einen
+  Aufschlag in %, z. B. **Gewerbe** +10 bis 15 %. Gewerbe gilt auch für nicht eingeloggte Besucher und für Konten ohne
+  Wiederverkäufer-Freischaltung. Dafür wird in Shopware die Standard-Kundengruppe des Verkaufskanals auf
+  Gewerbe gestellt. Umgesetzt in `ld_mensura_customer_group_rule` (global oder je Kalkulation).
+- **Produktions- und Lieferzeit** wählt der Kunde je Position, als Aufschlag (Optionsgruppe `type = delivery`,
+  Werte mit Werktagen). Offen ist, ob eine Wahl **je Lieferant** für alle seine Positionen gelten soll. Dafür hat die Gruppe
+  `scope = position | supplier`, durchgesetzt wird es später im Warenkorb. Mensura errechnet daraus `ldDeliveryDate` für den LieferLotse.
+- **Produkte:** beides möglich. Ein allgemeines Produkt („Plattendirektdruck“, alle Materialien) oder ein Produkt je
+  Material. **Abhängigkeiten:** Optionen gelten je Material (Material A → Veredelung A + B, Material B → C + D)
+  und können andere Optionen voraussetzen oder ausschließen.
+- **Motive und Druckdaten:** z. B. 20 Motive à 1 Stück. Hochladen ist schon im Konfigurator möglich; weitere Wege
+  (Kundenkonto, Link) bleiben offen. Prüfung und Freigabe (Auflösung, Stückzahl, Format, Beschnitt) übernimmt ein eigenes
+  Plugin. Mensura reserviert dafür `artwork` im Schnappschuss und im Payload.
+- **LieferLotse und künftige Plugins:** siehe [INTEGRATION.md](INTEGRATION.md).
+
+## 3. Kalkulationsfelder (Datenmodell)
+
+**Umgesetzt in v0.2.0** (Migration `Migration1794120000CreateMensuraTables`, alle Preise netto als EK/VK):
+
+| Tabelle | Inhalt |
+|---|---|
+| `ld_mensura_calculation` | Rechenvorlage: Einheit, Format (Grenzen, feste Formate, Drehen), Mindestfläche/Rundung, Grundpreise als Preisanteile, Mindestpreis EK/VK, Staffelbasis + Staffeln, Formel, VK-Regel + Margenkorridor, Lieferant + Lieferantencodes |
+| `ld_mensura_calculation_material` | Kalkulation ↔ Material (n:m) |
+| `ld_mensura_material` (+ `_translation`) | Preis je Einheit EK/VK, eigener Mindestpreis/Staffel, Rohformat, Max.-Format, Gewicht, Eigenschaften, Lieferant + Codes, Bild |
+| `ld_mensura_option_group` (+ `_translation`) | Optionsgruppe: Typ (`standard`/`delivery`), Geltung (`position`/`supplier`), Darstellung, Pflicht |
+| `ld_mensura_option_value` (+ `_translation`) | Wert: Kürzel, Formatzugabe/-faktor, Werktage, Ausschlüsse, Lieferantencodes, Bild |
+| `ld_mensura_calculation_option_value` | Wert in einer Kalkulation, optional je Material: Preisanteile EK/VK, Staffeln, Bedingungen (`requires`/`excludes`), Standardwert |
+| `ld_mensura_customer_group_rule` | VK-Aufschlag % je Kundengruppe, global oder je Kalkulation |
+| `ld_mensura_product_calculation` | Produkt ↔ Kalkulation (`product.extensions.ldMensura`), festes Material, eingeschränkte Auswahl, Vorbelegung |
+| `ld_mensura_order_line_item` | Rechenweg-Schnappschuss je Bestellposition (`orderLineItem.extensions.ldMensura`), nur Admin-API |
+
+Die folgenden Unterabschnitte beschreiben die fachliche Bedeutung der Felder.
 
 Ziel: Jeder Artikel hängt an einer **Kalkulation** (Rechenvorlage). Die Standardformel deckt Platten und
 Folien ab; jede Kalkulation kann einzelne Bausteine an- und abschalten oder eine **eigene Formel** nutzen.
@@ -213,9 +246,11 @@ Shop-Frontend geprüft werden können.
 ## 6. Fahrplan
 
 1. ✅ Grundgerüst, Menü, Designs, Konzept
-2. Entitäten + Migrationen (Kalkulation, Material, Optionsgruppe/-wert, Preisanteile EK/VK, Staffel, VK-Regel)
+2. ✅ Entitäten + Migration (Kalkulation, Material, Optionen, Preisanteile EK/VK, Staffeln, VK-Regel, Kundengruppen,
+   Produktverknüpfung, Bestell-Schnappschuss)
 3. Admin: Listen & Detailseiten je Bereich, Preisfelder EK/VK mit Margenrechner
 4. Preis-Engine (PHP, mit Unit-Tests anhand der Comdatek-Werte oben) + Testrechner im Admin
 5. Produktzuordnung + Store-API „Preis berechnen“
-6. Storefront-Konfigurator (4 Schritte, Live-Preis) + Warenkorb/Bestellung
+6. Storefront-Konfigurator (4 Schritte, Live-Preis, Lieferzeit, Upload) + Warenkorb/Bestellung + Schnappschuss
+6a. LieferLotse: Feld `attributes` in der Lieferantenposition + Mensura-Subscriber auf `SupplierOrderBuiltEvent`
 7. Weitere Artikel (Folien, Banner …) – eigene Kalkulationen/Formeln

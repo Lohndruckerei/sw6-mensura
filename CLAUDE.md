@@ -27,6 +27,12 @@
 - Eigener Hauptmenüpunkt: Modul ist als `type: 'core'` registriert, weil Shopware Plugin-Module nicht auf
   die erste Menüebene lässt. Neue Oberflächen in `module/ld-mensura/constants.js` (AREAS) + Route ergänzen.
 - Admin einfach und übersichtlich halten
+- Entities: vollständige Getter/Setter (`bin/console dal:validate` muss für Mensura fehlerfrei sein; die
+  Meldungen des LieferLotse sind dessen Sache), toMany-Setter nicht nullable, Constraint-Namen ≤ 64 Zeichen
+- Preise netto, nur B2B; Basis-VK = Wiederverkäufer, andere Kundengruppen per Aufschlag (`ld_mensura_customer_group_rule`)
+- Einkaufspreise nie in die Store-API (kein ApiAware an EK-Feldern und am Schnappschuss `ld_mensura_order_line_item`)
+- LieferLotse nur lose koppeln: Lieferanten-IDs ohne Fremdschlüssel, Andocken über dessen Events
+  (Vertrag in docs/INTEGRATION.md – bei Änderungen dort pflegen; Payload/Schnappschuss nur erweitern, `schema` erhöhen bei Bruch)
 - Preise immer serverseitig berechnen (nie dem Frontend vertrauen); Formeln nie per `eval`
 - Kleine, nachvollziehbare Schritte; nach jedem Schritt im Shop testen
 
