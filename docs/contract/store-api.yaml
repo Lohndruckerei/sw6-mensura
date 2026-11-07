@@ -59,6 +59,12 @@ paths:
   /ld-mensura/cart/add:
     post:
       summary: Konfigurierte Position in den Warenkorb (Backend rechnet erneut, nie Frontend-Preise übernehmen)
+      description: |
+        Legt eine eigene Produktposition an (jede Konfiguration getrennt, Menge = Gesamtmenge der Konfiguration).
+        Bei jeder Warenkorbberechnung rechnet das Backend neu; eine Mengenänderung im Warenkorb wird auf die
+        Konfiguration zurückgesetzt (Menge nur im Konfigurator ändern). Wird eine Position ungültig, entfernt das
+        Backend sie mit dem Warenkorb-Fehler `ld-mensura-configuration-invalid` (Parameter `name`, `reason`).
+        Payload der Position: `ldMensura` laut docs/INTEGRATION.md Abschnitt 1 (mit `configuration`) und `ldDeliveryDate`.
       operationId: mensuraCartAdd
       requestBody:
         required: true
@@ -72,10 +78,11 @@ paths:
       responses:
         '200': { description: Warenkorb (Shopware-Standardantwort) }
         '400':
-          description: Konfiguration ungültig
+          description: Konfiguration ungültig (Antwort wie calculate mit valid=false) bzw. Anfrage unvollständig (Errors)
           content:
             application/json:
-              schema: { $ref: 'schema/calculation-result.schema.json' }
+              schema: { oneOf: [{ $ref: 'schema/calculation-result.schema.json' }, { $ref: '#/components/schemas/Errors' }] }
+        '404': { description: 'Produkt hat kein Mensura-Profil', content: { application/json: { schema: { $ref: '#/components/schemas/Errors' } } } }
   /ld-mensura/preset/validate:
     post:
       summary: Vorlage (z. B. vom Produktberater) prüfen und in eine gültige Konfiguration überführen

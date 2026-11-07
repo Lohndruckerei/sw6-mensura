@@ -8,9 +8,13 @@ use Lohndruckerei\Mensura\Service\Calculation\CatalogLoader;
 use Lohndruckerei\Mensura\Service\Calculation\ConfiguratorBuilder;
 use Lohndruckerei\Mensura\Service\Calculation\ContextFactory;
 use Lohndruckerei\Mensura\Service\Calculation\PriceEngine;
+use Lohndruckerei\Mensura\Service\Cart\LineItemFactory;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -27,6 +31,7 @@ class MensuraStoreApiController
         private readonly PriceEngine $engine,
         private readonly ConfiguratorBuilder $builder,
         private readonly ContextFactory $contextFactory,
+        private readonly CartService $cartService,
     ) {
     }
 
@@ -48,6 +53,35 @@ class MensuraStoreApiController
     public function calculate(Request $request, SalesChannelContext $context): JsonResponse
     {
         return $this->run($request, $context, $request->toArray()['matrix'] ?? false);
+    }
+
+    /**
+     * Konfigurierte Position in den Warenkorb. Das Backend rechnet erneut (CartProcessor bei jeder Warenkorbberechnung),
+     * ungültige Konfigurationen werden mit 400 und dem Berechnungsergebnis abgelehnt.
+     */
+    #[Route(path: '/store-api/ld-mensura/cart/add', name: 'store-api.ld-mensura.cart-add', methods: ['POST'])]
+    public function cartAdd(Request $request, SalesChannelContext $context): Response
+    {
+        try {
+            $configuration = $request->toArray()['configuration'] ?? null;
+        } catch (\Throwable) {
+            return $this->error(400, 'request.invalid_json', 'Anfrage ist kein gültiges JSON');
+        }
+        if (!\is_array($configuration) || !\is_string($configuration['productId'] ?? null) || preg_match(self::ID_PATTERN, $configuration['productId']) !== 1) {
+            return $this->error(400, 'request.invalid_configuration', 'configuration.productId fehlt oder ist ungültig');
+        }
+        $catalog = $this->loader->load($configuration['productId'], $context->getContext());
+        if ($catalog === null) {
+            return $this->error(404, 'product.not_configurable', 'Produkt hat kein Mensura-Profil');
+        }
+        $result = $this->engine->calculate($configuration, $catalog, $this->contextFactory->fromSalesChannelContext($context));
+        if (!$result->isValid()) {
+            return $this->json($result->toStoreApi(), 400);
+        }
+
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+
+        return new CartResponse($this->cartService->add($cart, LineItemFactory::create($result, $catalog), $context));
     }
 
     /** Vorlage (z. B. vom Produktberater) prüfen: gleiche Regeln wie calculate. */

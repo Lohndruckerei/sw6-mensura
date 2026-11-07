@@ -36,6 +36,10 @@ Kunde ─► Mensura-Konfigurator ─► Warenkorb (Produktposition + Konfigurat
     "ldDeliveryDate": "2026-11-20"
   }
   ```
+- Umgesetzt in v0.4.0 (`Service/Cart`): zusätzlich `delivery` (technischer Name der Lieferzeit), `reference` und
+  `configuration` (normalisierte Konfiguration laut `docs/contract/schema/configuration.schema.json`, daraus rechnet der
+  `MensuraCartProcessor` bei jeder Warenkorbberechnung neu). Menge der Position = Gesamtmenge der Konfiguration; das
+  Shopware-Produkt braucht eine ausreichende Höchstbestellmenge (`maxPurchase`), sonst kürzt Shopware vorher.
 - `ldDeliveryDate` setzt Mensura, wenn der Kunde eine Lieferzeit gewählt hat. Der `DeliveryDateResolver`
   des LieferLotse übernimmt den Termin dann in die Lieferantenbestellung.
 - **Positionen, die mit Mensura berechnet wurden, gehen nur zusammen mit ihrer Konfiguration an einen Lieferanten.**

@@ -96,6 +96,11 @@
         <service id="Lohndruckerei\Mensura\Service\Calculation\CatalogLoader"/>
         <service id="Lohndruckerei\Mensura\Service\Calculation\ContextFactory"/>
         <service id="Lohndruckerei\Mensura\Service\Demo\DemoSeedCommand"/>
+        <!-- Warenkorb: nach dem ProductCartProcessor (5000) neu rechnen -->
+        <service id="Lohndruckerei\Mensura\Service\Cart\MensuraCartProcessor">
+            <tag name="shopware.cart.processor" priority="4900"/>
+        </service>
+        <service id="Lohndruckerei\Mensura\Service\Storefront\ProductPageSubscriber"/>
         <service id="Lohndruckerei\Mensura\Controller\StoreApi\MensuraStoreApiController" public="true">
             <tag name="controller.service_arguments"/>
         </service>

@@ -144,7 +144,9 @@ class DemoSeedCommand extends Command
             'id' => DemoCatalog::PRODUCT_ID,
             'productNumber' => DemoCatalog::PRODUCT_NUMBER,
             'active' => true,
-            'stock' => 9999,
+            'stock' => 999999,
+            // Menge kommt aus der Konfiguration (Motive × Stück); Shopware-Standard (100) würde kürzen
+            'maxPurchase' => 999999,
             'taxId' => $taxId,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 34.51, 'net' => 29.0, 'linked' => true]],
             'translations' => [
