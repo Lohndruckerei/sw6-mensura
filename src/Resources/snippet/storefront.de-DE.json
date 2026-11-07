@@ -1,0 +1,156 @@
+{
+  "ldMensura": {
+    "configurator": {
+      "title": "Ihr Produkt konfigurieren",
+      "loading": "Konfigurator wird geladen …",
+      "loadError": "Der Konfigurator konnte nicht geladen werden. Bitte laden Sie die Seite neu oder rufen Sie uns an.",
+      "fixtureMode": "Beispielmodus: Daten aus den Beispielfällen des Vertrags, keine echten Preise.",
+      "help": {
+        "label": "Hilfe",
+        "material": "Die Materialien sind nach Plattenart gruppiert. Optionen und Formatgrenzen passen sich dem Material an, z. B. gibt es Kantenpolitur nur bei Acrylglas.",
+        "width": "Endformat nach dem Zuschnitt in Millimetern, ohne Beschnitt. Beispiel: 600 für ein 60 cm breites Schild.",
+        "height": "Endformat nach dem Zuschnitt in Millimetern, ohne Beschnitt. Beispiel: 400 für ein 40 cm hohes Schild.",
+        "formatGroup": "Wählen Sie ein Festformat, z. B. DIN A1, oder geben Sie Breite und Höhe frei ein.",
+        "motifs": "Wie viele verschiedene Motive (Druckdateien) es sind. Beispiel: 3 Motive × 10 Stück = 30 Schilder.",
+        "motifsSplit": "Auf wie viele Motive die Gesamtmenge verteilt wird. Beispiel: 1.000 Etiketten in 4 Sorten.",
+        "perMotif": "Stückzahl je Motiv. Beispiel: 10 Stück je Motiv bei 3 Motiven ergibt 30 Schilder.",
+        "totalQuantity": "Gesamtstückzahl über alle Motive. Beispiel: 1.000 Etiketten, egal wie viele Sorten.",
+        "reference": "Ihre Bestell- oder Kostenstellen-Referenz für diese Position. Sie steht auf Lieferschein und Rechnung, z. B. „Filiale Nord / KST 4711“.",
+        "delivery": "Wann die Ware bei Ihnen ist. Der Termin gilt bei Bestellung und Druckdaten bis zum Annahmeschluss, z. B. heute bis 11:30 Uhr bestellt und Standard gewählt = Lieferung in 5 Werktagen.",
+        "option": "Wählen Sie eine Ausführung. Der Preis wird sofort neu berechnet, z. B. bei Laminat matt statt ohne Veredelung."
+      },
+      "layout": {
+        "label": "Darstellung",
+        "compact": "Kompakt",
+        "guided": "Geführt"
+      },
+      "section": {
+        "material": "Material",
+        "format": "Endformat",
+        "quantity": "Auflage",
+        "options": "Druck & Weiterverarbeitung"
+      },
+      "field": {
+        "material": "Material",
+        "width": "Breite (mm)",
+        "height": "Höhe (mm)",
+        "rotate": "Breite und Höhe tauschen",
+        "rotateHelp": "Hochformat ↔ Querformat: tauscht Breite und Höhe, z. B. 600 × 400 → 400 × 600 mm.",
+        "motifs": "Motive",
+        "perMotif": "Stück je Motiv",
+        "totalQuantity": "Gesamtmenge",
+        "reference": "Ihre Referenz (optional)"
+      },
+      "format": {
+        "possible": "Möglich bei %material%: Breite %width% mm × Höhe %height% mm"
+      },
+      "quantity": {
+        "total": "= %count% Stück",
+        "totalSplit": "%count% Stück, verteilt auf %motifs% Motive"
+      },
+      "option": {
+        "none": "keine"
+      },
+      "delivery": {
+        "title": "Lieferung",
+        "days": "%days% Werktage",
+        "daysShort": "%days% WT",
+        "unavailable": "für diese Auswahl nicht möglich",
+        "cutoff": "bei Bestellung und Druckdaten bis %time% Uhr",
+        "cutoffLeft": "noch %hours% Std. %minutes% Min.",
+        "cutoffPassed": "Annahmeschluss %time% Uhr ist für heute vorbei – die Termine gelten ab dem nächsten Werktag."
+      },
+      "error": {
+        "widthMin": "%material%: Breite mindestens %limit% mm",
+        "widthMax": "%material%: Breite höchstens %limit% mm",
+        "heightMin": "%material%: Höhe mindestens %limit% mm",
+        "heightMax": "%material%: Höhe höchstens %limit% mm",
+        "motifsMax": "Höchstens %limit% Motive je Position",
+        "quantityMax": "Höchstens %limit% Stück je Position – für größere Mengen erstellen wir gern ein Angebot."
+      },
+      "fix": {
+        "format": "Auf %value% mm setzen",
+        "quantity": "Auf %value% setzen",
+        "generic": "Vorschlag übernehmen"
+      },
+      "notice": {
+        "title": "Ihre Auswahl wurde angepasst",
+        "close": "Hinweis schließen",
+        "keep": "Format und Menge bleiben erhalten.",
+        "removed": "%group% entfällt bei %material% (war: %value%).",
+        "reset": "%group%: „%from%“ gibt es bei %material% nicht – jetzt „%to%“.",
+        "added": "Neu bei %material%: %group%.",
+        "restored": "%group%: Ihre frühere Wahl „%value%“ ist wieder eingestellt.",
+        "formatTitle": "Format prüfen:"
+      },
+      "steps": {
+        "material": "Material",
+        "format": "Format",
+        "quantity": "Menge & Lieferzeit"
+      },
+      "guided": {
+        "stepsLabel": "Schritte",
+        "materialTitle": "Welches Material soll es sein?",
+        "formatTitle": "Wie groß soll %material% sein?",
+        "presets": "Schnellwahl",
+        "fromPrice": "ab %price%/m²",
+        "matrixTitle": "Menge und Lieferzeit wählen",
+        "matrixHelp": "Ein Klick auf einen Preis wählt Stückzahl und Lieferzeit. Preise %mode%, je Position.",
+        "matrixQty": "Menge",
+        "matrixOther": "Andere Menge, mehrere Motive oder Referenz",
+        "matrixOnRequest": "Preis erscheint nach der Auswahl",
+        "pieces": "Stk",
+        "piecesPerMotif": "Stk je Motiv",
+        "next": "Weiter",
+        "back": "Zurück"
+      },
+      "price": {
+        "title": "Ihr Preis",
+        "toggle": "Preisanzeige",
+        "net": "netto",
+        "gross": "brutto",
+        "netShort": "netto",
+        "grossShort": "brutto",
+        "netLabel": "netto zzgl. MwSt.",
+        "grossLabel": "inkl. MwSt.",
+        "perPiece": "je Stück",
+        "perSqm": "je m²",
+        "quantity": "Stück gesamt",
+        "area": "Fläche gesamt",
+        "netError": "Der Preis konnte gerade nicht geladen werden.",
+        "retry": "Erneut versuchen",
+        "blocked": "Bitte zuerst die markierten Angaben anpassen – dann sehen Sie den Preis.",
+        "pending": "Preis wird berechnet …",
+        "none": "Für diese Auswahl liegt noch kein Preis vor."
+      },
+      "cart": {
+        "add": "In den Warenkorb",
+        "added": "Die Position liegt im Warenkorb.",
+        "invalid": "Die Konfiguration ist nicht bestellbar – bitte die Hinweise prüfen.",
+        "error": "Die Position konnte nicht in den Warenkorb gelegt werden. Bitte versuchen Sie es erneut."
+      },
+      "share": {
+        "copy": "Link zu dieser Konfiguration kopieren",
+        "copied": "Link kopiert – Sie können ihn teilen oder später wieder öffnen."
+      },
+      "summary": {
+        "title": "Ihr Produkt",
+        "material": "Material",
+        "format": "Format",
+        "quantity": "Auflage",
+        "delivery": "Lieferzeit",
+        "change": "ändern",
+        "pieces": "Stk"
+      },
+      "preview": {
+        "title": "Vorschau",
+        "label": "Vorschau Endformat %width% × %height% mm",
+        "outside": "außerhalb der Grenzen",
+        "caption": "Endformat mit Schnittmarken, nicht maßstäblich zur Druckdatei."
+      },
+      "buybox": {
+        "hint": "Der Preis hängt von Material, Format und Ausführung ab."
+      }
+    }
+  }
+}

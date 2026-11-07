@@ -27,4 +27,6 @@ bash .github/scripts/phpunit.sh
 echo "== Backend gegen Vertrag: Antworten der Engine passen zu den Schemas"
 $AJV validate $OPTS -s $S/calculation-result.schema.json -r $S/configuration.schema.json -d "build/contract/calculate/*.json"
 $AJV validate $OPTS -s $S/configurator.schema.json -r $S/configuration.schema.json -d "build/contract/configurator/*.json"
+echo "== Frontend gegen Vertrag: Konfigurator-JS mit fixtures (Node, ohne Shop)"
+node --test tests/Frontend/*.test.mjs
 echo "✓ Alle Prüfungen bestanden."

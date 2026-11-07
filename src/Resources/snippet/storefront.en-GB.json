@@ -1,0 +1,156 @@
+{
+  "ldMensura": {
+    "configurator": {
+      "title": "Configure your product",
+      "loading": "Loading configurator …",
+      "loadError": "The configurator could not be loaded. Please reload the page or give us a call.",
+      "fixtureMode": "Sample mode: data from the contract's sample cases, no real prices.",
+      "help": {
+        "label": "Help",
+        "material": "Materials are grouped by board type. Options and size limits adapt to the material, e.g. edge polishing is only available for acrylic glass.",
+        "width": "Final size after cutting in millimetres, without bleed. Example: 600 for a sign 60 cm wide.",
+        "height": "Final size after cutting in millimetres, without bleed. Example: 400 for a sign 40 cm high.",
+        "formatGroup": "Choose a standard size, e.g. DIN A1, or enter width and height freely.",
+        "motifs": "How many different designs (print files) there are. Example: 3 designs × 10 pieces = 30 signs.",
+        "motifsSplit": "How many designs the total quantity is split into. Example: 1,000 labels in 4 versions.",
+        "perMotif": "Quantity per design. Example: 10 pieces per design with 3 designs gives 30 signs.",
+        "totalQuantity": "Total quantity across all designs. Example: 1,000 labels, however many versions.",
+        "reference": "Your order or cost centre reference for this item. It appears on the delivery note and invoice, e.g. “Branch North / CC 4711”.",
+        "delivery": "When the goods reach you. The date applies to orders and print files received before the cut-off time, e.g. ordered today by 11:30 with standard = delivery in 5 working days.",
+        "option": "Choose a finish. The price is recalculated immediately, e.g. matt laminate instead of no finish."
+      },
+      "layout": {
+        "label": "View",
+        "compact": "Compact",
+        "guided": "Guided"
+      },
+      "section": {
+        "material": "Material",
+        "format": "Final size",
+        "quantity": "Quantity",
+        "options": "Printing & finishing"
+      },
+      "field": {
+        "material": "Material",
+        "width": "Width (mm)",
+        "height": "Height (mm)",
+        "rotate": "Swap width and height",
+        "rotateHelp": "Portrait ↔ landscape: swaps width and height, e.g. 600 × 400 → 400 × 600 mm.",
+        "motifs": "Designs",
+        "perMotif": "Pieces per design",
+        "totalQuantity": "Total quantity",
+        "reference": "Your reference (optional)"
+      },
+      "format": {
+        "possible": "Possible with %material%: width %width% mm × height %height% mm"
+      },
+      "quantity": {
+        "total": "= %count% pieces",
+        "totalSplit": "%count% pieces, split into %motifs% designs"
+      },
+      "option": {
+        "none": "none"
+      },
+      "delivery": {
+        "title": "Delivery",
+        "days": "%days% working days",
+        "daysShort": "%days% WD",
+        "unavailable": "not possible for this selection",
+        "cutoff": "for orders and print files received by %time%",
+        "cutoffLeft": "%hours% h %minutes% min left",
+        "cutoffPassed": "Today's cut-off time of %time% has passed – dates apply from the next working day."
+      },
+      "error": {
+        "widthMin": "%material%: width at least %limit% mm",
+        "widthMax": "%material%: width at most %limit% mm",
+        "heightMin": "%material%: height at least %limit% mm",
+        "heightMax": "%material%: height at most %limit% mm",
+        "motifsMax": "At most %limit% designs per item",
+        "quantityMax": "At most %limit% pieces per item – we will gladly quote for larger quantities."
+      },
+      "fix": {
+        "format": "Set to %value% mm",
+        "quantity": "Set to %value%",
+        "generic": "Apply suggestion"
+      },
+      "notice": {
+        "title": "Your selection has been adjusted",
+        "close": "Close notice",
+        "keep": "Size and quantity are kept.",
+        "removed": "%group% is not available for %material% (was: %value%).",
+        "reset": "%group%: “%from%” is not available for %material% – now “%to%”.",
+        "added": "New for %material%: %group%.",
+        "restored": "%group%: your earlier choice “%value%” has been restored.",
+        "formatTitle": "Check size:"
+      },
+      "steps": {
+        "material": "Material",
+        "format": "Size",
+        "quantity": "Quantity & delivery"
+      },
+      "guided": {
+        "stepsLabel": "Steps",
+        "materialTitle": "Which material would you like?",
+        "formatTitle": "How large should %material% be?",
+        "presets": "Quick pick",
+        "fromPrice": "from %price%/m²",
+        "matrixTitle": "Choose quantity and delivery time",
+        "matrixHelp": "Clicking a price selects quantity and delivery time. Prices %mode%, per item.",
+        "matrixQty": "Quantity",
+        "matrixOther": "Other quantity, several designs or reference",
+        "matrixOnRequest": "Price appears after selection",
+        "pieces": "pcs",
+        "piecesPerMotif": "pcs per design",
+        "next": "Next",
+        "back": "Back"
+      },
+      "price": {
+        "title": "Your price",
+        "toggle": "Price display",
+        "net": "net",
+        "gross": "gross",
+        "netShort": "net",
+        "grossShort": "gross",
+        "netLabel": "net plus VAT",
+        "grossLabel": "incl. VAT",
+        "perPiece": "per piece",
+        "perSqm": "per m²",
+        "quantity": "total pieces",
+        "area": "total area",
+        "netError": "The price could not be loaded just now.",
+        "retry": "Try again",
+        "blocked": "Please adjust the highlighted entries first – then you will see the price.",
+        "pending": "Calculating price …",
+        "none": "There is no price for this selection yet."
+      },
+      "cart": {
+        "add": "Add to cart",
+        "added": "The item is in your cart.",
+        "invalid": "This configuration cannot be ordered – please check the notes.",
+        "error": "The item could not be added to the cart. Please try again."
+      },
+      "share": {
+        "copy": "Copy link to this configuration",
+        "copied": "Link copied – share it or open it again later."
+      },
+      "summary": {
+        "title": "Your product",
+        "material": "Material",
+        "format": "Size",
+        "quantity": "Quantity",
+        "delivery": "Delivery time",
+        "change": "change",
+        "pieces": "pcs"
+      },
+      "preview": {
+        "title": "Preview",
+        "label": "Preview final size %width% × %height% mm",
+        "outside": "outside the limits",
+        "caption": "Final size with crop marks, not to scale with the print file."
+      },
+      "buybox": {
+        "hint": "The price depends on material, size and finish."
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{#
+    Mensura-Konfigurator (kompakt/geführt). Das JS-Plugin LdMensuraConfigurator lädt die Daten über die Store-API
+    (GET /store-api/ld-mensura/product/{id}/configurator) und holt Preise nur von POST /store-api/ld-mensura/calculate.
+    Die Liste lmTextKeys muss zu den Snippets ldMensura.configurator.* passen (geprüft in tests/Frontend).
+#}
+{% block ld_mensura_configurator %}
+    {% set lmTextKeys = [
+        'title', 'loading', 'loadError', 'fixtureMode',
+        'help.label', 'help.material', 'help.width', 'help.height', 'help.formatGroup', 'help.motifs', 'help.motifsSplit',
+        'help.perMotif', 'help.totalQuantity', 'help.reference', 'help.delivery', 'help.option',
+        'layout.label', 'layout.compact', 'layout.guided',
+        'section.material', 'section.format', 'section.quantity', 'section.options',
+        'field.material', 'field.width', 'field.height', 'field.rotate', 'field.rotateHelp', 'field.motifs', 'field.perMotif',
+        'field.totalQuantity', 'field.reference',
+        'format.possible', 'quantity.total', 'quantity.totalSplit', 'option.none',
+        'delivery.title', 'delivery.days', 'delivery.daysShort', 'delivery.unavailable', 'delivery.cutoff', 'delivery.cutoffLeft', 'delivery.cutoffPassed',
+        'error.widthMin', 'error.widthMax', 'error.heightMin', 'error.heightMax', 'error.motifsMax', 'error.quantityMax',
+        'fix.format', 'fix.quantity', 'fix.generic',
+        'notice.title', 'notice.close', 'notice.keep', 'notice.removed', 'notice.reset', 'notice.added', 'notice.restored', 'notice.formatTitle',
+        'steps.material', 'steps.format', 'steps.quantity',
+        'guided.stepsLabel', 'guided.materialTitle', 'guided.formatTitle', 'guided.presets', 'guided.fromPrice', 'guided.matrixTitle',
+        'guided.matrixHelp', 'guided.matrixQty', 'guided.matrixOther', 'guided.matrixOnRequest', 'guided.pieces', 'guided.piecesPerMotif',
+        'guided.next', 'guided.back',
+        'price.title', 'price.toggle', 'price.net', 'price.gross', 'price.netShort', 'price.grossShort', 'price.netLabel', 'price.grossLabel',
+        'price.perPiece', 'price.perSqm', 'price.quantity', 'price.area', 'price.netError', 'price.retry', 'price.blocked', 'price.pending', 'price.none',
+        'cart.add', 'cart.added', 'cart.invalid', 'cart.error',
+        'share.copy', 'share.copied',
+        'summary.title', 'summary.material', 'summary.format', 'summary.quantity', 'summary.delivery', 'summary.change', 'summary.pieces',
+        'preview.title', 'preview.label', 'preview.outside', 'preview.caption'
+    ] %}
+    {% set lmTexts = {} %}
+    {% for key in lmTextKeys %}
+        {% set lmTexts = lmTexts|merge({ (key): ('ldMensura.configurator.' ~ key)|trans }) %}
+    {% endfor %}
+
+    {% set lmOptions = {
+        productId: product.id,
+        accessKey: context.salesChannel.accessKey,
+        contextToken: context.token,
+        storeApiUrl: app.request.basePath ~ '/store-api',
+        locale: app.request.locale|replace({ '_': '-' }),
+        currency: context.currency.isoCode,
+        texts: lmTexts,
+        offcanvasCartUrl: path('frontend.cart.offcanvas'),
+        cartUrl: path('frontend.checkout.cart.page')
+    } %}
+
+    <div id="lm-configurator"
+         class="lm-host"
+         data-ld-mensura-configurator="true"
+         data-ld-mensura-configurator-options="{{ lmOptions|json_encode }}">
+        <div class="lm-loading" aria-busy="true">{{ 'ldMensura.configurator.loading'|trans }}</div>
+    </div>
+{% endblock %}

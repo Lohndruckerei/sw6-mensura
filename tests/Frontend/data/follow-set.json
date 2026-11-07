@@ -1,0 +1,74 @@
+{
+  "_comment": "Synthetische Testdaten (nicht Teil des Vertrags): Start-Set, Folge-Set eines Werts, Festformat-Gruppe, ausgeblendete und optionale Gruppe, Lieferzeit mit Datum/Matrix im Ergebnis-Beispiel unten.",
+  "apiVersion": 1,
+  "productId": "0194e1a00000700080000000000f0001",
+  "layout": "guided",
+  "allowLayoutSwitch": false,
+  "materials": [
+    {
+      "id": "0194e1a00000700080000000000f0b01",
+      "technicalName": "banner-frontlit",
+      "name": "Frontlit-Banner 510 g",
+      "calculation": { "technicalName": "banner", "name": "Banner", "motifMode": "split" },
+      "optionSet": "banner-konfektion",
+      "limits": { "widthMin": 200, "widthMax": 5000, "heightMin": 200, "heightMax": 50000, "allowRotation": false, "maxMotifs": 5, "maxQuantity": 200 }
+    }
+  ],
+  "groups": [
+    {
+      "technicalName": "format", "name": "Format", "type": "format", "displayType": "select", "required": true, "mode": "inherit",
+      "values": [
+        { "technicalName": "frei", "name": "freies Format", "width": null, "height": null },
+        { "technicalName": "1000x500", "name": "100 × 50 cm", "width": 1000, "height": 500 },
+        { "technicalName": "2000x1000", "name": "200 × 100 cm", "width": 2000, "height": 1000 }
+      ]
+    },
+    {
+      "technicalName": "rand", "name": "Randverarbeitung", "type": "standard", "displayType": "tiles", "required": true, "mode": "inherit",
+      "values": [
+        { "technicalName": "schnitt", "name": "nur geschnitten" },
+        { "technicalName": "saum", "name": "Saum rundum", "priceHint": "+ 1,20 €/lfm", "optionSet": "saum-extras" }
+      ]
+    },
+    {
+      "technicalName": "oesen", "name": "Ösen", "helpText": "Metallösen im Saum zum Aufhängen.", "type": "standard", "displayType": "tiles", "required": true, "mode": "inherit",
+      "values": [
+        { "technicalName": "keine", "name": "keine" },
+        { "technicalName": "50cm", "name": "alle 50 cm", "priceHint": "+ 0,40 €/Stk" }
+      ]
+    },
+    {
+      "technicalName": "hohlsaum", "name": "Hohlsaum", "type": "standard", "displayType": "checkbox", "required": false, "mode": "inherit",
+      "values": [ { "technicalName": "oben", "name": "oben", "priceHint": "+ 2,00 €/lfm" } ]
+    },
+    {
+      "technicalName": "qualitaet", "name": "Qualität", "type": "standard", "displayType": "select", "required": true, "mode": "hidden",
+      "values": [ { "technicalName": "standard", "name": "Standard" } ]
+    },
+    {
+      "technicalName": "lieferung", "name": "Lieferzeit", "type": "delivery", "displayType": "radio", "required": true, "mode": "inherit",
+      "values": [
+        { "technicalName": "standard", "name": "Standard", "deliveryDays": 5 },
+        { "technicalName": "express", "name": "Express", "deliveryDays": 2, "priceHint": "+ 40 %" }
+      ]
+    }
+  ],
+  "sets": {
+    "grundlagen": ["format", "qualitaet"],
+    "banner-konfektion": ["rand"],
+    "saum-extras": ["oesen", "hohlsaum"]
+  },
+  "startSet": "grundlagen",
+  "defaults": {
+    "schema": 1,
+    "productId": "0194e1a00000700080000000000f0001",
+    "materialId": "0194e1a00000700080000000000f0b01",
+    "format": { "width": 1000, "height": 500 },
+    "motifs": 1,
+    "perMotif": 1,
+    "options": { "format": "1000x500", "qualitaet": "standard", "rand": "schnitt" },
+    "deliveryValue": "standard"
+  },
+  "quantitySteps": [1, 2, 5],
+  "orderCutoff": "12:00"
+}

@@ -62,11 +62,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Storefront-Bereich vorhanden?
-        run: |
-          if [ -d src/Resources/app/storefront ]; then
-            echo "Storefront-Code gefunden – Tests gegen docs/contract/fixtures folgen mit Fahrplan Schritt 6."
-          else
-            echo "Noch kein Storefront-Code (Konfigurator folgt in Schritt 6)."
-          fi
-      # Ab Fahrplan Schritt 6: Konfigurator-JS gegen fixtures/configurator + fixtures/calculate (ohne Shop)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Konfigurator (kompakt/geführt) gegen fixtures/configurator + fixtures/calculate (Node, ohne Shop)
+        run: node --test tests/Frontend/*.test.mjs
+      - name: Storefront-Snippets de-DE/en-GB vollständig
+        run: node .github/scripts/check-snippets.mjs
