@@ -17,7 +17,7 @@
       "properties": {
         "width": { "type": "integer", "minimum": 1, "description": "Endformat Breite in mm" },
         "height": { "type": "integer", "minimum": 1, "description": "Endformat Höhe in mm" },
-        "formatValueId": { "$ref": "#/$defs/id", "description": "gewähltes Festformat (Optionsgruppe vom Typ format), sonst frei" }
+        "formatValueId": { "$ref": "#/$defs/id", "description": "gewähltes Festformat: id des Werts der Optionsgruppe vom Typ format (configurator groups[].values[].id); fehlt = freies Format. Das Frontend setzt zusätzlich options[<Format-Gruppe>] auf den technischen Namen." }
       }
     },
     "motifs": { "type": "integer", "minimum": 1, "description": "Anzahl Motive bzw. Sorten" },

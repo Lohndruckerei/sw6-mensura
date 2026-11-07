@@ -63,6 +63,7 @@
               "type": "object",
               "required": ["technicalName", "name"],
               "properties": {
+                "id": { "$ref": "#/$defs/id", "description": "optional; bei Gruppen vom Typ format nötig, damit das Frontend format.formatValueId senden kann" },
                 "technicalName": { "type": "string" },
                 "name": { "type": "string" },
                 "description": { "type": ["string", "null"] },
