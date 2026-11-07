@@ -26,7 +26,7 @@ class CatalogLoader
     ];
     private const MATERIAL_FIELDS = [
         'id', 'technicalName', 'code', 'active', 'position', 'pricePurchase', 'priceSale', 'minimumPricePurchase',
-        'minimumPriceSale', 'tierBasis', 'tiers', 'priceComponents', 'optionSetId', 'widthMax', 'heightMax',
+        'minimumPriceSale', 'minArea', 'areaRounding', 'tierBasis', 'tiers', 'priceComponents', 'optionSetId', 'widthMax', 'heightMax',
         'name', 'description', 'badges', 'supplierId',
     ];
     private const GROUP_FIELDS = ['id', 'technicalName', 'name', 'helpText', 'type', 'scope', 'displayType', 'required', 'position'];

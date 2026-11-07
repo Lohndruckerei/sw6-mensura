@@ -550,7 +550,8 @@ final class PriceEngine
         [$width, $height] = $this->dimensions($config, $catalog);
         // Fläche der Position = Länge × Breite × Stück; Mindestfläche/Rundung je Position (areaScope total) oder je Stück
         $rawPieceArea = $width * $height / 1_000_000;
-        $billedArea = $this->billedArea($calculation, $width, $height, $quantity);
+        $areaRules = $this->areaRules($calculation, $material);
+        $billedArea = $this->billedArea($areaRules, $width, $height, $quantity);
         $pieceArea = $billedArea / max(1, $quantity); // abgerechnete Fläche je Stück (für Preise je m²)
         $perimeter = 2 * ($width + $height) / 1000;
         $unitAmount = match ($calculation['unit'] ?? 'area') {
@@ -724,8 +725,8 @@ final class PriceEngine
             'rawPieceArea' => round($rawPieceArea, 6),
             'area' => round($rawPieceArea * $quantity, 6),
             'billedArea' => round($billedArea, 6),
-            'minArea' => isset($calculation['minArea']) ? (float) $calculation['minArea'] : null,
-            'areaRounding' => isset($calculation['areaRounding']) ? (float) $calculation['areaRounding'] : null,
+            'minArea' => isset($areaRules['minArea']) ? (float) $areaRules['minArea'] : null,
+            'areaRounding' => isset($areaRules['areaRounding']) ? (float) $areaRules['areaRounding'] : null,
             'areaScope' => (string) ($calculation['areaScope'] ?? 'total'),
             'perimeter' => round($perimeter, 6),
             'width' => $width,
@@ -775,6 +776,24 @@ final class PriceEngine
         }
 
         return [$width + $widthAdd, $height + $heightAdd];
+    }
+
+    /**
+     * Flächenregeln: Mindestfläche und Flächenrundung des Materials überschreiben die der Kalkulation
+     * (Folie A ab 1 m², Folie B ab 0,5 m²); Bezug (areaScope) kommt aus der Kalkulation.
+     *
+     * @param array<string, mixed>|null $calculation
+     * @param array<string, mixed>|null $material
+     *
+     * @return array{minArea: mixed, areaRounding: mixed, areaScope: string}
+     */
+    public function areaRules(?array $calculation, ?array $material): array
+    {
+        return [
+            'minArea' => $material['minArea'] ?? $calculation['minArea'] ?? null,
+            'areaRounding' => $material['areaRounding'] ?? $calculation['areaRounding'] ?? null,
+            'areaScope' => (string) ($calculation['areaScope'] ?? 'total'),
+        ];
     }
 
     /**

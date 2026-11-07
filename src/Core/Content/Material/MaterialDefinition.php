@@ -71,6 +71,9 @@ class MaterialDefinition extends EntityDefinition
             new FloatField('price_sale', 'priceSale'),
             new FloatField('minimum_price_purchase', 'minimumPricePurchase'),
             new FloatField('minimum_price_sale', 'minimumPriceSale'),
+            // Mindestfläche / Flächenrundung (m²) des Materials, überschreiben die Kalkulation (z. B. Folie B ab 0,5 m²)
+            new FloatField('min_area', 'minArea'),
+            new FloatField('area_rounding', 'areaRounding'),
             new StringField('tier_basis', 'tierBasis', 16),
             new JsonField('tiers', 'tiers'),
             // Preisanteile des Materials, z. B. 0,20 €/Stk bei Mesh-Banner

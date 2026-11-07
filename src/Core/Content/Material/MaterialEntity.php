@@ -34,6 +34,8 @@ class MaterialEntity extends Entity
     protected ?float $priceSale = null;
     protected ?float $minimumPricePurchase = null;
     protected ?float $minimumPriceSale = null;
+    protected ?float $minArea = null;
+    protected ?float $areaRounding = null;
     protected ?string $tierBasis = null;
     protected ?array $tiers = null;
     protected ?int $sheetWidth = null;
@@ -172,6 +174,26 @@ class MaterialEntity extends Entity
     public function setMinimumPriceSale(?float $minimumPriceSale): void
     {
         $this->minimumPriceSale = $minimumPriceSale;
+    }
+
+    public function getMinArea(): ?float
+    {
+        return $this->minArea;
+    }
+
+    public function setMinArea(?float $minArea): void
+    {
+        $this->minArea = $minArea;
+    }
+
+    public function getAreaRounding(): ?float
+    {
+        return $this->areaRounding;
+    }
+
+    public function setAreaRounding(?float $areaRounding): void
+    {
+        $this->areaRounding = $areaRounding;
     }
 
     public function setTierBasis(?string $tierBasis): void

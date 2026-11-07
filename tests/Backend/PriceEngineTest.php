@@ -280,6 +280,38 @@ final class PriceEngineTest extends TestCase
         self::assertSame(60.3, $perPiece->getSaleTotal());
     }
 
+    public function testBasePriceMinimumAreaAndMinimumPricePerMaterial(): void
+    {
+        // Grundpreise und Mindestflächen je Material variabel: Folie A ab 1 m² (Kalkulation), Folie B ab 0,5 m² (Material)
+        $data = DemoCatalog::catalog();
+        $calcId = DemoCatalog::id('calculation.aluverbund');
+        $data['calculations'][$calcId]['priceComponents'] = [];
+        $data['calculations'][$calcId]['minimumPriceSale'] = null;
+        $data['calculations'][$calcId]['minArea'] = 1.0;
+        $data['calculations'][$calcId]['areaRounding'] = 0.1;
+        $data['materials'][self::ALU]['priceSale'] = 10.0;
+        $config = $this->config(['format' => ['width' => 200, 'height' => 300], 'perMotif' => 5]); // 5 × 0,06 = 0,3 m²
+
+        $folieA = (new PriceEngine())->calculate($config, new Catalog($data), ContractTest::context());
+        self::assertSame(1.0, $folieA->getAreas()['billed']);
+        self::assertSame(10.0, $folieA->getSaleTotal());
+
+        $data['materials'][self::ALU]['minArea'] = 0.5;
+        $folieB = (new PriceEngine())->calculate($config, new Catalog($data), ContractTest::context());
+        self::assertSame(0.5, $folieB->getAreas()['billed']);
+        self::assertSame(0.5, $folieB->getAreas()['minArea']);
+        self::assertSame(5.0, $folieB->getSaleTotal());
+
+        // Grundpreis je Stück am Material (Mesh-Banner 0,20 €/Stk) und eigener Mindestpreis des Materials
+        $data['materials'][self::ALU]['priceComponents'] = [['type' => 'per_piece', 'purchase' => 0.1, 'sale' => 0.20]];
+        $data['materials'][self::ALU]['minimumPriceSale'] = 8.90;
+        $minimum = (new PriceEngine())->calculate($config, new Catalog($data), ContractTest::context());
+        self::assertSame(8.9, $minimum->getSaleTotal()); // 0,5 × 10 + 5 × 0,20 = 6,00 < 8,90
+        self::assertSame('price.minimum_applied', self::plain($minimum->toStoreApi())['hints'][0]['code']);
+        $larger = (new PriceEngine())->calculate($this->config(['format' => ['width' => 1000, 'height' => 1000], 'perMotif' => 2]), new Catalog($data), ContractTest::context());
+        self::assertSame(20.4, $larger->getSaleTotal()); // 2 m² × 10 + 2 × 0,20 – Mindestpreis greift nicht mehr
+    }
+
     public function testEnglishTexts(): void
     {
         $api = self::plain((new PriceEngine())->calculate($this->config([]), new Catalog(DemoCatalog::catalog('en')), ContractTest::context(null, 'en'))->toStoreApi());
