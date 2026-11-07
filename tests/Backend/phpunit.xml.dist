@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Backend-Tests ohne Shopware-Kernel: Preis-Engine gegen docs/contract (Aufruf siehe .github/scripts/check-all.sh) -->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+         bootstrap="bootstrap.php"
+         colors="true"
+         failOnWarning="true"
+         failOnRisky="true"
+         cacheDirectory="../../.cache/phpunit">
+    <testsuites>
+        <testsuite name="Mensura Backend">
+            <directory>.</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <ini name="error_reporting" value="-1"/>
+        <ini name="date.timezone" value="Europe/Berlin"/>
+    </php>
+</phpunit>
