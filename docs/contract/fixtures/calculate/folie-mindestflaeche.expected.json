@@ -1,0 +1,20 @@
+{
+  "apiVersion": 1,
+  "valid": true,
+  "errors": [],
+  "hints": [],
+  "configuration": {
+    "schema": 1,
+    "productId": "0194e1a0000070008000000000000a02",
+    "materialId": "0194e1a0000070008000000000000b03",
+    "format": { "width": 250, "height": 400 },
+    "motifs": 1,
+    "perMotif": 5,
+    "options": {},
+    "deliveryValue": "standard"
+  },
+  "activeGroups": [],
+  "price": { "total": 12.5, "perPiece": 2.5, "perSqm": 25.0, "quantity": 5, "area": 0.5,
+    "areas": { "piece": 0.1, "total": 0.5, "billed": 1.0, "minArea": 1.0, "rounding": 0.1 },
+    "minimumApplied": false, "currency": "EUR" }
+}

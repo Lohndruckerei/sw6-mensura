@@ -52,6 +52,8 @@ paths:
                 mindestpreis: { externalValue: 'fixtures/calculate/alu-mindestpreis.expected.json' }
                 comdatek353: { externalValue: 'fixtures/calculate/alu-comdatek-353.expected.json' }
                 acrylZuHoch: { externalValue: 'fixtures/calculate/acryl-hoehe-zu-gross.expected.json' }
+                folieMindestflaeche: { externalValue: 'fixtures/calculate/folie-mindestflaeche.expected.json' }
+                folieSchrittweite: { externalValue: 'fixtures/calculate/folie-schrittweite.expected.json' }
   /ld-mensura/cart/add:
     post:
       summary: Konfigurierte Position in den Warenkorb (Backend rechnet erneut, nie Frontend-Preise übernehmen)

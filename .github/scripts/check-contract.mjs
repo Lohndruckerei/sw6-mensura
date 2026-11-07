@@ -37,6 +37,13 @@ for (const name of names) {
     if (Math.abs(p.area - area) > 0.0005) fail(expFile, `area ${p.area} ≠ ${area}`);
     if (Math.abs(p.perPiece * q - p.total) > 0.011) fail(expFile, `perPiece × quantity ≠ total`);
     if (Math.abs(p.total / area - p.perSqm) > 0.011) fail(expFile, `total / area ≠ perSqm`);
+    if (p.areas) {
+      const a = p.areas;
+      if (Math.abs(a.total - p.area) > 0.0005) fail(expFile, `areas.total ${a.total} ≠ area ${p.area}`);
+      if (Math.abs(a.piece * q - a.total) > 0.0005) fail(expFile, 'areas.piece × quantity ≠ areas.total');
+      if (a.billed < a.total - 0.0005) fail(expFile, 'areas.billed kleiner als die Gesamtfläche');
+      if (a.minArea != null && a.billed < a.minArea - 0.0005) fail(expFile, 'areas.billed kleiner als minArea');
+    }
     const hasMinHint = exp.hints.some((h) => h.code === 'price.minimum_applied');
     if (p.minimumApplied !== hasMinHint) fail(expFile, 'minimumApplied und Hinweis price.minimum_applied passen nicht zusammen');
   }

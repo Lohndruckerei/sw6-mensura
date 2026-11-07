@@ -14,5 +14,7 @@
     "deliveryValue": "standard"
   },
   "activeGroups": ["farbigkeit", "veredelung", "bohrung", "schnitt"],
-  "price": { "total": 353.0, "perPiece": 35.3, "perSqm": 70.6, "quantity": 10, "area": 5.0, "minimumApplied": false, "currency": "EUR" }
+  "price": { "total": 353.0, "perPiece": 35.3, "perSqm": 70.6, "quantity": 10, "area": 5.0,
+    "areas": { "piece": 0.5, "total": 5.0, "billed": 5.0, "minArea": null, "rounding": null },
+    "minimumApplied": false, "currency": "EUR" }
 }
