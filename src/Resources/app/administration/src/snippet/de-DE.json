@@ -46,6 +46,10 @@
             "subline": "Hier richtest du ein, wie Folien, Platten und weitere Artikel berechnet werden: Kalkulationen mit eigener Formel, Materialien mit Preisen je m² und Optionen mit Aufschlägen."
         },
         "areas": {
+            "profile": {
+                "title": "Produktprofile",
+                "description": "Welche Shopware-Produkte konfigurierbar sind: Materialien aus Kalkulationen, Optionsregeln, Grenzen und Aufschläge."
+            },
             "overview": {
                 "title": "Übersicht",
                 "description": "Alle Bereiche von Mensura auf einen Blick."
@@ -414,6 +418,7 @@
                 "helpCustomerGroup": "Leer = Basis-VK (Wiederverkäufer). Mit Gruppe kommt deren Aufschlag dazu.",
                 "buttonCalculate": "Berechnen",
                 "noteSaved": "Gerechnet wird der gespeicherte Stand – vorher speichern.",
+                "notReady": "Noch nicht berechenbar: Es fehlt ein Material (bzw. im Produktprofil eine Kalkulation mit Material). Ergänzen und speichern.",
                 "cardResult": "Ergebnis und Rechenweg",
                 "total": "Gesamt",
                 "perPiece": "je Stück",
@@ -585,6 +590,153 @@
                 "noPrice": "Das Material hat noch keinen VK je m² – im Shop gibt es dafür keinen Preis.",
                 "saleBelowPurchase": "Der VK liegt nicht über dem EK – bitte Preise prüfen.",
                 "noCalculation": "Das Material ist keiner Kalkulation zugeordnet und kann so nicht verkauft werden."
+            }
+        },
+        "profile": {
+            "tab": "Mensura",
+            "info": {
+                "title": "Produktprofil: Kalkulationen rechnen, Produkte wählen aus",
+                "text": "Das Profil macht ein Shopware-Produkt konfigurierbar. Es wählt Materialien aus einer oder mehreren Kalkulationen und schränkt Optionen ein, z. B. Duschrückwand: nur Hartschaum 5 mm, Aluverbund 3 mm und Acryl 5 mm, Laminat fest „Glaslaminat“, Lochbohrung ausgeblendet. Preise kommen immer aus der Kalkulation des gewählten Materials – das Profil kann nur einschränken und aufschlagen, nie erweitern. Gespeichert wird mit „Speichern“ oben rechts."
+            },
+            "emptyTitle": "Noch kein Mensura-Profil",
+            "emptySubline": "Mit einem Profil wird dieses Produkt im Shop konfigurierbar (Material, Format, Optionen, Preis live).",
+            "buttonCreate": "Profil anlegen",
+            "newHint": "Neues Profil – Materialien wählen und das Produkt speichern. Das Profil ist zunächst inaktiv, damit im Shop nichts Halbfertiges erscheint.",
+            "testAfterSave": "Der Testrechner erscheint nach dem ersten Speichern des Produkts.",
+            "preview": "Im Shop ansehen",
+            "cardBase": "Profil",
+            "labelActive": "Im Shop konfigurierbar",
+            "helpActive": "Erst einschalten, wenn Materialien und Regeln stimmen. Aus = das Produkt zeigt keinen Konfigurator, z. B. während der Einrichtung.",
+            "labelType": "Art",
+            "helpType": "Nur zur Übersicht: allgemein (z. B. Plattendirektdruck, alle Materialien) oder speziell (z. B. Duschrückwände mit festen Vorgaben).",
+            "labelLayout": "Darstellung im Shop",
+            "helpLayout": "Kompakt (eine Seite, für Profis) oder geführt (Schritt für Schritt, für Neukunden). Standard = Plugin-Einstellung, z. B. Duschrückwände geführt.",
+            "types": {
+                "general": "Allgemein",
+                "special": "Speziell"
+            },
+            "layouts": {
+                "default": "Standard (Einstellung)",
+                "compact": "Kompakt",
+                "guided": "Geführt"
+            },
+            "modes": {
+                "inherit": "Übernehmen",
+                "restrict": "Einschränken",
+                "fixed": "Fest",
+                "hidden": "Ausgeblendet"
+            },
+            "display": {
+                "default": "Standard (Einstellung)",
+                "on": "Anzeigen",
+                "off": "Ausblenden"
+            },
+            "materials": {
+                "card": "Materialien",
+                "intro": "Welche Materialien der Kunde wählen kann – auch aus mehreren Kalkulationen. Gerechnet wird mit der Kalkulation des gewählten Materials. Ein einziges Material = fest, der Schritt „Material“ entfällt.",
+                "helpCalculation": "Kalkulation, aus der das Material kommt, z. B. „Aluverbund“. Sie liefert Preise, Optionen und Formatgrenzen.",
+                "helpMaterial": "Ein bestimmtes Material (z. B. Alu 3 mm) oder alle Materialien der Kalkulation – neue Materialien der Kalkulation erscheinen dann automatisch.",
+                "surcharge": "Aufschlag %",
+                "helpSurcharge": "Aufschlag nur für dieses Material in diesem Produkt, z. B. 5 für Acryl bei Duschrückwänden. Leer = kein Aufschlag.",
+                "all": "Alle Materialien der Kalkulation",
+                "add": "Material hinzufügen",
+                "fixedHint": "Nur ein Material: Im Shop entfällt der Schritt „Material“."
+            },
+            "options": {
+                "card": "Optionen",
+                "intro": "Je Optionsgruppe: übernehmen (alles aus der Kalkulation), einschränken (nur ausgewählte Werte), fest (ein Wert, nur als Info sichtbar) oder ausblenden (unsichtbar, wird trotzdem berechnet und an den Lieferanten übermittelt). Abweichungen je Material sind möglich.",
+                "empty": "Erst Materialien wählen – dann erscheinen hier die Optionsgruppen der Kalkulationen.",
+                "allValues": "alle Werte ({count}) | alle Werte ({count})",
+                "labelMode": "Regel",
+                "helpMode": "Z. B. Lochbohrung „Ausgeblendet“ mit Standard „Nein“ oder Laminat „Fest“ auf „Glaslaminat“.",
+                "labelValues": "Erlaubte Werte",
+                "helpValues": "Nur diese Werte sind wählbar, z. B. Schnitt nur „rechteckig“.",
+                "labelDefault": "Standardwert",
+                "helpDefault": "Vorbelegung im Shop. Bei „Fest“ und „Ausgeblendet“ Pflicht – dieser Wert wird gerechnet, z. B. „Nein“.",
+                "labelMaterial": "Nur für Material",
+                "helpMaterialRule": "Diese Regel gilt nur für das gewählte Material und hat Vorrang, z. B. Acryl: Laminat ausgeblendet.",
+                "addMaterialRule": "Abweichung für ein Material"
+            },
+            "limits": {
+                "card": "Format und Menge",
+                "intro": "Nur enger als die Kalkulation – weiter geht nicht. Leer = Grenzen der Kalkulation bzw. des Materials.",
+                "helpFormat": "In mm, z. B. Duschrückwand max. 1.500 × 2.550 mm.",
+                "labelMinQuantity": "Mindestmenge",
+                "helpMinQuantity": "Kleinste Stückzahl je Position, z. B. 10 bei Aufklebern.",
+                "labelMaxQuantity": "Höchstmenge",
+                "helpMaxQuantity": "Größte Stückzahl je Position, z. B. 5 bei Duschrückwänden.",
+                "helpQuantitySteps": "Mengen der Preismatrix nur für dieses Produkt, z. B. 1, 2, 5, 10. Leer = wie die Kalkulation."
+            },
+            "prices": {
+                "card": "Aufschläge (VK)",
+                "intro": "Aufschläge des Produkts auf das Ergebnis der Kalkulation, vor dem Mindestpreis, z. B. Spezialprodukt +10 %. Einkaufspreise bleiben unberührt.",
+                "labelSurcharge": "Aufschlag %",
+                "helpSurcharge": "Prozent auf den VK aller Materialien dieses Produkts, z. B. 10.",
+                "labelMinimum": "Mindestpreis €",
+                "helpMinimum": "Eine Position kostet nie weniger, z. B. 49 €. Es gilt der höhere Wert aus Profil und Kalkulation.",
+                "componentsEmpty": "Keine zusätzlichen Preisanteile, z. B. 2 €/Stk Verpackung."
+            },
+            "shop": {
+                "card": "Vorbelegung und Anzeige im Shop",
+                "intro": "So startet der Konfigurator. Leer = Standard der Kalkulation. Standardwerte der Optionen stehen bei den Optionsregeln.",
+                "labelDefaultMaterial": "Vorgewähltes Material",
+                "helpDefaultMaterial": "Material beim Öffnen der Seite, z. B. Aluverbund 3 mm. Leer = das erste Material.",
+                "labelDefaultWidth": "Vorgabe Breite (mm)",
+                "labelDefaultHeight": "Vorgabe Höhe (mm)",
+                "helpDefaultFormat": "Format beim Öffnen, z. B. 1.000 × 2.000 mm bei Duschrückwänden.",
+                "helpDefaultQuantity": "Menge beim Öffnen, z. B. 1 Motiv × 1 Stück.",
+                "displayTitle": "Anzeige",
+                "helpDisplay": "Überschreibt die Plugin-Einstellung nur für dieses Produkt, z. B. Preis je m² bei Duschrückwänden ausblenden.",
+                "display": {
+                    "showPriceHints": "Aufpreise an Optionen",
+                    "showArea": "Fläche",
+                    "showPerSqm": "Preis je m²",
+                    "showPerPiece": "Preis je Stück",
+                    "showFromPrice": "„ab“-Preis"
+                }
+            },
+            "copy": {
+                "button": "Aus anderem Produkt übernehmen",
+                "title": "Profil übernehmen",
+                "intro": "Übernimmt Materialien, Optionsregeln, Grenzen, Aufschläge und Anzeige aus dem Profil eines anderen Produkts. Das aktuelle Profil wird ersetzt; gespeichert wird erst mit „Speichern“.",
+                "labelSource": "Vorlage-Produkt",
+                "helpSource": "Produkt mit Mensura-Profil, z. B. „Duschrückwand Standard“.",
+                "apply": "Übernehmen",
+                "applied": "Profil übernommen – prüfen und speichern.",
+                "notFound": "Das gewählte Produkt hat kein Profil."
+            },
+            "remove": {
+                "button": "Profil entfernen",
+                "confirm": "Das Mensura-Profil dieses Produkts wird sofort gelöscht (Materialien und Optionsregeln). Das Produkt selbst bleibt erhalten.",
+                "done": "Profil entfernt.",
+                "error": "Das Profil konnte nicht gelöscht werden."
+            },
+            "warnings": {
+                "noMaterial": "Kein Material gewählt – das Produkt ist im Shop nicht konfigurierbar (Reiter Mensura, Materialien).",
+                "materialWithoutCalculation": "Eine Materialzeile hat keine Kalkulation.",
+                "fixedWithoutValue": "Eine Optionsregel „Fest“ oder „Ausgeblendet“ hat keinen Standardwert – es wird der Standard der Kalkulation gerechnet.",
+                "restrictWithoutValues": "Eine Optionsregel „Einschränken“ hat keine erlaubten Werte.",
+                "minAboveMax": "Ein Mindestwert (Format oder Menge) ist größer als der Höchstwert."
+            },
+            "list": {
+                "placeholderSearch": "Produktprofile durchsuchen …",
+                "infoText": "Hier siehst du alle Produkte mit Mensura-Profil. Bearbeitet wird ein Profil im Produkt (Reiter „Mensura“). Neue Spezialprodukte entstehen schnell durch „Auf anderes Produkt kopieren“.",
+                "buttonAdd": "Profil für ein Produkt anlegen",
+                "columnProduct": "Produkt",
+                "allOf": "Alle aus {name}",
+                "openProduct": "Im Produkt öffnen",
+                "copyTo": "Auf anderes Produkt kopieren",
+                "copyIntro": "Kopiert das Profil von „{name}“ (Materialien, Regeln, Grenzen) auf ein Produkt ohne Profil. Die Kopie ist zunächst inaktiv.",
+                "copyApply": "Kopieren",
+                "copied": "Profil kopiert – im Produkt prüfen und aktivieren.",
+                "labelTarget": "Ziel-Produkt",
+                "labelProduct": "Produkt",
+                "helpProduct": "Nur Produkte ohne Mensura-Profil (Hauptprodukte), z. B. „Duschrückwand Premium“.",
+                "createIntro": "Wähle das Shopware-Produkt. Das Profil legst du dann im Reiter „Mensura“ des Produkts an.",
+                "openForCreate": "Produkt öffnen",
+                "emptyTitle": "Noch kein Produktprofil",
+                "emptySubline": "Ein Profil macht ein Shopware-Produkt konfigurierbar, z. B. „Aluverbundplatten“ mit allen Aluverbund-Materialien.",
+                "confirmDelete": "Profil von „{name}“ löschen? Materialien und Optionsregeln des Profils werden mitgelöscht, das Produkt bleibt."
             }
         }
     },

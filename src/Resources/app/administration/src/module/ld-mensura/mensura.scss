@@ -398,6 +398,75 @@ $lm-sunken: var(--color-background-tertiary-default, #f0f2f5);
     margin-bottom: 16px;
 }
 
+// Produktprofil (Reiter „Mensura“ im Produkt)
+.lm-product-profile > .lm-info-card,
+.lm-profile__warning {
+    margin-bottom: 16px;
+}
+
+.lm-profile-material {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 2fr) minmax(0, 2fr) minmax(120px, 1fr) auto;
+    gap: 0 12px;
+    align-items: end;
+
+    .lm-set-row__pos {
+        margin-bottom: 30px;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 24px;
+    }
+}
+
+.lm-profile-rule {
+    padding: 12px 0;
+    border-bottom: 1px solid $lm-border;
+
+    &:last-child {
+        border-bottom: 0;
+    }
+
+    &__head {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    &__fields {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0 16px;
+        align-items: end;
+
+        &--material {
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) auto;
+            padding-left: 24px;
+            border-left: 3px solid $lm-border;
+
+            > .mt-button {
+                margin-bottom: 24px;
+            }
+        }
+    }
+}
+
+.lm-profile__remove {
+    display: flex;
+    justify-content: flex-end;
+    margin: 24px 0 40px;
+}
+
+@media (max-width: 1000px) {
+    .lm-profile-material {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 @media (max-width: 1000px) {
     .lm-price-pair__fields,
     .lm-components__row,

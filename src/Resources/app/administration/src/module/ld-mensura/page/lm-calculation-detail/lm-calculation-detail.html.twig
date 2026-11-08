@@ -271,7 +271,7 @@
 
         {% block lm_calculation_detail_test %}
         <template v-if="active === 'test'">
-            <lm-test-calculator v-if="calculationId" :key="testKey" :calculation="calculation" :groups="groups" />
+            <lm-test-calculator v-if="calculationId" :source="{ calculationId }" :reload-key="testKey" />
             <sw-empty-state v-else :title="$tc('ld-mensura.calculation.test.saveFirstTitle')" :subline="$tc('ld-mensura.calculation.test.saveFirstSubline')" icon="regular-euro" :absolute="false" />
         </template>
         {% endblock %}

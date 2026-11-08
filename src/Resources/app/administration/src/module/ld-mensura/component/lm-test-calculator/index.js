@@ -1,15 +1,19 @@
 import { formatNumber, marginInfo } from '../../service/margin';
 
 /**
- * Testrechner einer Kalkulation (KONZEPT 3a Punkt 4, Abschnitt 5): rechnet mit derselben Engine wie Shop und
- * Warenkorb (Admin-API /_action/ld-mensura/test-calculate) – gespeicherter Stand der Kalkulation – und zeigt den
- * Rechenweg Zeile für Zeile mit VK, EK und Deckungsbeitrag (EK nur mit Recht, serverseitig geprüft).
+ * Testrechner einer Kalkulation oder eines Produktprofils (KONZEPT 3a Punkt 4, Abschnitt 5).
+ * Auswahl kommt vom Server wie im Shop (/_action/ld-mensura/test-configurator), gerechnet wird mit derselben
+ * Engine wie Shop und Warenkorb (/_action/ld-mensura/test-calculate) – jeweils gespeicherter Stand. Rechenweg
+ * Zeile für Zeile mit VK, EK und Deckungsbeitrag (EK nur mit Recht, serverseitig geprüft).
+ *
+ * source: { calculationId } oder { productId }; reloadKey ändern lädt die Auswahl neu (z. B. nach dem Speichern).
  */
 export default {
     template: `
 <div class="lm-testcalc">
     <mt-card position-identifier="lm-testcalc-input" :title="$tc('ld-mensura.calculation.test.cardInput')">
         <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.calculation.test.intro') }}</p>
+        <mt-banner v-if="loadError" variant="attention">{{ $tc('ld-mensura.calculation.test.notReady') }}</mt-banner>
         <sw-container columns="repeat(auto-fit, minmax(180px, 1fr))" gap="0 24px">
             <sw-single-select v-model:value="input.materialId" :options="materialOptions" :label="$tc('ld-mensura.areas.material.title')" />
             <mt-number-field v-model="input.width" number-type="int" :label="$tc('ld-mensura.calculation.test.width')" />
@@ -22,13 +26,13 @@ export default {
             <sw-single-select
                 v-for="group in groupChoices"
                 :key="group.technicalName"
-                :value="input.options[group.technicalName] ?? null"
+                :value="(group.type === 'delivery' ? input.deliveryValue : input.options[group.technicalName]) ?? null"
                 :options="group.options"
                 :label="group.label"
                 @update:value="setOption(group, $event)"
             />
         </sw-container>
-        <mt-button variant="primary" :is-loading="isLoading" @click="calculate">
+        <mt-button variant="primary" :is-loading="isLoading" :disabled="!configurator || undefined" @click="calculate">
             {{ $tc('ld-mensura.calculation.test.buttonCalculate') }}
         </mt-button>
         <span class="lm-muted lm-testcalc__note">{{ $tc('ld-mensura.calculation.test.noteSaved') }}</span>
@@ -76,18 +80,18 @@ export default {
     mixins: [Shopware.Mixin.getByName('notification')],
 
     props: {
-        calculation: { type: Object, required: true },
-        groups: { type: Array, required: true },
+        source: { type: Object, required: true },
+        reloadKey: { type: [Number, String], required: false, default: 0 },
     },
 
     data() {
-        const first = this.calculation.materials?.first?.() ?? null;
-
         return {
             isLoading: false,
+            configurator: null,
+            loadError: null,
             response: null,
             input: {
-                materialId: first?.id ?? null,
+                materialId: null,
                 width: 1000,
                 height: 500,
                 motifs: 1,
@@ -104,27 +108,51 @@ export default {
             return Shopware.Application.getContainer('init').httpClient;
         },
 
-        materialOptions() {
-            return [...(this.calculation.materials ?? [])].map((material) => ({ value: material.id, label: material.translated?.name || material.technicalName }));
+        requestHeaders() {
+            return { Authorization: `Bearer ${Shopware.Context.api.authToken.access}` };
         },
 
-        /** Gruppen mit in dieser Kalkulation angebotenen Werten (für das gewählte Material). */
+        language() {
+            return Shopware.Store.get('session').currentLocale ?? 'de-DE';
+        },
+
+        materials() {
+            return this.configurator?.materials ?? [];
+        },
+
+        materialOptions() {
+            const calculations = new Set(this.materials.map((material) => material.calculation?.technicalName));
+
+            return this.materials.map((material) => ({
+                value: material.id,
+                label: calculations.size > 1 ? `${material.name} · ${material.calculation?.name}` : material.name,
+            }));
+        },
+
+        selectedMaterial() {
+            return this.materials.find((material) => material.id === this.input.materialId) ?? null;
+        },
+
+        /**
+         * Sichtbare Gruppen wie im Shop (ohne ausgeblendete und Festformate), Werte des gewählten Materials.
+         * Nach einer Berechnung nur die Gruppen, die für dieses Material tatsächlich gelten (aktive Optionssets).
+         */
         groupChoices() {
-            const assigned = [...(this.calculation.optionValues ?? [])].filter((row) => row.active !== false
-                && (row.materialId === null || row.materialId === this.input.materialId));
+            const technicalName = this.selectedMaterial?.technicalName;
+            const active = this.response?.result?.configuration?.options ?? null;
 
-            return [...this.groups]
-                .sort((a, b) => (a.position ?? 0) - (b.position ?? 0)
-                    || (a.translated?.name || a.technicalName).localeCompare(b.translated?.name || b.technicalName))
-                .map((group) => {
-                    const options = [...(group.values ?? [])]
-                        .filter((value) => assigned.some((row) => row.optionValueId === value.id))
-                        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-                        .map((value) => ({ value: value.technicalName, label: value.translated?.name || value.technicalName }));
-
-                    return { technicalName: group.technicalName, type: group.type, label: group.translated?.name || group.technicalName, options };
-                })
-                .filter((group) => group.options.length > 0 && group.type !== 'format');
+            return (this.configurator?.groups ?? [])
+                .filter((group) => group.type !== 'format' && group.mode !== 'hidden')
+                .filter((group) => !active || group.type === 'delivery' || group.technicalName in active)
+                .map((group) => ({
+                    technicalName: group.technicalName,
+                    type: group.type,
+                    label: group.mode === 'fixed' ? `${group.name} (${this.$tc('ld-mensura.profile.modes.fixed')})` : group.name,
+                    options: group.values
+                        .filter((value) => !value.availableForMaterials || value.availableForMaterials.includes(technicalName))
+                        .map((value) => ({ value: value.technicalName, label: value.name })),
+                }))
+                .filter((group) => group.options.length > 0);
         },
 
         result() {
@@ -177,7 +205,47 @@ export default {
         },
     },
 
+    watch: {
+        'input.materialId'() {
+            // anderes Material: andere Gruppen – Ergebnis gilt nicht mehr
+            this.response = null;
+        },
+
+        reloadKey() {
+            this.loadConfigurator();
+        },
+    },
+
+    created() {
+        this.loadConfigurator();
+    },
+
     methods: {
+        async loadConfigurator() {
+            this.loadError = null;
+            try {
+                const { data } = await this.httpClient.post('/_action/ld-mensura/test-configurator', {
+                    ...this.source,
+                    customerGroupId: this.input.customerGroupId,
+                    language: this.language,
+                }, { headers: this.requestHeaders });
+                this.configurator = data;
+                const defaults = data.defaults ?? {};
+                if (!this.materials.some((material) => material.id === this.input.materialId)) {
+                    this.input.materialId = defaults.materialId ?? this.materials[0]?.id ?? null;
+                    this.input.width = defaults.format?.width ?? this.input.width;
+                    this.input.height = defaults.format?.height ?? this.input.height;
+                    this.input.motifs = defaults.motifs ?? 1;
+                    this.input.perMotif = defaults.perMotif ?? 1;
+                    this.input.options = { ...(defaults.options ?? {}) };
+                    this.input.deliveryValue = defaults.deliveryValue ?? null;
+                }
+            } catch (error) {
+                this.configurator = null;
+                this.loadError = error?.response?.data?.errors?.[0]?.code ?? 'error';
+            }
+        },
+
         setOption(group, value) {
             if (group.type === 'delivery') {
                 this.input.deliveryValue = value;
@@ -190,9 +258,9 @@ export default {
             this.isLoading = true;
             try {
                 const { data } = await this.httpClient.post('/_action/ld-mensura/test-calculate', {
-                    calculationId: this.calculation.id,
+                    ...this.source,
                     customerGroupId: this.input.customerGroupId,
-                    language: Shopware.Store.get('session').currentLocale ?? 'de-DE',
+                    language: this.language,
                     configuration: {
                         materialId: this.input.materialId,
                         format: { width: this.input.width, height: this.input.height },
@@ -201,7 +269,7 @@ export default {
                         options: this.input.options,
                         deliveryValue: this.input.deliveryValue,
                     },
-                }, { headers: Shopware.Service('loginService').getBasicHeaders?.() ?? { Authorization: `Bearer ${Shopware.Context.api.authToken.access}` } });
+                }, { headers: this.requestHeaders });
                 this.response = data;
                 // normalisierte Optionen übernehmen (z. B. Standardwerte)
                 this.input.options = { ...data.result.configuration.options };

@@ -46,6 +46,10 @@
             "subline": "Set up how films, boards and other articles are calculated: calculations with their own formula, materials with prices per m² and options with surcharges."
         },
         "areas": {
+            "profile": {
+                "title": "Product profiles",
+                "description": "Which Shopware products are configurable: materials from calculations, option rules, limits and surcharges."
+            },
             "overview": {
                 "title": "Overview",
                 "description": "All areas of Mensura at a glance."
@@ -414,6 +418,7 @@
                 "helpCustomerGroup": "Empty = base sale price (resellers). With a group its surcharge is added.",
                 "buttonCalculate": "Calculate",
                 "noteSaved": "The saved state is calculated – save first.",
+                "notReady": "Cannot be calculated yet: a material is missing (or, in a product profile, a calculation with material). Add it and save.",
                 "cardResult": "Result and calculation",
                 "total": "Total",
                 "perPiece": "per piece",
@@ -585,6 +590,153 @@
                 "noPrice": "The material has no sale price per m² yet – the shop cannot show a price for it.",
                 "saleBelowPurchase": "The sale price is not above the purchase price – please check the prices.",
                 "noCalculation": "The material is not assigned to any calculation and cannot be sold this way."
+            }
+        },
+        "profile": {
+            "tab": "Mensura",
+            "info": {
+                "title": "Product profile: calculations calculate, products select",
+                "text": "The profile makes a Shopware product configurable. It selects materials from one or more calculations and restricts options, e.g. shower panel: only foam board 5 mm, aluminium composite 3 mm and acrylic 5 mm, laminate fixed to “glass laminate”, drill holes hidden. Prices always come from the calculation of the selected material – the profile can only restrict and add surcharges, never extend. Saved with “Save” at the top right."
+            },
+            "emptyTitle": "No Mensura profile yet",
+            "emptySubline": "With a profile this product becomes configurable in the shop (material, format, options, live price).",
+            "buttonCreate": "Create profile",
+            "newHint": "New profile – choose materials and save the product. The profile starts inactive so nothing half-finished appears in the shop.",
+            "testAfterSave": "The test calculator appears after the product has been saved for the first time.",
+            "preview": "View in shop",
+            "cardBase": "Profile",
+            "labelActive": "Configurable in the shop",
+            "helpActive": "Only switch on when materials and rules are correct. Off = the product shows no configurator, e.g. during setup.",
+            "labelType": "Kind",
+            "helpType": "For overview only: general (e.g. direct board printing, all materials) or special (e.g. shower panels with fixed presets).",
+            "labelLayout": "Layout in the shop",
+            "helpLayout": "Compact (one page, for professionals) or guided (step by step, for new customers). Default = plugin setting, e.g. shower panels guided.",
+            "types": {
+                "general": "General",
+                "special": "Special"
+            },
+            "layouts": {
+                "default": "Default (setting)",
+                "compact": "Compact",
+                "guided": "Guided"
+            },
+            "modes": {
+                "inherit": "Inherit",
+                "restrict": "Restrict",
+                "fixed": "Fixed",
+                "hidden": "Hidden"
+            },
+            "display": {
+                "default": "Default (setting)",
+                "on": "Show",
+                "off": "Hide"
+            },
+            "materials": {
+                "card": "Materials",
+                "intro": "Which materials the customer can choose – also from several calculations. The calculation of the selected material calculates. A single material = fixed, the step “Material” is skipped.",
+                "helpCalculation": "Calculation the material comes from, e.g. “Aluminium composite”. It provides prices, options and format limits.",
+                "helpMaterial": "A specific material (e.g. Alu 3 mm) or all materials of the calculation – new materials of the calculation then appear automatically.",
+                "surcharge": "Surcharge %",
+                "helpSurcharge": "Surcharge for this material in this product only, e.g. 5 for acrylic in shower panels. Empty = no surcharge.",
+                "all": "All materials of the calculation",
+                "add": "Add material",
+                "fixedHint": "Only one material: the step “Material” is skipped in the shop."
+            },
+            "options": {
+                "card": "Options",
+                "intro": "Per option group: inherit (everything from the calculation), restrict (selected values only), fixed (one value, shown as info only) or hidden (invisible, still calculated and sent to the supplier). Deviations per material are possible.",
+                "empty": "Choose materials first – then the option groups of the calculations appear here.",
+                "allValues": "all values ({count}) | all values ({count})",
+                "labelMode": "Rule",
+                "helpMode": "E.g. drill holes “Hidden” with default “No”, or laminate “Fixed” to “glass laminate”.",
+                "labelValues": "Allowed values",
+                "helpValues": "Only these values can be chosen, e.g. cutting only “rectangular”.",
+                "labelDefault": "Default value",
+                "helpDefault": "Preselection in the shop. Required for “Fixed” and “Hidden” – this value is calculated, e.g. “No”.",
+                "labelMaterial": "Only for material",
+                "helpMaterialRule": "This rule applies only to the selected material and takes precedence, e.g. acrylic: laminate hidden.",
+                "addMaterialRule": "Deviation for one material"
+            },
+            "limits": {
+                "card": "Format and quantity",
+                "intro": "Only narrower than the calculation – wider is not possible. Empty = limits of the calculation or material.",
+                "helpFormat": "In mm, e.g. shower panel max. 1,500 × 2,550 mm.",
+                "labelMinQuantity": "Minimum quantity",
+                "helpMinQuantity": "Smallest number of pieces per line, e.g. 10 for stickers.",
+                "labelMaxQuantity": "Maximum quantity",
+                "helpMaxQuantity": "Largest number of pieces per line, e.g. 5 for shower panels.",
+                "helpQuantitySteps": "Quantities of the price matrix for this product only, e.g. 1, 2, 5, 10. Empty = as the calculation."
+            },
+            "prices": {
+                "card": "Surcharges (sale)",
+                "intro": "Surcharges of the product on the result of the calculation, before the minimum price, e.g. special product +10 %. Purchase prices are not affected.",
+                "labelSurcharge": "Surcharge %",
+                "helpSurcharge": "Percent on the sale price of all materials of this product, e.g. 10.",
+                "labelMinimum": "Minimum price €",
+                "helpMinimum": "A line never costs less, e.g. €49. The higher value of profile and calculation applies.",
+                "componentsEmpty": "No additional price components, e.g. €2/pc packaging."
+            },
+            "shop": {
+                "card": "Preselection and display in the shop",
+                "intro": "This is how the configurator starts. Empty = default of the calculation. Default values of options are set in the option rules.",
+                "labelDefaultMaterial": "Preselected material",
+                "helpDefaultMaterial": "Material when the page opens, e.g. aluminium composite 3 mm. Empty = the first material.",
+                "labelDefaultWidth": "Default width (mm)",
+                "labelDefaultHeight": "Default height (mm)",
+                "helpDefaultFormat": "Format when opening, e.g. 1,000 × 2,000 mm for shower panels.",
+                "helpDefaultQuantity": "Quantity when opening, e.g. 1 motif × 1 piece.",
+                "displayTitle": "Display",
+                "helpDisplay": "Overrides the plugin setting for this product only, e.g. hide price per m² for shower panels.",
+                "display": {
+                    "showPriceHints": "Surcharges on options",
+                    "showArea": "Area",
+                    "showPerSqm": "Price per m²",
+                    "showPerPiece": "Price per piece",
+                    "showFromPrice": "“From” price"
+                }
+            },
+            "copy": {
+                "button": "Take over from another product",
+                "title": "Take over profile",
+                "intro": "Takes over materials, option rules, limits, surcharges and display from the profile of another product. The current profile is replaced; it is stored only with “Save”.",
+                "labelSource": "Template product",
+                "helpSource": "Product with a Mensura profile, e.g. “Shower panel standard”.",
+                "apply": "Take over",
+                "applied": "Profile taken over – check and save.",
+                "notFound": "The selected product has no profile."
+            },
+            "remove": {
+                "button": "Remove profile",
+                "confirm": "The Mensura profile of this product is deleted immediately (materials and option rules). The product itself is kept.",
+                "done": "Profile removed.",
+                "error": "The profile could not be deleted."
+            },
+            "warnings": {
+                "noMaterial": "No material selected – the product is not configurable in the shop (tab Mensura, materials).",
+                "materialWithoutCalculation": "A material row has no calculation.",
+                "fixedWithoutValue": "An option rule “Fixed” or “Hidden” has no default value – the default of the calculation is calculated.",
+                "restrictWithoutValues": "An option rule “Restrict” has no allowed values.",
+                "minAboveMax": "A minimum value (format or quantity) is greater than the maximum."
+            },
+            "list": {
+                "placeholderSearch": "Search product profiles …",
+                "infoText": "All products with a Mensura profile. A profile is edited in the product (tab “Mensura”). New special products are created quickly with “Copy to another product”.",
+                "buttonAdd": "Create profile for a product",
+                "columnProduct": "Product",
+                "allOf": "All of {name}",
+                "openProduct": "Open in product",
+                "copyTo": "Copy to another product",
+                "copyIntro": "Copies the profile of “{name}” (materials, rules, limits) to a product without a profile. The copy starts inactive.",
+                "copyApply": "Copy",
+                "copied": "Profile copied – check and activate it in the product.",
+                "labelTarget": "Target product",
+                "labelProduct": "Product",
+                "helpProduct": "Only products without a Mensura profile (main products), e.g. “Shower panel premium”.",
+                "createIntro": "Choose the Shopware product. You then create the profile in the product's “Mensura” tab.",
+                "openForCreate": "Open product",
+                "emptyTitle": "No product profile yet",
+                "emptySubline": "A profile makes a Shopware product configurable, e.g. “Aluminium composite boards” with all aluminium composite materials.",
+                "confirmDelete": "Delete the profile of “{name}”? Materials and option rules of the profile are deleted too, the product is kept."
             }
         }
     },

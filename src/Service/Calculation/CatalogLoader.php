@@ -44,15 +44,20 @@ class CatalogLoader
     {
     }
 
-    public function load(string $productId, Context $context): ?Catalog
+    /**
+     * @param bool $onlyActive false nur für den Testrechner der Administration (Profil noch nicht freigeschaltet)
+     */
+    public function load(string $productId, Context $context, bool $onlyActive = true): ?Catalog
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('productId', $productId))
-            ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('materials')
             ->addAssociation('options')
             ->setLimit(1);
-        $profile = $this->registry->getRepository('ld_mensura_product_profile')->search($criteria, $context)->first();
+        if ($onlyActive) {
+            $criteria->addFilter(new EqualsFilter('active', true));
+        }
+        $profile =$this->registry->getRepository('ld_mensura_product_profile')->search($criteria, $context)->first();
         if (!$profile instanceof Entity) {
             return null;
         }

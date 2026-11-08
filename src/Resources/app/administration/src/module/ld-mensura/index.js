@@ -1,5 +1,6 @@
 import './acl';
 import './mensura.scss';
+import './extension/sw-product-detail';
 import { NAV_ITEMS } from './constants';
 
 // Seitenrahmen und Bausteine
@@ -27,6 +28,8 @@ Shopware.Component.register('lm-option-list', () => import('./page/lm-option-lis
 Shopware.Component.register('lm-option-detail', () => import('./page/lm-option-detail'));
 Shopware.Component.register('lm-option-set-list', () => import('./page/lm-option-set-list'));
 Shopware.Component.register('lm-option-set-detail', () => import('./page/lm-option-set-detail'));
+Shopware.Component.register('lm-profile-list', () => import('./page/lm-profile-list'));
+Shopware.Component.register('lm-product-profile', () => import('./page/lm-product-profile'));
 
 const COLOR = '#0B6E79';
 
@@ -74,6 +77,8 @@ Shopware.Module.register('ld-mensura', {
             path: 'overview',
             meta: { privilege: 'ld_mensura.viewer' },
         },
+        // Profile werden im Produkt bearbeitet (Reiter „Mensura“), hier nur die Übersicht
+        profile: { component: 'lm-profile-list', path: 'profile', meta: viewer },
         ...areaRoutes('calculation', 'lm-calculation-list', 'lm-calculation-detail', 'calculationId'),
         ...areaRoutes('material', 'lm-material-list', 'lm-material-detail', 'materialId'),
         ...areaRoutes('option', 'lm-option-list', 'lm-option-detail', 'groupId'),
@@ -98,4 +103,30 @@ Shopware.Module.register('ld-mensura', {
             position: (index + 1) * 10,
         })),
     ],
+});
+
+/**
+ * Reiter „Mensura“ in der Produktdetailseite: Route als Kind von sw.product.detail
+ * (Reiter selbst in extension/sw-product-detail).
+ */
+Shopware.Module.register('ld-mensura-product', {
+    type: 'plugin',
+    name: 'ld-mensura-product',
+    title: 'ld-mensura.profile.tab',
+    description: 'ld-mensura.profile.info.title',
+    color: COLOR,
+    icon: 'regular-crop',
+
+    routeMiddleware(next, currentRoute) {
+        const name = 'sw.product.detail.ldMensura';
+        if (currentRoute.name === 'sw.product.detail' && !currentRoute.children.some((route) => route.name === name)) {
+            currentRoute.children.push({
+                name,
+                path: '/sw/product/detail/:id?/ld-mensura',
+                component: 'lm-product-profile',
+                meta: { parentPath: 'sw.product.index', privilege: 'ld_mensura.viewer' },
+            });
+        }
+        next(currentRoute);
+    },
 });
