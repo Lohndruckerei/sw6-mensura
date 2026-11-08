@@ -109,6 +109,10 @@
         <service id="Lohndruckerei\Mensura\Controller\StoreApi\MensuraStoreApiController" public="true">
             <tag name="controller.service_arguments"/>
         </service>
+        <!-- Storefront-Routen des Konfigurators mit Sitzungskontext (gleiche Antworten wie die Store-API) -->
+        <service id="Lohndruckerei\Mensura\Controller\Storefront\MensuraStorefrontController" public="true">
+            <tag name="controller.service_arguments"/>
+        </service>
         <!-- Einkaufspreise serverseitig schützen (Recht ld_mensura.purchase, KONZEPT 3b) -->
         <service id="Lohndruckerei\Mensura\Service\Security\PurchaseProtectionSubscriber"/>
         <service id="Lohndruckerei\Mensura\Controller\Admin\MensuraAdminApiController" public="true">
