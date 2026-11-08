@@ -39,6 +39,11 @@
           },
           "optionSet": { "type": "string", "description": "technischer Name des Folge-Sets" },
           "fromPricePerSqm": { "type": ["number", "null"], "description": "„ab“-Preis netto je m² für Kacheln" },
+          "defaults": {
+            "type": "object",
+            "description": "optional: Vorbelegung je Optionsgruppe für dieses Material = jeweils der günstigste erlaubte Wert (Regel: immer den günstigsten Fall vorauswählen). Gilt, wenn eine Gruppe neu erscheint oder ihr Wert beim Materialwechsel nicht mehr erlaubt ist; Vorrang vor defaults.options",
+            "additionalProperties": { "type": "string", "minLength": 1 }
+          },
           "limits": { "$ref": "#/$defs/limits" }
         }
       }
