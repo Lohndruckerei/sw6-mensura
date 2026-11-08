@@ -317,6 +317,44 @@ test('Store-API-Client: Pfade, Header, Kontext-Token', async () => {
     assert.equal(seen[1].init.headers['sw-context-token'], 'neu', 'neues Token aus der Antwort wird weiterverwendet');
 });
 
+test('Storefront-Client: Routen im Sitzungskontext, bei 404 Ausweichen auf die Store-API (nur Lesen), Warenkorb nie ohne Sitzung', async () => {
+    const { StorefrontClient } = await import(join(SRC, 'api-client.js'));
+    const seen = [];
+    const reply = (status, json) => ({ ok: status < 300, status, json: async () => json });
+    const routes = { ok: true };
+    const fetchImpl = async (url, init) => {
+        seen.push({ url, init });
+        if (!routes.ok) return reply(404, { errors: [] });
+        return reply(200, { apiVersion: 1, url });
+    };
+    const fallback = { configurator: async () => ({ apiVersion: 1, from: 'store-api' }), calculate: async () => ({ apiVersion: 1, from: 'store-api' }) };
+    const sf = new StorefrontClient({ baseUrl: 'http://shop.test/en/', fallback, fetchImpl });
+    await sf.configurator(alu.productId);
+    await sf.calculate(byName['alu-mindestpreis'].request, { matrix: true });
+    assert.equal(seen[0].url, `http://shop.test/en/ld-mensura/configurator/${alu.productId}`);
+    assert.equal(seen[1].url, 'http://shop.test/en/ld-mensura/calculate');
+    assert.deepEqual(JSON.parse(seen[1].init.body), { configuration: byName['alu-mindestpreis'].request, matrix: true });
+    assert.equal(seen[1].init.credentials, 'same-origin');
+    assert.ok(!('sw-context-token' in seen[1].init.headers) && !('sw-access-key' in seen[1].init.headers), 'kein Token/Schlüssel nötig');
+    assert.equal((await sf.addToCart(byName['alu-mindestpreis'].request)).ok, true);
+    // Routen fehlen (404): Lesen über die Store-API, Warenkorb schlägt fehl statt in einen fremden Warenkorb zu legen
+    routes.ok = false;
+    const sf2 = new StorefrontClient({ baseUrl: '', fallback, fetchImpl });
+    assert.equal((await sf2.configurator(alu.productId)).from, 'store-api');
+    assert.equal((await sf2.calculate(byName['alu-mindestpreis'].request)).from, 'store-api');
+    await assert.rejects(() => sf2.addToCart(byName['alu-mindestpreis'].request), /cart 404/);
+});
+
+test('Twig gibt nie den Kontext-Token aus (Shopware 6.7 wirft sonst HTTP 500)', async () => {
+    const { readdirSync, statSync, readFileSync } = await import('node:fs');
+    const { ROOT } = await import('./helpers.mjs');
+    const walk = (dir) => readdirSync(dir).flatMap((f) => (statSync(join(dir, f)).isDirectory() ? walk(join(dir, f)) : [join(dir, f)]));
+    for (const file of walk(join(ROOT, 'src/Resources/views/storefront')).filter((f) => f.endsWith('.twig'))) {
+        const code = readFileSync(file, 'utf8').replace(/\{#[\s\S]*?#\}/g, '');
+        assert.ok(!/context\.token/.test(code), `context.token in ${file}`);
+    }
+});
+
 test('englische Texte (en-GB) ohne fehlende Schlüssel', async () => {
     const c = await controller({ layout: 'guided' });
     for (const layout of ['compact', 'guided']) {

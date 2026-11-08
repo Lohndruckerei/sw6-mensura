@@ -4,7 +4,7 @@
  */
 
 import { MensuraController } from './controller.js';
-import { FixtureClient, loadFixturesFromUrl, StoreApiClient } from './api-client.js';
+import { FixtureClient, loadFixturesFromUrl, StoreApiClient, StorefrontClient } from './api-client.js';
 import { renderConfigurator } from './render.js';
 import { decodeHash, encodeHash, nextStepKey, guidedSteps, normalizeStep } from './state.js';
 import { createFormatter, createTranslator } from './util.js';
@@ -18,7 +18,10 @@ export async function createClient(options) {
         const loaded = await loadFixturesFromUrl(options.fixtures, index);
         return new FixtureClient({ ...loaded, delayMs: options.fixtureDelayMs ?? 120 });
     }
-    return new StoreApiClient({ baseUrl: options.storeApiUrl || '/store-api', accessKey: options.accessKey, contextToken: options.contextToken });
+    const storeApi = options.accessKey ? new StoreApiClient({ baseUrl: options.storeApiUrl || '/store-api', accessKey: options.accessKey, contextToken: options.contextToken }) : null;
+    // im Shop: Storefront-Routen im Sitzungskontext (Shopware 6.7 gibt den Kontext-Token nicht heraus)
+    if (options.storefrontUrl != null) return new StorefrontClient({ baseUrl: options.storefrontUrl, fallback: storeApi });
+    return storeApi;
 }
 
 export async function mountConfigurator(el, options = {}) {

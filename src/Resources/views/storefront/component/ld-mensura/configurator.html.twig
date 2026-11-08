@@ -1,6 +1,7 @@
 {#
     Mensura-Konfigurator (kompakt/geführt). Das JS-Plugin LdMensuraConfigurator lädt die Daten über die Store-API
-    (GET /store-api/ld-mensura/product/{id}/configurator) und holt Preise nur von POST /store-api/ld-mensura/calculate.
+    über die Storefront-Routen /ld-mensura/configurator/{id}, /ld-mensura/calculate, /ld-mensura/cart/add (Sitzungskontext,
+    gleiche Bodies wie die Store-API). Den Kontext-Token gibt Shopware 6.7 nicht in HTML heraus – nie context.token verwenden.
     Die Liste lmTextKeys muss zu den Snippets ldMensura.configurator.* passen (geprüft in tests/Frontend).
 #}
 {% block ld_mensura_configurator %}
@@ -35,8 +36,8 @@
 
     {% set lmOptions = {
         productId: product.id,
+        storefrontUrl: app.request.attributes.get('sw-storefront-url') ?? app.request.basePath,
         accessKey: context.salesChannel.accessKey,
-        contextToken: context.token,
         storeApiUrl: app.request.basePath ~ '/store-api',
         locale: app.request.locale|replace({ '_': '-' }),
         currency: context.currency.isoCode,
