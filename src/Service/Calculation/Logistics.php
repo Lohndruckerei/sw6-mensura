@@ -128,6 +128,45 @@ final class Logistics
         ];
     }
 
+    /**
+     * Linearer Teil der Regeln als VK-Preisanteile (für Aufpreis-Hinweise und „ab“-Preis, KONZEPT 3d.4 Nr. 2):
+     * nur Regeln ohne Rampe, Mengenschwelle und Mindestbetrag in den Formen per_sqm/per_piece/per_position.
+     * Alles andere passt in keinen festen Text und bleibt außen vor.
+     *
+     * @param list<array<string, mixed>> $rules
+     *
+     * @return list<array{type: string, sale: float}>
+     */
+    public static function linearComponents(array $rules): array
+    {
+        $components = [];
+        foreach ($rules as $rule) {
+            if (!self::isLinear($rule)) {
+                continue;
+            }
+            $type = match ($rule['form'] ?? null) {
+                'per_sqm' => 'per_area',
+                'per_piece' => 'per_piece',
+                'per_position' => 'per_order',
+                default => null,
+            };
+            if ($type !== null) {
+                $components[] = ['type' => $type, 'sale' => (float) ($rule['value'] ?? 0)];
+            }
+        }
+
+        return $components;
+    }
+
+    /** @param array<string, mixed> $rule */
+    public static function isLinear(array $rule): bool
+    {
+        return \in_array($rule['form'] ?? null, ['per_sqm', 'per_piece', 'per_position'], true)
+            && ($rule['rampFrom'] ?? null) === null
+            && ($rule['thresholdBasis'] ?? null) === null
+            && ($rule['minimumAmount'] ?? null) === null;
+    }
+
     private static function clamp(float $value): float
     {
         return max(0.0, min(1.0, $value));

@@ -57,7 +57,7 @@ final class ConfiguratorBuilder
                     'motifMode' => (string) ($calculation['motifMode'] ?? 'multiply'),
                 ],
                 'optionSet' => (string) ($catalog->optionSet($setId)['technicalName'] ?? ''),
-                'fromPricePerSqm' => $this->fromPricePerSqm($catalog, $calculation, $material, $entry, $surcharge),
+                'fromPricePerSqm' => $this->fromPricePerSqm($catalog, $calculation, $material, $entry, $surcharge, $context),
                 'limits' => $limits,
             ];
             if ($materialDefaults !== []) {
@@ -111,7 +111,13 @@ final class ConfiguratorBuilder
                 if (!empty($value['badges'])) {
                     $out['badges'] = array_values($value['badges']);
                 }
-                $out['priceHint'] = $this->priceHint($assignment['priceComponents'] ?? [], $surcharge, $messages);
+                // Logistikanteil der Option steckt unsichtbar im Aufpreis (KONZEPT 3d.4 Nr. 2, nur der lineare Teil)
+                $optionRules = array_values(array_filter(
+                    Logistics::effectiveRules($catalog, $hintSource['calculationId'], $hintSource['materialId'], [$valueId], $context->now),
+                    static fn (array $rule) => ($rule['optionValueId'] ?? null) === $valueId,
+                ));
+                $components = array_merge(\is_array($assignment['priceComponents'] ?? null) ? $assignment['priceComponents'] : [], Logistics::linearComponents($optionRules));
+                $out['priceHint'] = $this->priceHint($components, $surcharge, $messages);
                 if ($type === 'format') {
                     $out['width'] = isset($value['width']) ? (int) $value['width'] : null;
                     $out['height'] = isset($value['height']) ? (int) $value['height'] : null;
@@ -335,12 +341,14 @@ final class ConfiguratorBuilder
      * (Materialpreis + Preisanteile je m² aus Kalkulation, Material und Produktprofil)
      * × (1 + Aufschlag Produktprofil % + Aufschlag Profil-Material %) × (1 + Kundengruppen-Aufschlag %).
      * Nur bei Mengeneinheit Fläche; Staffeln und Mindestpreis bleiben außen vor (es ist ein „ab“-Preis).
+     * Dazu der lineare Logistikanteil je m² von Kalkulation und Material (KONZEPT 3d.4 Nr. 2), wie in der Engine
+     * nach dem Profil-Aufschlag und vor dem Kundengruppen-Aufschlag; Rampen u. Ä. wirken erst bei großen Formaten.
      *
      * @param array<string, mixed>                       $calculation
      * @param array<string, mixed>                       $material
      * @param array{surchargePercent: float, ...}        $entry
      */
-    private function fromPricePerSqm(Catalog $catalog, array $calculation, array $material, array $entry, float $customerGroupFactor): ?float
+    private function fromPricePerSqm(Catalog $catalog, array $calculation, array $material, array $entry, float $customerGroupFactor, CalculationContext $context): ?float
     {
         if (($calculation['unit'] ?? 'area') !== 'area' || !isset($material['priceSale'])) {
             return null;
@@ -355,8 +363,15 @@ final class ConfiguratorBuilder
             }
         }
         $profileFactor = 1 + ((float) ($profile['surchargePercent'] ?? 0) + (float) ($entry['surchargePercent'] ?? 0)) / 100;
+        $logisticsPerArea = 0.0;
+        $rules = Logistics::effectiveRules($catalog, (string) $entry['calculationId'], (string) $entry['materialId'], [], $context->now);
+        foreach (Logistics::linearComponents($rules) as $component) {
+            if ($component['type'] === 'per_area') {
+                $logisticsPerArea += $component['sale'];
+            }
+        }
 
-        return round(((float) $material['priceSale'] + $perArea) * $profileFactor * $customerGroupFactor, 2);
+        return round((((float) $material['priceSale'] + $perArea) * $profileFactor + $logisticsPerArea) * $customerGroupFactor, 2);
     }
 
     /**
@@ -366,8 +381,27 @@ final class ConfiguratorBuilder
      */
     public function priceHint(mixed $components, float $surcharge, Messages $messages): string
     {
-        $parts = [];
+        // gleichartige additive Anteile zusammenfassen (ein Wert je Einheit), damit z. B. ein eingerechneter
+        // Logistikanteil nicht als eigener Teil erkennbar ist (KONZEPT 3d.4)
+        $merged = [];
         foreach (\is_array($components) ? $components : [] as $component) {
+            if (!\is_array($component) || !is_numeric($component['sale'] ?? null)) {
+                continue;
+            }
+            $type = (string) ($component['type'] ?? '');
+            if (\in_array($type, ['per_area', 'per_piece', 'per_motif', 'per_perimeter', 'per_order'], true)) {
+                if (isset($merged[$type])) {
+                    $merged[$type]['sale'] += (float) $component['sale'];
+                    continue;
+                }
+                $merged[$type] = ['type' => $type, 'sale' => (float) $component['sale']];
+                continue;
+            }
+            $merged[] = $component;
+        }
+
+        $parts = [];
+        foreach ($merged as $component) {
             if (!\is_array($component) || !is_numeric($component['sale'] ?? null)) {
                 continue;
             }

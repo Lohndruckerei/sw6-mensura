@@ -6,6 +6,7 @@ namespace Lohndruckerei\Mensura\Tests\Backend;
 
 use Lohndruckerei\Mensura\Service\Calculation\CalculationResult;
 use Lohndruckerei\Mensura\Service\Calculation\Catalog;
+use Lohndruckerei\Mensura\Service\Calculation\ConfiguratorBuilder;
 use Lohndruckerei\Mensura\Service\Calculation\PriceEngine;
 use Lohndruckerei\Mensura\Service\Demo\DemoCatalog;
 use PHPUnit\Framework\TestCase;
@@ -153,6 +154,33 @@ final class LogisticsTest extends TestCase
         self::assertEqualsWithDelta($result->getSaleTotal(), $subtotal, 0.006);
     }
 
+    public function testLinearOptionShareIsPartOfThePriceHintAndAddsUp(): void
+    {
+        $drill = DemoCatalog::id('value.bohrung.ja');
+        $linear = [self::rule(['optionValueId' => $drill, 'costType' => 'other', 'form' => 'per_piece', 'value' => 0.20])];
+
+        // ein zusammengefasster Aufpreis statt „+ 0,30 €/Stk + 0,20 €/Stk“
+        self::assertSame('+ 0,50 €/Stk', $this->hint('bohrung', 'ja', $linear));
+
+        // die Summe geht auf: Mehrpreis in der Engine = Hinweis × Stück
+        $with = $this->calc(['format' => ['width' => 1000, 'height' => 500], 'perMotif' => 10, 'options' => ['bohrung' => 'ja']], $linear);
+        $without = $this->calc(['format' => ['width' => 1000, 'height' => 500], 'perMotif' => 10], $linear);
+        self::assertEqualsWithDelta(5.0, $with->getSaleTotal() - $without->getSaleTotal(), 0.001);
+
+        // nicht linear (Mindestbetrag) → nicht im Hinweis
+        $nonLinear = [self::rule(['optionValueId' => $drill, 'costType' => 'other', 'form' => 'per_piece', 'value' => 0.20, 'minimumAmount' => 5.0])];
+        self::assertSame('+ 0,30 €/Stk', $this->hint('bohrung', 'ja', $nonLinear));
+    }
+
+    public function testFromPriceContainsLinearMaterialShareOnly(): void
+    {
+        self::assertSame(29.0, $this->fromPrice(self::ALU, []));
+        self::assertSame(30.5, $this->fromPrice(self::ALU, [self::rule(['materialId' => self::ALU, 'form' => 'per_sqm', 'value' => 1.5])]));
+        self::assertSame(29.0, $this->fromPrice(self::ALU, [self::rule(['materialId' => self::ALU, 'form' => 'per_sqm', 'value' => 1.5, 'rampFrom' => 1000, 'rampTo' => 1400])]));
+        // Demo-Regel Acryl hat eine Rampe → „ab“-Preis unverändert
+        self::assertSame(62.0, $this->fromPrice(self::ACRYL, null));
+    }
+
     /** Kein Feld und kein Text mit „logistic“ (KONZEPT 3d.4 Nr. 5). */
     public static function assertNoLogistics(mixed $data, string $path = ''): void
     {
@@ -185,6 +213,46 @@ final class LogisticsTest extends TestCase
             'validFrom' => null,
             'active' => true,
         ];
+    }
+
+    /** @param list<array<string, mixed>>|null $rules */
+    private function configurator(?array $rules): array
+    {
+        $data = DemoCatalog::catalog();
+        if ($rules !== null) {
+            $data['logisticsRules'] = $rules;
+        }
+        $out = json_decode((string) json_encode((new ConfiguratorBuilder())->build(new Catalog($data), ContractTest::context())), true);
+        self::assertNoLogistics($out, 'configurator');
+
+        return $out;
+    }
+
+    /** @param list<array<string, mixed>>|null $rules */
+    private function hint(string $group, string $value, ?array $rules): string
+    {
+        foreach ($this->configurator($rules)['groups'] as $g) {
+            if ($g['technicalName'] !== $group) {
+                continue;
+            }
+            foreach ($g['values'] as $v) {
+                if ($v['technicalName'] === $value) {
+                    return (string) $v['priceHint'];
+                }
+            }
+        }
+        self::fail("Wert $group.$value fehlt");
+    }
+
+    /** @param list<array<string, mixed>>|null $rules */
+    private function fromPrice(string $materialId, ?array $rules): ?float
+    {
+        foreach ($this->configurator($rules)['materials'] as $material) {
+            if ($material['id'] === $materialId) {
+                return $material['fromPricePerSqm'] === null ? null : (float) $material['fromPricePerSqm'];
+            }
+        }
+        self::fail("Material $materialId fehlt");
     }
 
     /** @param list<array<string, mixed>>|null $rules null = Demo-Regeln */
