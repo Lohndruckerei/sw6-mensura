@@ -275,7 +275,8 @@ z. B. „Grundlagen“ (Farbigkeit)  →  Aluverbund: „Plattenveredelung“ (L
 - **Frühere Wahl ändern (z. B. Aluverbund → Acryl):**
   - **Format, Menge und Motive bleiben erhalten.**
   - **Gruppen, die auch im neuen Set vorkommen, behalten ihren Wert,** solange er dort erlaubt ist. Optionsgruppen sind eine
-    gemeinsame Bibliothek, deshalb ist „Laminat“ bei Alu und Acryl dieselbe Gruppe. Andernfalls gilt der Standardwert.
+    gemeinsame Bibliothek, deshalb ist „Laminat“ bei Alu und Acryl dieselbe Gruppe. Andernfalls gilt der Standardwert:
+    **immer der günstigste erlaubte Wert des Materials** (Entscheidung 08.11.2026; Vertrag `materials[].defaults`).
   - Gruppen, die wegfallen, werden aus der Konfiguration entfernt. Kehrt der Kunde zurück, wird die frühere Wahl
     wiederhergestellt, solange er die Seite nicht verlassen hat.
   - **Grenzen des neuen Materials** (z. B. Acryl max. 2.000 mm Höhe): Der Wert wird **nicht still verändert**. Das Feld

@@ -83,7 +83,8 @@ wir-machen-druck ist kein Vorbild, weil es zu komplex ist. Die heutige Seite von
 6. Konfiguration in der URL (teilen, wiederherstellen) und „Angebot als PDF“.
 
 **Vermeiden:** Kombi-Dropdowns, die mehrere Eigenschaften mischen; tiefe Kategoriebäume statt eines Produkts mit
-Optionen; Preis erst nach einem Knopf; kostenpflichtige Optionen vorauswählen.
+Optionen; Preis erst nach einem Knopf; teurere Optionen vorauswählen. Vorausgewählt wird immer der günstigste Fall
+(Entscheidung 08.11.2026), auch wenn er einen Aufpreis hat, weil eine Wahl nötig ist (z. B. Grundzuschnitt).
 
 **Ergänzungen am Datenmodell** (Vorschlag, siehe KONZEPT Fahrplan):
 

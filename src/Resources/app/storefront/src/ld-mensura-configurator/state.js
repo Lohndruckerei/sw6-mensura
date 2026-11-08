@@ -33,14 +33,19 @@ export function findValue(group, technicalName) {
 }
 
 /**
- * Standardwert einer Gruppe: Vorbelegung aus `defaults` (vom Backend), sonst der erste erlaubte Wert.
- * Nicht verpflichtende Gruppen ohne Vorbelegung bleiben leer (kostenpflichtige Optionen nie vorauswählen).
+ * Standardwert einer Gruppe – Regel: immer den günstigsten Fall vorauswählen. Welcher Wert am günstigsten ist, weiß nur
+ * das Backend (priceHint ist reine Anzeige), daher: Vorbelegung des Materials (`materials[].defaults`), sonst die
+ * allgemeine Vorbelegung (`defaults.options`), sonst der erste erlaubte Wert. Nicht verpflichtende Gruppen ohne
+ * Vorbelegung bleiben leer (ohne Option ist am günstigsten).
  */
 export function defaultValue(data, groupName, material) {
     const group = getGroup(data, groupName);
     const allowed = allowedValues(group, material);
+    const isAllowed = (value) => value && allowed.some((v) => v.technicalName === value);
+    const perMaterial = material?.defaults?.[groupName];
+    if (isAllowed(perMaterial)) return perMaterial;
     const preset = data.defaults?.options?.[groupName];
-    if (preset && allowed.some((v) => v.technicalName === preset)) return preset;
+    if (isAllowed(preset)) return preset;
     if (!group?.required) return null;
     return allowed[0]?.technicalName ?? null;
 }
@@ -207,7 +212,8 @@ function initialConfig(data, partial) {
         format: { width: clampInt(partial?.format?.width ?? d.format.width), height: clampInt(partial?.format?.height ?? d.format.height) },
         motifs: clampInt(partial?.motifs ?? d.motifs),
         perMotif: clampInt(partial?.perMotif ?? d.perMotif),
-        options: { ...d.options, ...(partial?.options || {}) },
+        // allgemeine Vorbelegung → günstigste Werte des Materials → eigene Auswahl (Link, Wiederbestellen)
+        options: { ...d.options, ...(materialById(data, materialId)?.defaults || {}), ...(partial?.options || {}) },
         deliveryValue: partial?.deliveryValue ?? d.deliveryValue ?? null,
         reference: partial?.reference ?? '',
     };
@@ -468,7 +474,7 @@ export function decodeHash(data, hash) {
         format: { width: int('w'), height: int('h') },
         motifs: int('mo'),
         perMotif: int('pm'),
-        options: { ...data.defaults.options, ...options },
+        options, // fehlende Gruppen füllt initialConfig (Vorbelegung des Materials, sonst allgemein)
         deliveryValue: p.get('d') || undefined,
     };
     return { config, layout: p.get('v') || null, step: p.get('s') || null };
