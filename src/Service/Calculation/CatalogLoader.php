@@ -57,7 +57,7 @@ class CatalogLoader
         if ($onlyActive) {
             $criteria->addFilter(new EqualsFilter('active', true));
         }
-        $profile =$this->registry->getRepository('ld_mensura_product_profile')->search($criteria, $context)->first();
+        $profile = $this->registry->getRepository('ld_mensura_product_profile')->search($criteria, $context)->first();
         if (!$profile instanceof Entity) {
             return null;
         }

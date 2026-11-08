@@ -7,7 +7,7 @@ namespace Lohndruckerei\Mensura\Service\Security;
 /**
  * Einkaufspreise (EK) serverseitig schützen (KONZEPT 3b): Welche Felder sind EK, wie werden sie beim Lesen
  * entfernt und beim Schreiben ohne Recht erhalten. Reines PHP (ohne Shopware), damit es ohne Shop testbar ist;
- * angewendet von Subscriber\PurchaseProtectionSubscriber.
+ * angewendet von PurchaseProtectionSubscriber.
  *
  * - Skalare EK-Felder (z. B. `pricePurchase`): beim Lesen null; Schreiben ohne Recht wird abgelehnt
  *   (Neuanlage: EK wird nicht übernommen).

@@ -1,7 +1,8 @@
 {#
-    Mensura-Konfigurator (kompakt/geführt). Das JS-Plugin LdMensuraConfigurator lädt die Daten über die Store-API
-    über die Storefront-Routen /ld-mensura/configurator/{id}, /ld-mensura/calculate, /ld-mensura/cart/add (Sitzungskontext,
-    gleiche Bodies wie die Store-API). Den Kontext-Token gibt Shopware 6.7 nicht in HTML heraus – nie context.token verwenden.
+    Mensura-Konfigurator (kompakt/geführt). Das JS-Plugin LdMensuraConfigurator lädt Daten und Preise über die
+    Storefront-Routen /ld-mensura/configurator/{id}, /ld-mensura/calculate, /ld-mensura/cart/add (Sitzungskontext,
+    gleiche Bodies wie die Store-API; fehlen sie, Store-API ohne Token mit accessKey).
+    Den Kontext-Token gibt Shopware 6.7 nicht in HTML heraus – nie context.token verwenden.
     Die Liste lmTextKeys muss zu den Snippets ldMensura.configurator.* passen (geprüft in tests/Frontend).
 #}
 {% block ld_mensura_configurator %}
