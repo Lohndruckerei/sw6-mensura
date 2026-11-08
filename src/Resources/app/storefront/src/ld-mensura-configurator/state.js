@@ -33,14 +33,21 @@ export function findValue(group, technicalName) {
 }
 
 /**
- * Standardwert einer Gruppe: Vorbelegung aus `defaults` (vom Backend), sonst der erste erlaubte Wert.
- * Nicht verpflichtende Gruppen ohne Vorbelegung bleiben leer (kostenpflichtige Optionen nie vorauswählen).
+ * Standardwert einer Gruppe – Regel: immer den günstigsten Fall vorauswählen. Welcher Wert am günstigsten ist, weiß nur
+ * das Backend (priceHint ist reine Anzeige), daher: Vorbelegung des Materials (`materials[].defaults`), sonst die
+ * allgemeine Vorbelegung (`defaults.options`), sonst der erste erlaubte Wert. Nicht verpflichtende Gruppen ohne
+ * Vorbelegung bleiben leer (ohne Option ist am günstigsten). Gruppen mit `preselect: false` werden nie vorbelegt:
+ * Der Kunde muss selbst wählen (Fehler `option.choose`, bis dahin kein Preis).
  */
 export function defaultValue(data, groupName, material) {
     const group = getGroup(data, groupName);
+    if (group?.preselect === false) return null;
     const allowed = allowedValues(group, material);
+    const isAllowed = (value) => value && allowed.some((v) => v.technicalName === value);
+    const perMaterial = material?.defaults?.[groupName];
+    if (isAllowed(perMaterial)) return perMaterial;
     const preset = data.defaults?.options?.[groupName];
-    if (preset && allowed.some((v) => v.technicalName === preset)) return preset;
+    if (isAllowed(preset)) return preset;
     if (!group?.required) return null;
     return allowed[0]?.technicalName ?? null;
 }
@@ -74,8 +81,16 @@ export function activeGroupNames(data, config) {
 
 /** Sichtbare Gruppen (ohne mode=hidden). Format-Gruppen stehen im Abschnitt Endformat, nicht bei den Optionen. */
 export function visibleGroups(data, state) {
-    const fresh = isFresh(state) && Array.isArray(state.result?.activeGroups) ? state.result.activeGroups : activeGroupNames(data, state.config);
-    return fresh.map((n) => getGroup(data, n)).filter((g) => g && g.mode !== 'hidden' && g.type !== 'delivery');
+    const local = activeGroupNames(data, state.config);
+    let names = local;
+    if (isFresh(state) && Array.isArray(state.result?.activeGroups)) {
+        // maßgeblich ist die Liste des Backends; eine Gruppe, zu der ein Fehler gemeldet ist (z. B. option.choose),
+        // bleibt aber immer sichtbar – sonst könnte der Kunde sie nicht wählen
+        const backend = state.result.activeGroups;
+        const errored = new Set((state.result.errors || []).map((e) => String(e.field || '').replace(/^options\./, '')));
+        names = [...local.filter((n) => backend.includes(n) || errored.has(n)), ...backend.filter((n) => !local.includes(n))];
+    }
+    return names.map((n) => getGroup(data, n)).filter((g) => g && g.mode !== 'hidden' && g.type !== 'delivery');
 }
 
 export const optionGroups = (data, state) => visibleGroups(data, state).filter((g) => g.type !== 'format');
@@ -143,6 +158,11 @@ export function localErrors(data, config) {
     if (l.maxQuantity != null && config.motifs * config.perMotif > l.maxQuantity) {
         errors.push({ code: 'quantity.max', field: 'perMotif', fix: { perMotif: Math.max(1, Math.floor(l.maxQuantity / config.motifs)) }, limit: l.maxQuantity, local: true });
     }
+    // Pflichtgruppe ohne Wert (Gruppe ohne Vorauswahl): der Kunde muss wählen – wie Backend-Fehler option.choose
+    for (const name of activeGroupNames(data, config)) {
+        const group = getGroup(data, name);
+        if (group?.required && group.mode !== 'hidden' && !config.options?.[name]) errors.push({ code: 'option.choose', field: `options.${name}`, group: name, local: true });
+    }
     return errors;
 }
 
@@ -199,6 +219,11 @@ const clampInt = (v, min = 1) => {
     return Number.isFinite(n) && n >= min ? n : min;
 };
 
+/** Vorbelegungen ohne Gruppen mit preselect: false */
+function presetsOnly(data, presets) {
+    return Object.fromEntries(Object.entries(presets || {}).filter(([name]) => getGroup(data, name)?.preselect !== false));
+}
+
 function initialConfig(data, partial) {
     const d = data.defaults;
     const materialId = partial?.materialId && materialById(data, partial.materialId) ? partial.materialId : d.materialId;
@@ -207,7 +232,9 @@ function initialConfig(data, partial) {
         format: { width: clampInt(partial?.format?.width ?? d.format.width), height: clampInt(partial?.format?.height ?? d.format.height) },
         motifs: clampInt(partial?.motifs ?? d.motifs),
         perMotif: clampInt(partial?.perMotif ?? d.perMotif),
-        options: { ...d.options, ...(partial?.options || {}) },
+        // allgemeine Vorbelegung → günstigste Werte des Materials → eigene Auswahl (Link, Wiederbestellen);
+        // Gruppen ohne Vorauswahl (preselect false) nie aus Vorbelegungen füllen
+        options: { ...presetsOnly(data, d.options), ...presetsOnly(data, materialById(data, materialId)?.defaults), ...(partial?.options || {}) },
         deliveryValue: partial?.deliveryValue ?? d.deliveryValue ?? null,
         reference: partial?.reference ?? '',
     };
@@ -468,7 +495,7 @@ export function decodeHash(data, hash) {
         format: { width: int('w'), height: int('h') },
         motifs: int('mo'),
         perMotif: int('pm'),
-        options: { ...data.defaults.options, ...options },
+        options, // fehlende Gruppen füllt initialConfig (Vorbelegung des Materials, sonst allgemein)
         deliveryValue: p.get('d') || undefined,
     };
     return { config, layout: p.get('v') || null, step: p.get('s') || null };

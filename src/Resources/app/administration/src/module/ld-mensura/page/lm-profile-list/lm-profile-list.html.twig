@@ -1,0 +1,189 @@
+{% block lm_profile_list %}
+<lm-page :title="$tc('ld-mensura.areas.profile.title')" active="profile" :amount="isLoading ? null : total">
+    <template #search-bar>
+        <sw-search-bar initial-search-type="ld_mensura_product_profile" :placeholder="$tc('ld-mensura.profile.list.placeholderSearch')" :initial-search="term" @search="onSearch" />
+    </template>
+
+    <template #actions>
+        <mt-button
+            v-tooltip.bottom="{ message: $tc('sw-privileges.tooltip.warning'), disabled: canEdit, showOnDisabledElements: true }"
+            :disabled="!canEdit || undefined"
+            variant="primary"
+            @click="showCreate = true"
+        >
+            {{ $tc('ld-mensura.profile.list.buttonAdd') }}
+        </mt-button>
+    </template>
+
+    <div class="lm-list">
+        <lm-info-card name="profile" :title="$tc('ld-mensura.profile.info.title')">
+            {{ $tc('ld-mensura.profile.list.infoText') }}
+        </lm-info-card>
+
+        <div v-if="lmDesign === 'c'" class="lm-kpis">
+            <button
+                v-for="kpi in kpiItems"
+                :key="kpi.name"
+                type="button"
+                class="lm-kpi"
+                :class="['lm-kpi--' + kpi.variant, { 'is--active': filter === kpi.name && kpi.name !== 'all' }]"
+                @click="setFilter(kpi.name)"
+            >
+                <mt-icon :name="kpi.icon" size="20px" />
+                <span><b>{{ kpi.count }}</b><small>{{ kpi.label }}</small></span>
+            </button>
+        </div>
+
+        <div v-if="lmDesign === 'b'" class="lm-filters" role="group">
+            <button
+                v-for="item in filterItems"
+                :key="item.name"
+                type="button"
+                class="lm-filter"
+                :class="{ 'is--active': filter === item.name }"
+                :aria-pressed="filter === item.name ? 'true' : 'false'"
+                @click="setFilter(item.name)"
+            >
+                {{ item.label }}
+                <b v-if="item.count !== null">{{ item.count }}</b>
+            </button>
+        </div>
+
+        <div v-if="lmDesign === 'c'" class="lm-toolbar">
+            <span class="lm-muted">{{ currentFilterLabel }}</span>
+            <div class="lm-seg">
+                <button v-tooltip="$tc('ld-mensura.general.viewTiles')" type="button" :class="{ 'is--active': tileView }" :aria-label="$tc('ld-mensura.general.viewTiles')" :aria-pressed="tileView ? 'true' : 'false'" @click="tileView = true">
+                    <mt-icon name="regular-view-grid" size="15px" />
+                </button>
+                <button v-tooltip="$tc('ld-mensura.general.viewList')" type="button" :class="{ 'is--active': !tileView }" :aria-label="$tc('ld-mensura.general.viewList')" :aria-pressed="!tileView ? 'true' : 'false'" @click="tileView = false">
+                    <mt-icon name="regular-list" size="15px" />
+                </button>
+            </div>
+        </div>
+
+        <template v-if="showTiles && total > 0">
+            <sw-skeleton v-if="isLoading" />
+            <div v-else class="lm-tiles">
+                <router-link
+                    v-for="item in items"
+                    :key="item.id"
+                    class="lm-tile"
+                    :class="{ 'is--inactive': item.active === false }"
+                    :to="{ name: 'sw.product.detail.ldMensura', params: { id: item.productId } }"
+                >
+                    <div class="lm-tile__top">
+                        <span class="lm-sicon" :class="{ 'is--off': item.active === false }"><mt-icon name="regular-products" size="18px" /></span>
+                        <span><b>{{ productName(item) }}</b><small>{{ item.product?.productNumber }}</small></span>
+                        <lm-status class="lm-tile__status" v-bind="statusOf(item)" />
+                    </div>
+                    <div><lm-chip v-for="label in materialLabels(item)" :key="label" color="c2" icon="regular-layer-group" :label="label" /></div>
+                    <div class="lm-tile__meta">
+                        <span>{{ $tc('ld-mensura.profile.types.' + item.type) }}</span>
+                        <span>{{ layoutLabel(item) }}</span>
+                    </div>
+                </router-link>
+            </div>
+            <sw-pagination :page="page" :limit="limit" :total="total" :total-visible="7" @page-change="onPageChange" />
+        </template>
+
+        <sw-entity-listing
+            v-if="!showTiles && total > 0"
+            identifier="lm-profile-list"
+            :is-loading="isLoading"
+            :columns="columns"
+            :repository="repository"
+            :items="items"
+            :criteria-limit="limit"
+            :disable-data-fetching="true"
+            :allow-inline-edit="false"
+            :allow-edit="false"
+            :allow-delete="false"
+            :show-selections="false"
+            @page-change="onPageChange"
+        >
+            <template #column-product="{ item }">
+                <div class="lm-namecell">
+                    <span v-if="lmDesign !== 'a'" class="lm-sicon" :class="{ 'is--off': item.active === false }"><mt-icon name="regular-products" size="16px" /></span>
+                    <span>
+                        <router-link :to="{ name: 'sw.product.detail.ldMensura', params: { id: item.productId } }">{{ productName(item) }}</router-link>
+                        <small>{{ item.product?.productNumber }}</small>
+                    </span>
+                </div>
+            </template>
+            <template #column-type="{ item }">
+                {{ $tc('ld-mensura.profile.types.' + item.type) }}
+            </template>
+            <template #column-materials="{ item }">
+                <lm-chip v-for="label in materialLabels(item)" :key="label" color="c2" icon="regular-layer-group" :label="label" />
+                <span v-if="materialLabels(item).length === 0" class="lm-muted">–</span>
+            </template>
+            <template #column-layout="{ item }">
+                {{ layoutLabel(item) }}
+            </template>
+            <template #column-active="{ item }">
+                <lm-status v-bind="statusOf(item)" />
+            </template>
+            <template #actions="{ item }">
+                <sw-context-menu-item @click="openProduct(item)">
+                    {{ $tc('ld-mensura.profile.list.openProduct') }}
+                </sw-context-menu-item>
+                <sw-context-menu-item :disabled="!canEdit || undefined" @click="copyItem = item">
+                    {{ $tc('ld-mensura.profile.list.copyTo') }}
+                </sw-context-menu-item>
+                <sw-context-menu-divider />
+                <sw-context-menu-item variant="danger" :disabled="!canEdit || undefined" @click="deleteItem = item">
+                    {{ $tc('global.default.delete') }}
+                </sw-context-menu-item>
+            </template>
+        </sw-entity-listing>
+
+        <sw-empty-state v-if="!isLoading && !total && term" :title="$tc('ld-mensura.general.noResultsTitle')" :subline="$tc('ld-mensura.general.noResultsSubline', { term }, 0)" icon="regular-search" :absolute="false" />
+        <sw-empty-state v-else-if="!isLoading && !total && filter !== 'all'" :title="$tc('ld-mensura.general.emptyFilterTitle')" :subline="$tc('ld-mensura.general.emptyFilterSubline')" icon="regular-filter" :absolute="false" />
+        <sw-empty-state v-else-if="!isLoading && !total" :title="$tc('ld-mensura.profile.list.emptyTitle')" :subline="$tc('ld-mensura.profile.list.emptySubline')" icon="regular-products" :absolute="false">
+            <template #actions>
+                <mt-button variant="primary" :disabled="!canEdit || undefined" @click="showCreate = true">
+                    {{ $tc('ld-mensura.profile.list.buttonAdd') }}
+                </mt-button>
+            </template>
+        </sw-empty-state>
+
+        <sw-modal v-if="showCreate" :title="$tc('ld-mensura.profile.list.buttonAdd')" variant="small" @modal-close="showCreate = false">
+            <p class="lm-card-intro">{{ $tc('ld-mensura.profile.list.createIntro') }}</p>
+            <sw-entity-single-select
+                v-model:value="createProductId"
+                entity="product"
+                :criteria="withoutProfileCriteria"
+                :label="$tc('ld-mensura.profile.list.labelProduct')"
+                :help-text="$tc('ld-mensura.profile.list.helpProduct')"
+            />
+            <template #modal-footer>
+                <mt-button size="small" variant="secondary" @click="showCreate = false">{{ $tc('global.default.cancel') }}</mt-button>
+                <mt-button size="small" variant="primary" :disabled="!createProductId || undefined" @click="startCreate">{{ $tc('ld-mensura.profile.list.openForCreate') }}</mt-button>
+            </template>
+        </sw-modal>
+
+        <sw-modal v-if="copyItem" :title="$tc('ld-mensura.profile.list.copyTo')" variant="small" @modal-close="copyItem = null">
+            <p class="lm-card-intro">{{ $tc('ld-mensura.profile.list.copyIntro', { name: productName(copyItem) }, 0) }}</p>
+            <sw-entity-single-select
+                v-model:value="copyTargetId"
+                entity="product"
+                :criteria="withoutProfileCriteria"
+                :label="$tc('ld-mensura.profile.list.labelTarget')"
+                :help-text="$tc('ld-mensura.profile.list.helpProduct')"
+            />
+            <template #modal-footer>
+                <mt-button size="small" variant="secondary" @click="copyItem = null">{{ $tc('global.default.cancel') }}</mt-button>
+                <mt-button size="small" variant="primary" :disabled="!copyTargetId || undefined" @click="confirmCopy">{{ $tc('ld-mensura.profile.list.copyApply') }}</mt-button>
+            </template>
+        </sw-modal>
+
+        <sw-modal v-if="deleteItem" :title="$tc('global.default.warning')" variant="small" @modal-close="deleteItem = null">
+            <p>{{ $tc('ld-mensura.profile.list.confirmDelete', { name: productName(deleteItem) }, 0) }}</p>
+            <template #modal-footer>
+                <mt-button size="small" variant="secondary" @click="deleteItem = null">{{ $tc('global.default.cancel') }}</mt-button>
+                <mt-button size="small" variant="critical" @click="confirmDelete">{{ $tc('global.default.delete') }}</mt-button>
+            </template>
+        </sw-modal>
+    </div>
+</lm-page>
+{% endblock %}

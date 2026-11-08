@@ -104,6 +104,9 @@
         <service id="Lohndruckerei\Mensura\Service\Calculation\CatalogLoader"/>
         <service id="Lohndruckerei\Mensura\Service\Calculation\ContextFactory"/>
         <service id="Lohndruckerei\Mensura\Service\Demo\DemoSeedCommand"/>
+        <service id="Lohndruckerei\Mensura\Service\Demo\ComdatekDemoCommand">
+            <argument key="$productIndexer" type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer"/>
+        </service>
         <!-- Warenkorb: nach dem ProductCartProcessor (5000) neu rechnen -->
         <service id="Lohndruckerei\Mensura\Service\Cart\MensuraCartProcessor">
             <tag name="shopware.cart.processor" priority="4900"/>
@@ -112,6 +115,15 @@
         <!-- Bestellung: Rechenweg-Schnappschuss mit EK/VK (ld_mensura_order_line_item) -->
         <service id="Lohndruckerei\Mensura\Service\Cart\OrderSnapshotSubscriber"/>
         <service id="Lohndruckerei\Mensura\Controller\StoreApi\MensuraStoreApiController" public="true">
+            <tag name="controller.service_arguments"/>
+        </service>
+        <!-- Storefront-Routen des Konfigurators mit Sitzungskontext (gleiche Antworten wie die Store-API) -->
+        <service id="Lohndruckerei\Mensura\Controller\Storefront\MensuraStorefrontController" public="true">
+            <tag name="controller.service_arguments"/>
+        </service>
+        <!-- Einkaufspreise serverseitig schützen (Recht ld_mensura.purchase, KONZEPT 3b) -->
+        <service id="Lohndruckerei\Mensura\Service\Security\PurchaseProtectionSubscriber"/>
+        <service id="Lohndruckerei\Mensura\Controller\Admin\MensuraAdminApiController" public="true">
             <tag name="controller.service_arguments"/>
         </service>
 

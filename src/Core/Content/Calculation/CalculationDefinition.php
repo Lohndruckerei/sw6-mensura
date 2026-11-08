@@ -110,6 +110,8 @@ class CalculationDefinition extends EntityDefinition
             new FloatField('setup_price_sale', 'setupPriceSale'),
             // Zeilen der Preismatrix (geführte Darstellung), z. B. [1, 2, 5, 10, 25, 50, 100]
             new JsonField('quantity_steps', 'quantitySteps'),
+            // Vorauswahl je Optionsgruppe {optionGroupId: false}; fehlt = vorauswählen (docs/contract/README.md)
+            new JsonField('preselect', 'preselect'),
             new LongTextField('formula', 'formula'),
 
             // Margenrechner (Vorschlag EK → VK)

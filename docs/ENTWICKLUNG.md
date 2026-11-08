@@ -79,7 +79,7 @@ Im laufenden Shop: `bin/console mensura:demo:seed` legt das Demo-Produkt aus den
   maßgeblich ist immer das frische Ergebnis von `calculate`. Ohne gültiges, frisches Ergebnis kein „In den Warenkorb“.
 - **Twig:** `views/storefront/component/buy-widget/buy-widget.html.twig` ersetzt Preis und Kaufformular durch den Konfigurator,
   wenn `product.extensions.ldMensura` gesetzt ist (Backend muss die Assoziation auf der Produktseite laden).
-  `component/ld-mensura/configurator.html.twig` übergibt Store-API-Zugang und Texte (`lmTextKeys` = Snippets `ldMensura.configurator.*`).
+  `component/ld-mensura/configurator.html.twig` übergibt Storefront-URL, Store-API-Zugang (ohne Kontext-Token – Shopware 6.7 sperrt `context.token` in Twig) und Texte. Im Shop laufen Konfigurator, Preis und Warenkorb über die Storefront-Routen aus `docs/contract/README.md` (Sitzungskontext); fehlen sie (404), weicht das JS für Konfigurator/Preis auf die Store-API ohne Token aus (Gastpreise), der Warenkorb geht dann nicht (`lmTextKeys` = Snippets `ldMensura.configurator.*`).
 - **Warenkorb:** `component/line-item/type/product.html.twig` zeigt bei `payload.ldMensura` die Konfiguration, den Liefertermin
   (`ldDeliveryDate`) und „Konfiguration ändern“ (Link mit demselben Hash wie der Konfigurator); `element/quantity.html.twig`
   sperrt die Menge (sie kommt aus Motive × Stück). Snippet `checkout.ld-mensura-configuration-invalid` für entfernte Positionen.
@@ -91,6 +91,9 @@ Im laufenden Shop: `bin/console mensura:demo:seed` legt das Demo-Produkt aus den
   `price.areas.billed`/`minArea` (Vertrag contract/area-values) erscheinen beim Format und im Preis, wenn die abgerechnete
   Fläche größer ist als die echte. Die Schalter kommen aus den Plugin-Einstellungen (Karte „Anzeige im Shop“), je Produktprofil
   (`display`) und je Optionsgruppe (`showPriceHint`) überschreibbar.
+- **Vorauswahl:** immer der günstigste Wert (`materials[].defaults`, sonst `defaults.options`). Gruppen mit `preselect: false`
+  werden nie vorbelegt: Pflichtgruppe zeigt „Bitte wählen“, Fehler `option.choose` am Feld (lokal sofort, sonst vom Backend),
+  kein Preis, kein Warenkorb, geführt kein „Weiter“; wird ein Wert beim Materialwechsel ungültig: „bitte neu wählen“.
 - **Festformat:** Hat ein Wert der Format-Gruppe eine `id`, sendet das Frontend `format.formatValueId` (Vertrag `contract/format-value-id`).
 - **Gestaltung = Shopware-Theme:** Bootstrap-Klassen (btn, form-select, alert, nav-tabs, table, badge, card) und `--bs-*`-Variablen,
   `scss/base.scss` nur für Layout. Das Admin-Designsystem gilt im Storefront nicht. Breite per Container-Query: in der Kaufbox

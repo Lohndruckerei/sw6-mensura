@@ -275,7 +275,8 @@ z. B. „Grundlagen“ (Farbigkeit)  →  Aluverbund: „Plattenveredelung“ (L
 - **Frühere Wahl ändern (z. B. Aluverbund → Acryl):**
   - **Format, Menge und Motive bleiben erhalten.**
   - **Gruppen, die auch im neuen Set vorkommen, behalten ihren Wert,** solange er dort erlaubt ist. Optionsgruppen sind eine
-    gemeinsame Bibliothek, deshalb ist „Laminat“ bei Alu und Acryl dieselbe Gruppe. Andernfalls gilt der Standardwert.
+    gemeinsame Bibliothek, deshalb ist „Laminat“ bei Alu und Acryl dieselbe Gruppe. Andernfalls gilt der Standardwert:
+    **immer der günstigste erlaubte Wert des Materials** (Entscheidung 08.11.2026; Vertrag `materials[].defaults`).
   - Gruppen, die wegfallen, werden aus der Konfiguration entfernt. Kehrt der Kunde zurück, wird die frühere Wahl
     wiederhergestellt, solange er die Seite nicht verlassen hat.
   - **Grenzen des neuen Materials** (z. B. Acryl max. 2.000 mm Höhe): Der Wert wird **nicht still verändert**. Das Feld
@@ -364,9 +365,27 @@ Geplante Rechte für Mensura (heute gibt es `ld_mensura` mit Ansehen/Bearbeiten/
 
 **Wichtig:** EK-Felder liegen heute in denselben Datensätzen wie die VK-Felder (`pricePurchase`, `purchase` in
 den Preisanteilen). Damit eine Rolle ohne `ld_mensura.purchase` sie auch über die API nicht sieht und nicht ändert, filtert ein
-serverseitiger Schutz die EK-Werte beim Lesen heraus und weist Schreibzugriffe darauf ab. Alternativ werden die EK-Werte in eine
-eigene Tabelle ausgelagert. Das wird mit den Admin-Oberflächen umgesetzt und getestet. LieferLotse und spätere Plugins
+serverseitiger Schutz die EK-Werte beim Lesen heraus und weist Schreibzugriffe darauf ab. LieferLotse und spätere Plugins
 (Auftragsverwaltung, Rechnung, Buchhaltung) folgen demselben Muster.
+
+**Umsetzung (v0.4.0, Admin-Schritt 6):**
+- Rollenverwaltung: Raster „Mensura – Katalog“ = Schlüssel `ld_mensura` mit Ansehen/Bearbeiten/Anlegen/Löschen (entspricht
+  `ld_mensura.catalog`, Name beibehalten wegen bestehender Rollen); zusätzliche Rechte `ld_mensura.profiles`, `.purchase`,
+  `.customer_groups`, `.orders`, `.settings` unter „Zusätzliche Berechtigungen“. Produktprofile und Kundengruppen-Aufschläge sind
+  mit dem Katalog nur lesbar; Bestell-Schnappschüsse nur mit `orders`.
+- `Service\Security\PurchaseProtectionSubscriber` (Regeln in `PurchaseFieldGuard`) gilt für Benutzer und Integrationen der
+  Admin-API ohne Admin-Rolle und ohne `ld_mensura.purchase`; Shop, Warenkorb und Systemprozesse sind nicht betroffen.
+  - Lesen: `pricePurchase`, `minimumPricePurchase`, `setupPricePurchase`, `purchaseTotal` = null; in `priceComponents` `purchase`
+    = null, in `tiers` die EK-Seite entfernt, im Schnappschuss `breakdown.purchase` und `contributionMargin` entfernt
+    (Material, Kalkulation, Optionszuordnung, Preistabellenzeile, Schnappschuss).
+  - Suchen: Filtern, Sortieren und Aggregieren über EK-Felder → HTTP 403 `LD_MENSURA__PURCHASE_ACCESS_DENIED`.
+  - Schreiben: EK-Feld ändern → 403; bei Preisanteilen und Staffeln wird der EK-Teil aus dem gespeicherten Stand übernommen
+    (VK-Änderung löscht keinen EK); Neuanlagen ohne Recht (auch Kopien) übernehmen keinen EK.
+  - Testrechner: rechnet intern mit EK, liefert EK-Rechenweg und Deckungsbeitrag nur mit Recht.
+- Oberfläche: EK-Felder, Margen und DB nur mit `purchase`; Reiter „Kundengruppen“ nur mit `customer_groups`; Profile bearbeiten
+  nur mit `profiles` + Produkte bearbeiten (sonst Hinweis „Nur ansehen“); Bestellkennzahlen der Übersicht nur mit `orders`.
+- Geprüft: Unit-Test `tests/Backend/PurchaseFieldGuardTest.php` (check-all) und im laufenden Shop
+  `tests/Backend/Shop/purchase-protection.php` (zwei Test-Integrationen ohne/mit Recht, 14 Prüfungen).
 
 Ergänzung für den Logistikanteil (3d), als **Zusatzrechte** (Kategorie „Weitere Rechte“ der Rollenverwaltung):
 
@@ -623,6 +642,11 @@ Gestaltung nach `ld-admin-design` (Präfix `lm-`, Tokens, Bausteine `lm-chip`, `
 | 6 | `backend/logistikanteil` | Mindestbetrag `order`: Verteilung im CartProcessor | zwei Express-Positionen im Warenkorb, Summe = max(Minimum, Σ linear) |
 | 7 | `backend/logistikanteil` | Admin-Route `preview` + Karte `lm-logistics-card` (Liste, Modal, Hilfetexte, Vorschau, Warnungen, Einstellung `logisticsWarnPercent`), eingebunden in Kalkulation/Material/Optionswert | im Admin in Design A/B/C, mit/ohne Recht, schmales Fenster |
 | 8 | `backend/vectura-vorschlaege` (nach Vectura-Schritt 4) | Karte „Vorschlag aus Vectura übernehmen“ gegen das Antwortformat aus INTEGRATION.md 7; bis dahin mit Beispiel-JSON | ohne Vectura unsichtbar; mit Vectura legt „Übernehmen“ eine neue Regel mit gültig-ab an |
+
+**Stand 08.11.2026:** Schritte 1–3 umgesetzt (Branch `backend/logistikanteil`, Vertrag `contract/logistik-beispiel`),
+Unit- und Vertragstests grün, Migration in einer Test-Datenbank geprüft. Offen: Test im laufenden Shop (`dal:validate`,
+Admin-API mit/ohne Recht, `mensura:demo:seed`, Store-API Acryl 1.500 × 1.000 = 120,16 €). Der Admin-Testrechner zeigt den
+Anteil bis Schritt 7 nicht (er nutzt den Schnappschuss-Rechenweg ohne Logistik).
 
 Schritt 7 braucht die Detailseiten von Material, Kalkulation und Optionswert. An denen arbeitet gerade eine andere Sitzung
 (nicht committet). Die Karte wird als eigenständige Komponente gebaut und erst eingebunden, wenn diese Seiten auf `main` sind.

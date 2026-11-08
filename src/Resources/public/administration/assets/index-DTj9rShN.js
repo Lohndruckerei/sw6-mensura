@@ -42,4 +42,3 @@ const s={template:`
         </button>
     </template>
 </nav>`,emits:["select"],props:{items:{type:Array,required:!0},active:{type:String,required:!0},vertical:{type:Boolean,required:!1,default:!1},groups:{type:Object,required:!1,default:()=>({})},ariaLabel:{type:String,required:!1,default:null}},computed:{groupedItems(){if(!this.vertical)return[{name:"all",label:null,items:this.items}];const t=[];return this.items.forEach(i=>{const a=i.group??"default";let e=t.find(l=>l.name===a);e||(e={name:a,label:this.groups[a]??null,items:[]},t.push(e)),e.items.push(i)}),t}}};export{s as default};
-//# sourceMappingURL=index-DTj9rShN.js.map

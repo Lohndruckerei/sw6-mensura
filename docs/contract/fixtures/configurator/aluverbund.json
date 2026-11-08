@@ -20,7 +20,8 @@
       "calculation": { "technicalName": "aluverbund", "name": "Aluverbund", "motifMode": "multiply" },
       "optionSet": "plattenveredelung-alu",
       "fromPricePerSqm": 29.0,
-      "limits": { "widthMin": 100, "widthMax": 1500, "heightMin": 100, "heightMax": 3000, "allowRotation": true, "maxMotifs": null, "maxQuantity": null }
+      "limits": { "widthMin": 100, "widthMax": 1500, "heightMin": 100, "heightMax": 3000, "allowRotation": true, "maxMotifs": null, "maxQuantity": null },
+      "defaults": { "farbigkeit": "4-0", "veredelung": "keine", "bohrung": "nein", "schnitt": "recht" }
     },
     {
       "id": "0194e1a0000070008000000000000b02",
@@ -32,7 +33,8 @@
       "calculation": { "technicalName": "acryl", "name": "Acrylglas", "motifMode": "multiply" },
       "optionSet": "plattenveredelung-acryl",
       "fromPricePerSqm": 62.0,
-      "limits": { "widthMin": 100, "widthMax": 1500, "heightMin": 100, "heightMax": 2000, "allowRotation": true, "maxMotifs": null, "maxQuantity": null }
+      "limits": { "widthMin": 100, "widthMax": 1500, "heightMin": 100, "heightMax": 2000, "allowRotation": true, "maxMotifs": null, "maxQuantity": null },
+      "defaults": { "farbigkeit": "4-0", "kanten": "nein", "bohrung": "nein", "schnitt": "recht" }
     }
   ],
   "groups": [

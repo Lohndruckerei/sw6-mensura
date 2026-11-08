@@ -56,6 +56,7 @@ final class ContractTest extends TestCase
             "Preise $name auf den Cent",
         );
         self::assertNoPurchaseData($result->toStoreApi());
+        LogisticsTest::assertNoLogistics($result->toStoreApi(), "calculate/$name");
     }
 
     /** @return iterable<string, array{string}> */
@@ -76,6 +77,7 @@ final class ContractTest extends TestCase
 
         self::assertEquals($expected, $actual);
         self::assertNoPurchaseData($actual);
+        LogisticsTest::assertNoLogistics($actual, "configurator/$name");
     }
 
     public static function context(?string $customerGroupId = null, string $language = 'de'): CalculationContext

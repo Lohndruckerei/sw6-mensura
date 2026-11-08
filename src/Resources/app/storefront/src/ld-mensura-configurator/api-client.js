@@ -52,6 +52,62 @@ export class StoreApiClient {
     }
 }
 
+/**
+ * Im Shop: Storefront-Routen (gleiche Bodies/Antworten wie die Store-API, docs/contract/README.md), die im Kontext der
+ * Sitzung laufen – Kundengruppenpreise und derselbe Warenkorb. Shopware 6.7 gibt den Kontext-Token nicht mehr in HTML/JS
+ * heraus, daher kein direkter Store-API-Aufruf mit Token.
+ * Fehlen die Routen (404), weichen configurator/calculate auf `fallback` (Store-API ohne Token, Gastpreise) aus;
+ * In den Warenkorb geht dann nicht (eigener Kontext = fremder Warenkorb).
+ */
+export class StorefrontClient {
+    constructor({ baseUrl = '', fallback = null, fetchImpl = null } = {}) {
+        this.baseUrl = baseUrl.replace(/\/$/, '');
+        this.fallback = fallback;
+        this.useFallback = false;
+        this.fetch = fetchImpl || ((...args) => globalThis.fetch(...args));
+    }
+
+    async request(method, path, body, signal) {
+        const res = await this.fetch(`${this.baseUrl}${path}`, {
+            method,
+            headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: body ? JSON.stringify(body) : undefined,
+            signal,
+            credentials: 'same-origin',
+        });
+        let json = null;
+        try { json = await res.json(); } catch (e) { json = null; }
+        return { status: res.status, ok: res.ok, json };
+    }
+
+    async configurator(productId) {
+        if (!this.useFallback) {
+            const r = await this.request('GET', `/ld-mensura/configurator/${encodeURIComponent(productId)}`);
+            if (r.ok && r.json) return r.json;
+            if (r.status !== 404 || !this.fallback) throw new Error(`configurator ${r.status}`);
+            this.useFallback = true;
+        }
+        return this.fallback.configurator(productId);
+    }
+
+    async calculate(configuration, { matrix = false, signal } = {}) {
+        if (!this.useFallback) {
+            const r = await this.request('POST', '/ld-mensura/calculate', { configuration, matrix }, signal);
+            if (r.ok && r.json) return r.json;
+            if (r.status !== 404 || !this.fallback) throw new Error(`calculate ${r.status}`);
+            this.useFallback = true;
+        }
+        return this.fallback.calculate(configuration, { matrix, signal });
+    }
+
+    async addToCart(configuration) {
+        const r = await this.request('POST', '/ld-mensura/cart/add', { configuration });
+        if (r.status === 400 && r.json?.apiVersion) return { ok: false, result: r.json };
+        if (!r.ok) throw new Error(`cart ${r.status}`);
+        return { ok: true, cart: r.json };
+    }
+}
+
 /** n Werktage (Mo–Fr) nach `from` als YYYY-MM-DD – nur für den Fixture-Client (Liefertermine rechnet sonst das Backend). */
 export function addWorkdays(from, days) {
     const d = new Date(Date.UTC(from.getFullYear(), from.getMonth(), from.getDate()));
@@ -141,6 +197,7 @@ export class FixtureClient {
         const dg = deliveryGroup(data);
         if (dg && !findValue(dg, config.deliveryValue)) config.deliveryValue = defaultValue(data, dg.technicalName, material) || dg.values[0]?.technicalName;
         const errors = localErrors(data, config).map((e) => {
+            if (e.code === 'option.choose') return { code: e.code, message: `Bitte ${getGroup(data, e.group)?.name || e.group} wählen`, field: e.field };
             const dim = e.field === 'format.width' ? 'Breite' : e.field === 'format.height' ? 'Höhe' : 'Menge';
             const word = e.code.endsWith('_min') ? 'mindestens' : 'höchstens';
             return { code: e.code, message: `${material.name}: ${dim} ${word} ${e.limit.toLocaleString('de-DE')}${e.field.startsWith('format') ? ' mm' : ''}`, field: e.field, fix: e.fix };

@@ -194,6 +194,28 @@ test('Folge-Sets von Werten, Start-Set, ausgeblendete und optionale Gruppen, Fes
     assert.deepEqual(motErr.fix, { motifs: 5 });
 });
 
+test('Vorbelegung je Material (günstigster Wert, materials[].defaults) gilt beim Materialwechsel vor defaults.options', () => {
+    const data = structuredClone(alu);
+    // Annahme für den Test: bei Acryl ist „ja“ (Kanten poliert) nicht günstiger – Backend nennt „nein“; bei Alu sei Laminat matt am günstigsten
+    data.materials.find((m) => m.id === ACRYL).defaults = { kanten: 'nein', farbigkeit: '0-0' };
+    data.materials.find((m) => m.id === ALU).defaults = { veredelung: 'lam-matt' };
+    let s = S.createState(data, { initial: cases['alu-comdatek-353'].request });
+    s = S.apply(s, { type: 'material', id: ACRYL });
+    assert.equal(s.config.options.farbigkeit, '0-0', '4-4 bei Acryl nicht erlaubt → günstigster Wert des Materials');
+    assert.equal(s.config.options.kanten, 'nein', 'neue Gruppe → Vorbelegung des Materials');
+    // ungültiger Eintrag in materials[].defaults wird ignoriert
+    data.materials.find((m) => m.id === ACRYL).defaults = { farbigkeit: '4-4' };
+    assert.equal(S.defaultValue(data, 'farbigkeit', data.materials.find((m) => m.id === ACRYL)), '4-0', 'nicht erlaubter Wert → allgemeine Vorbelegung');
+    // Startzustand: gesetzte Werte bleiben, fehlende bekommen die Vorbelegung des Materials
+    const fresh = S.createState(data, { initial: { ...cases['alu-mindestpreis'].request, options: {} } });
+    assert.equal(fresh.config.options.veredelung, 'lam-matt');
+    // Link ohne Angabe einer Gruppe: ebenfalls Vorbelegung des Materials
+    const parsed = S.decodeHash(data, '#lm?m=alu-3mm&w=600&h=400&mo=1&pm=1&o.farbigkeit=4-4');
+    const fromLink = S.createState(data, { initial: parsed.config });
+    assert.equal(fromLink.config.options.veredelung, 'lam-matt');
+    assert.equal(fromLink.config.options.farbigkeit, '4-4', 'Angabe im Link bleibt');
+});
+
 test('Standardwerte: optionale Gruppen ohne Vorbelegung bleiben leer; ungültige Eingaben werden zu ganzen Zahlen ≥ 1', () => {
     const data = loadTestData('follow-set');
     const material = data.materials[0];

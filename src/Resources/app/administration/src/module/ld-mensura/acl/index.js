@@ -1,12 +1,19 @@
 /**
- * Rechte für Mensura. Die Rechenweg-Schnappschüsse (ld_mensura_order_line_item) enthalten
- * Einkaufspreise und sind nur lesbar, schreiben tut nur der Bestellprozess.
+ * Rechte für Mensura (KONZEPT 3b), freigegeben je Rolle unter Einstellungen → Benutzer & Rechte → Rollen.
+ *
+ * Katalog (Ansehen/Bearbeiten/Anlegen/Löschen, Schlüssel `ld_mensura`): Kalkulationen, Materialien, Optionen,
+ * Optionssets, Preistabellen – nur VK. Zusätzliche Rechte (`ld_mensura.<recht>`):
+ * - profiles        Produktprofile pflegen (Reiter „Mensura“ im Produkt)
+ * - purchase        Einkaufspreise, Margen, Deckungsbeitrag sehen und pflegen – serverseitig geschützt
+ *                   (Service\Security\PurchaseProtectionSubscriber), Rolle wird dort als Schlüssel geprüft
+ * - customer_groups Kundengruppen-Aufschläge pflegen
+ * - orders          Rechenweg-Schnappschuss in Bestellungen lesen (EK darin nur zusammen mit purchase)
+ * - settings        Plugin-Einstellungen
  */
-const MASTER_DATA = [
+const CATALOG = [
     'ld_mensura_calculation',
     'ld_mensura_calculation_material',
     'ld_mensura_calculation_option_value',
-    'ld_mensura_customer_group_rule',
     'ld_mensura_material',
     'ld_mensura_material_translation',
     'ld_mensura_option_group',
@@ -15,22 +22,27 @@ const MASTER_DATA = [
     'ld_mensura_option_value_translation',
     'ld_mensura_option_set',
     'ld_mensura_option_set_group',
-    'ld_mensura_product_profile',
-    'ld_mensura_product_profile_material',
-    'ld_mensura_product_profile_option',
     'ld_mensura_price_table',
     'ld_mensura_price_table_row',
     'ld_mensura_feature',
     'ld_mensura_feature_translation',
-    'ld_mensura_feature_value',
     'ld_mensura_use_case',
     'ld_mensura_use_case_translation',
-    'ld_mensura_use_case_assignment',
     'ld_mensura_accessory_rule',
     'ld_mensura_accessory_rule_translation',
 ];
 
-const privileges = (action) => MASTER_DATA.map((entity) => `${entity}:${action}`);
+const PROFILES = [
+    'ld_mensura_product_profile',
+    'ld_mensura_product_profile_material',
+    'ld_mensura_product_profile_option',
+    'ld_mensura_feature_value',
+    'ld_mensura_use_case_assignment',
+];
+
+const READ_ONLY = ['ld_mensura_customer_group_rule'];
+
+const privileges = (entities, ...actions) => entities.flatMap((entity) => actions.map((action) => `${entity}:${action}`));
 
 Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',
@@ -39,9 +51,11 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     roles: {
         viewer: {
             privileges: [
-                ...privileges('read'),
-                'ld_mensura_order_line_item:read',
+                ...privileges([...CATALOG, ...PROFILES, ...READ_ONLY], 'read'),
                 'customer_group:read',
+                'product:read',
+                'sales_channel:read',
+                'sales_channel_domain:read',
                 'media:read',
                 'system_config:read',
                 'user_config:read',
@@ -51,34 +65,47 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             dependencies: [],
         },
         editor: {
-            privileges: [...privileges('update'), ...privileges('create')],
+            privileges: privileges(CATALOG, 'update', 'create'),
             dependencies: ['ld_mensura.viewer'],
         },
         creator: {
-            privileges: [...privileges('create')],
+            privileges: privileges(CATALOG, 'create'),
             dependencies: ['ld_mensura.viewer', 'ld_mensura.editor'],
         },
         deleter: {
-            privileges: [...privileges('delete')],
+            privileges: privileges(CATALOG, 'delete'),
             dependencies: ['ld_mensura.viewer'],
         },
     },
 });
-
-/**
- * Logistikanteil (KONZEPT 3d) als Zusatzrecht: Die Entity-Rechte gehören bewusst nicht zu ld_mensura.viewer,
- * damit Rollen ohne dieses Recht den unsichtbaren Anteil auch über die Admin-API nicht sehen.
- */
-const LOGISTICS_ENTITIES = ['ld_mensura_logistics_rule'];
-const logisticsPrivileges = (...actions) => LOGISTICS_ENTITIES.flatMap(
-    (entity) => actions.map((action) => `${entity}:${action}`),
-);
 
 Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'additional_permissions',
     parent: null,
     key: 'ld_mensura',
     roles: {
+        profiles: {
+            privileges: [...privileges(PROFILES, 'create', 'update', 'delete'), 'product:update'],
+            dependencies: ['ld_mensura.viewer'],
+        },
+        purchase: {
+            privileges: [],
+            dependencies: ['ld_mensura.viewer'],
+        },
+        customer_groups: {
+            privileges: privileges(['ld_mensura_customer_group_rule'], 'create', 'update', 'delete'),
+            dependencies: ['ld_mensura.viewer'],
+        },
+        orders: {
+            privileges: ['ld_mensura_order_line_item:read', 'order:read', 'order_line_item:read'],
+            dependencies: [],
+        },
+        settings: {
+            privileges: ['system_config:read', 'system_config:create', 'system_config:update'],
+            dependencies: ['ld_mensura.viewer'],
+        },
+        // Logistikanteil (KONZEPT 3d): Die Entity-Rechte gehören bewusst nicht zu ld_mensura.viewer,
+        // damit Rollen ohne dieses Recht den unsichtbaren Anteil auch über die Admin-API nicht sehen.
         logistics: {
             privileges: [...logisticsPrivileges('read')],
             dependencies: ['ld_mensura.viewer'],
@@ -89,3 +116,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         },
     },
 });
+
+function logisticsPrivileges(...actions) {
+    return ['ld_mensura_logistics_rule'].flatMap((entity) => actions.map((action) => `${entity}:${action}`));
+}

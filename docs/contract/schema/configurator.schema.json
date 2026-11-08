@@ -39,6 +39,11 @@
           },
           "optionSet": { "type": "string", "description": "technischer Name des Folge-Sets" },
           "fromPricePerSqm": { "type": ["number", "null"], "description": "„ab“-Preis netto je m² für Kacheln" },
+          "defaults": {
+            "type": "object",
+            "description": "optional: Vorbelegung je Optionsgruppe für dieses Material = jeweils der günstigste erlaubte Wert (Regel: immer den günstigsten Fall vorauswählen). Gilt, wenn eine Gruppe neu erscheint oder ihr Wert beim Materialwechsel nicht mehr erlaubt ist; Vorrang vor defaults.options",
+            "additionalProperties": { "type": "string", "minLength": 1 }
+          },
           "limits": { "$ref": "#/$defs/limits" }
         }
       }
@@ -58,6 +63,7 @@
           "required": { "type": "boolean" },
           "mode": { "enum": ["inherit", "restrict", "fixed", "hidden"], "description": "Regel aus dem Produktprofil; hidden = nicht anzeigen, Wert steht in defaults" },
           "showPriceHint": { "type": "boolean", "description": "optional, Standard true: false = Aufpreise (priceHint) der Werte dieser Gruppe im Shop nicht anzeigen, Fokus auf den Gesamtpreis" },
+          "preselect": { "type": "boolean", "description": "optional, Standard true: false = keine Vorauswahl (Einstellung in Kalkulation bzw. Produktprofil, gilt für das erste Material des Profils; je Material maßgeblich ist das Fehlen in defaults bzw. materials[].defaults). Der Kunde muss wählen: Pflichtgruppe ohne Wert → Fehler option.choose, kein Preis, kein Warenkorb; freiwillige Gruppe darf leer bleiben" },
           "values": {
             "type": "array",
             "items": {

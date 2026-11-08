@@ -34,6 +34,10 @@ function errorText(ctx, state, err) {
         'format.height_min': 'error.heightMin', 'format.height_max': 'error.heightMax',
         'quantity.motifs_max': 'error.motifsMax', 'quantity.max': 'error.quantityMax',
     };
+    if (err.code === 'option.choose') {
+        const name = err.group || String(err.field || '').replace(/^options\./, '');
+        return ctx.t('error.choose', { group: getGroup(state.data, name)?.name || name });
+    }
     const key = map[err.code];
     if (key) return ctx.t(key, { material: material?.name || '', limit: ctx.fmt.int(err.limit) });
     return err.message || err.code;
@@ -98,7 +102,9 @@ export function renderNotice(ctx, state) {
         if (c.backend) return esc(c.message);
         switch (c.code) {
             case 'option.removed': return ctx.t.html('notice.removed', { group: `<b>${esc(gName(c.group))}</b>`, material: esc(mName), value: esc(vName(c.group, c.from)) });
-            case 'option.reset': return ctx.t.html('notice.reset', { group: `<b>${esc(gName(c.group))}</b>`, material: esc(mName), from: esc(vName(c.group, c.from)), to: esc(vName(c.group, c.to)) });
+            case 'option.reset':
+                if (!c.to) return ctx.t.html('notice.resetChoose', { group: `<b>${esc(gName(c.group))}</b>`, material: esc(mName), from: esc(vName(c.group, c.from)) });
+                return ctx.t.html('notice.reset', { group: `<b>${esc(gName(c.group))}</b>`, material: esc(mName), from: esc(vName(c.group, c.from)), to: esc(vName(c.group, c.to)) });
             case 'option.added': return ctx.t.html('notice.added', { group: `<b>${esc(gName(c.group))}</b>`, material: esc(mName) });
             case 'option.restored': return ctx.t.html('notice.restored', { group: `<b>${esc(gName(c.group))}</b>`, value: esc(vName(c.group, c.to)) });
             case 'format.check': return `<b>${esc(ctx.t('notice.formatTitle'))}</b> ${esc(errorText(ctx, state, c.error))} ${fixButton(ctx, c.error)}`;
@@ -234,7 +240,10 @@ export function renderCompact(ctx, state) {
     const options = groups.map((g) => {
         const id = fieldId(ctx, `g-${g.technicalName}`);
         const values = allowedValues(g, material);
-        const empty = !g.required ? `<option value="" ${!config.options[g.technicalName] ? 'selected' : ''}>${esc(ctx.t('option.none'))}</option>` : '';
+        // freiwillig: „keine“; Pflicht ohne Vorauswahl: Platzhalter „Bitte wählen“, bis der Kunde wählt
+        const empty = !g.required
+            ? `<option value="" ${!config.options[g.technicalName] ? 'selected' : ''}>${esc(ctx.t('option.none'))}</option>`
+            : (!config.options[g.technicalName] ? `<option value="" selected disabled>${esc(ctx.t('option.choose'))}</option>` : '');
         const ctrl = g.mode === 'fixed'
             ? `<div class="lm-fixed" id="${id}">${esc(findValue(g, config.options[g.technicalName])?.name || '')}</div>`
             : `<select class="form-select" id="${id}" data-lm-field="option" data-lm-group="${esc(g.technicalName)}">${empty}${values.map((v) => `<option value="${esc(v.technicalName)}" ${config.options[g.technicalName] === v.technicalName ? 'selected' : ''}>${esc(valueLabel(v, priceHintOf(state, g, v)))}</option>`).join('')}</select>`;
@@ -297,7 +306,8 @@ export function renderGuided(ctx, state) {
     const steps = guidedSteps(data, state);
     const step = currentStep(data, state);
     const idx = Math.max(0, steps.findIndex((s) => s.key === step.key));
-    const stepLabel = (s) => s.label || ctx.t(`steps.${s.kind}`);
+    // ohne Lieferzeit-Gruppe ist der letzte Schritt nur noch „Bestellen“ (Vergleich, Referenz, Warenkorb)
+    const stepLabel = (s) => s.label || ctx.t(s.kind === 'delivery' && !deliveryGroup(data) ? 'steps.finish' : `steps.${s.kind}`);
     const nav = `<nav class="lm-steps" aria-label="${esc(ctx.t('guided.stepsLabel'))}"><ol class="nav nav-tabs">${steps.map((s, i) => `<li class="nav-item"><button type="button" data-lm-action="step" data-lm-value="${esc(s.key)}" class="nav-link${i === idx ? ' active' : ''}${i < idx ? ' is-done' : ''}" ${i === idx ? 'aria-current="step"' : ''}><span class="lm-steps__n" aria-hidden="true">${i < idx ? '✓' : i + 1}</span>${esc(stepLabel(s))}</button></li>`).join('')}</ol></nav>`;
     let body = '';
     if (step.kind === 'material') {
@@ -327,7 +337,10 @@ export function renderGuided(ctx, state) {
         })).join('')}</div>${messageList(ctx, state, errorsFor(state, `options.${g.technicalName}`), 'lm-msgs--error')}`;
     } else {
         // Lieferzeit: Kacheln mit Termin; Staffelpreise (Menge × Lieferzeit) nur noch zum Vergleichen, Klick übernimmt beides
-        body = `<h3 class="lm-g-title">${esc(ctx.t('guided.deliveryTitle'))} ${help(ctx, deliveryGroup(data)?.helpText || ctx.t('help.delivery'), fieldId(ctx, 'gd-h'))}</h3>
+        const dgroup = deliveryGroup(data);
+        body = `<h3 class="lm-g-title">${dgroup
+            ? `${esc(ctx.t('guided.deliveryTitle'))} ${help(ctx, dgroup.helpText || ctx.t('help.delivery'), fieldId(ctx, 'gd-h'))}`
+            : esc(ctx.t('guided.finishTitle'))}</h3>
           ${deliveryTiles(ctx, state)}
           <details class="lm-more"><summary>${esc(ctx.t('guided.matrixCompare'))}</summary><div class="lm-g-group">
             <p class="lm-muted">${esc(ctx.t('guided.matrixHelp', { mode: ctx.t(state.gross ? 'price.grossShort' : 'price.netShort') }))}</p>
@@ -335,7 +348,8 @@ export function renderGuided(ctx, state) {
           ${referenceField(ctx, state)}`;
     }
     const last = idx === steps.length - 1;
-    const formatBlocked = step.kind === 'format' && errorsFor(state, 'format').length > 0;
+    const formatBlocked = (step.kind === 'format' && errorsFor(state, 'format').length > 0)
+        || (step.kind === 'group' && errorsFor(state, `options.${step.group}`).length > 0);
     const navBtns = `<div class="lm-g-nav">
         <button type="button" class="btn btn-outline-secondary" data-lm-action="back" ${idx === 0 ? 'disabled' : ''}>${esc(ctx.t('guided.back'))}</button>
         ${last
@@ -408,7 +422,7 @@ export function renderSummary(ctx, state) {
     const rows = [
         [ctx.t('summary.material'), material?.name || '', link('material', 'material')],
         [ctx.t('summary.format'), `${ctx.fmt.int(config.format.width)} × ${ctx.fmt.int(config.format.height)} mm`, link('format', 'width')],
-        ...optionGroups(data, state).map((g) => [g.name, findValue(g, config.options[g.technicalName])?.name || ctx.t('option.none'), link(`group:${g.technicalName}`, `g-${g.technicalName}`)]),
+        ...optionGroups(data, state).map((g) => [g.name, findValue(g, config.options[g.technicalName])?.name || ctx.t(g.required ? 'option.choose' : 'option.none'), link(`group:${g.technicalName}`, `g-${g.technicalName}`)]),
         [ctx.t('summary.quantity'), `${qty} ${ctx.t('summary.pieces')}`, link('format', 'motifs')],
     ];
     if (dv) rows.push([ctx.t('summary.delivery'), dv.name, link('delivery', 'delivery')]);

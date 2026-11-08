@@ -1,0 +1,315 @@
+{% block lm_product_profile %}
+<div class="lm-product-profile" :class="lmDesignClass">
+    <sw-skeleton v-if="!ready || storeLoading" />
+
+    <template v-else>
+        <lm-info-card name="productProfile" :title="$tc('ld-mensura.profile.info.title')">
+            {{ $tc('ld-mensura.profile.info.text') }}
+        </lm-info-card>
+
+        <mt-banner v-if="!canEdit" variant="neutral" icon="regular-lock" class="lm-profile__warning">
+            {{ $tc('ld-mensura.profile.readOnly') }}
+        </mt-banner>
+
+        {% block lm_product_profile_empty %}
+        <mt-card v-if="!profile" position-identifier="lm-profile-empty">
+            <sw-empty-state :title="$tc('ld-mensura.profile.emptyTitle')" :subline="$tc('ld-mensura.profile.emptySubline')" icon="regular-crop" :absolute="false">
+                <template #actions>
+                    <mt-button variant="primary" :disabled="!canEdit || undefined" @click="createProfile">
+                        {{ $tc('ld-mensura.profile.buttonCreate') }}
+                    </mt-button>
+                    <mt-button variant="secondary" :disabled="!canEdit || undefined" @click="showCopy = true">
+                        {{ $tc('ld-mensura.profile.copy.button') }}
+                    </mt-button>
+                </template>
+            </sw-empty-state>
+        </mt-card>
+        {% endblock %}
+
+        <template v-else>
+            <mt-banner v-for="warning in warnings" :key="warning.key" variant="attention" class="lm-profile__warning">
+                {{ $tc('ld-mensura.profile.warnings.' + warning.key) }}
+            </mt-banner>
+            <mt-banner v-if="profile._isNew" variant="info" class="lm-profile__warning">
+                {{ $tc('ld-mensura.profile.newHint') }}
+            </mt-banner>
+
+            {% block lm_product_profile_base %}
+            <mt-card position-identifier="lm-profile-base" :title="$tc('ld-mensura.profile.cardBase')">
+                <template #headerRight>
+                    <div class="lm-table-actions">
+                        <mt-button size="small" variant="secondary" :disabled="!canEdit || undefined" @click="showCopy = true">
+                            <mt-icon name="regular-copy" size="14px" /> {{ $tc('ld-mensura.profile.copy.button') }}
+                        </mt-button>
+                        <a v-if="previewUrl && isSaved" class="mt-button mt-button--secondary mt-button--small" :href="previewUrl" target="_blank" rel="noopener">
+                            <mt-icon name="regular-external-link" size="14px" /> {{ $tc('ld-mensura.profile.preview') }}
+                        </a>
+                    </div>
+                </template>
+                <mt-switch v-model="profile.active" :label="$tc('ld-mensura.profile.labelActive')" :help-text="$tc('ld-mensura.profile.helpActive')" :disabled="!canEdit || undefined" bordered />
+                <sw-container columns="repeat(auto-fit, minmax(220px, 1fr))" gap="0 30px">
+                    <sw-single-select v-model:value="profile.type" :options="typeOptions" :label="$tc('ld-mensura.profile.labelType')" :help-text="$tc('ld-mensura.profile.helpType')" :disabled="!canEdit || undefined" />
+                    <sw-single-select :value="profile.layout || ''" :options="layoutOptions" :label="$tc('ld-mensura.profile.labelLayout')" :help-text="$tc('ld-mensura.profile.helpLayout')" :disabled="!canEdit || undefined" @update:value="profile.layout = $event || null" />
+                </sw-container>
+            </mt-card>
+            {% endblock %}
+
+            {% block lm_product_profile_materials %}
+            <mt-card position-identifier="lm-profile-materials" :title="$tc('ld-mensura.profile.materials.card')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.profile.materials.intro') }}</p>
+                <div v-for="(row, index) in materialRows" :key="row.id" class="lm-profile-material">
+                    <span class="lm-set-row__pos">{{ index + 1 }}</span>
+                    <sw-single-select
+                        :value="row.calculationId"
+                        :options="calculationOptions()"
+                        :label="index === 0 ? $tc('ld-mensura.areas.calculation.title') : undefined"
+                        :help-text="index === 0 ? $tc('ld-mensura.profile.materials.helpCalculation') : undefined"
+                        :disabled="!canEdit || undefined"
+                        @update:value="setCalculation(row, $event)"
+                    />
+                    <sw-single-select
+                        :value="row.materialId || ALL"
+                        :options="materialOptionsOf(row)"
+                        :label="index === 0 ? $tc('ld-mensura.areas.material.title') : undefined"
+                        :help-text="index === 0 ? $tc('ld-mensura.profile.materials.helpMaterial') : undefined"
+                        :disabled="!canEdit || undefined"
+                        @update:value="row.materialId = $event === ALL ? null : $event"
+                    />
+                    <mt-number-field
+                        v-model="row.surchargePercent"
+                        :digits="2"
+                        :label="index === 0 ? $tc('ld-mensura.profile.materials.surcharge') : undefined"
+                        :help-text="index === 0 ? $tc('ld-mensura.profile.materials.helpSurcharge') : undefined"
+                        :disabled="!canEdit || undefined"
+                    />
+                    <div class="lm-profile-material__actions">
+                        <mt-button size="small" variant="secondary" square :aria-label="$tc('ld-mensura.optionSet.detail.moveUp')" :disabled="!canEdit || index === 0 || undefined" @click="moveMaterialRow(row, -1)">
+                            <mt-icon name="regular-chevron-up-s" size="14px" />
+                        </mt-button>
+                        <mt-button size="small" variant="secondary" square :aria-label="$tc('ld-mensura.optionSet.detail.moveDown')" :disabled="!canEdit || index === materialRows.length - 1 || undefined" @click="moveMaterialRow(row, 1)">
+                            <mt-icon name="regular-chevron-down-s" size="14px" />
+                        </mt-button>
+                        <mt-button size="small" variant="secondary" square :aria-label="$tc('ld-mensura.components.remove')" :disabled="!canEdit || undefined" @click="removeMaterialRow(row)">
+                            <mt-icon name="regular-trash" size="14px" />
+                        </mt-button>
+                    </div>
+                </div>
+                <p v-if="materialRows.length === 1 && materialRows[0].materialId" class="lm-muted lm-components__hint">{{ $tc('ld-mensura.profile.materials.fixedHint') }}</p>
+                <mt-button size="small" variant="secondary" :disabled="!canEdit || !calculations.length || undefined" @click="addMaterialRow">
+                    <mt-icon name="regular-plus-circle" size="14px" /> {{ $tc('ld-mensura.profile.materials.add') }}
+                </mt-button>
+            </mt-card>
+            {% endblock %}
+
+            {% block lm_product_profile_options %}
+            <mt-card position-identifier="lm-profile-options" :title="$tc('ld-mensura.profile.options.card')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.profile.options.intro') }}</p>
+                <p v-if="relevantGroups.length === 0" class="lm-muted">{{ $tc('ld-mensura.profile.options.empty') }}</p>
+                <div v-for="entry in relevantGroups" :key="entry.group.id" class="lm-profile-rule">
+                    <div class="lm-profile-rule__head">
+                        <span class="lm-set-row__name">
+                            <b>{{ nameOf(entry.group) }}</b>
+                            <small class="lm-muted">{{ ruleSummary(entry) }}</small>
+                        </span>
+                        <lm-chip v-if="modeOf(entry.group.id) !== 'inherit'" color="c3" icon="regular-sliders-v" :label="$tc('ld-mensura.profile.modes.' + modeOf(entry.group.id))" />
+                    </div>
+                    <div class="lm-profile-rule__fields">
+                        <sw-single-select
+                            :value="modeOf(entry.group.id)"
+                            :options="modeOptions"
+                            :label="$tc('ld-mensura.profile.options.labelMode')"
+                            :help-text="$tc('ld-mensura.profile.options.helpMode')"
+                            :disabled="!canEdit || undefined"
+                            @update:value="setMode(entry.group.id, $event)"
+                        />
+                        <sw-multi-select
+                            v-if="modeOf(entry.group.id) === 'restrict'"
+                            :value="valueIdsOf(entry.group.id)"
+                            :options="entry.values"
+                            :label="$tc('ld-mensura.profile.options.labelValues')"
+                            :help-text="$tc('ld-mensura.profile.options.helpValues')"
+                            :disabled="!canEdit || undefined"
+                            @update:value="setValueIds(entry.group.id, $event)"
+                        />
+                        <sw-single-select
+                            :value="defaultOf(entry.group.id)"
+                            :options="defaultChoices(entry)"
+                            :label="$tc('ld-mensura.profile.options.labelDefault')"
+                            :help-text="$tc('ld-mensura.profile.options.helpDefault')"
+                            :required="['fixed', 'hidden'].includes(modeOf(entry.group.id))"
+                            :disabled="!canEdit || undefined"
+                            @update:value="setDefault(entry.group.id, $event)"
+                        />
+                        <sw-single-select
+                            v-if="!['fixed', 'hidden'].includes(modeOf(entry.group.id)) && entry.group.type === 'standard'"
+                            :value="preselectOf(entry.group.id)"
+                            :options="preselectOptions"
+                            :label="$tc('ld-mensura.profile.options.labelPreselect')"
+                            :help-text="$tc('ld-mensura.profile.options.helpPreselect')"
+                            :disabled="!canEdit || undefined"
+                            @update:value="setPreselect(entry.group.id, $event)"
+                        />
+                    </div>
+
+                    <div v-for="rule in materialRulesOf(entry.group.id)" :key="rule.id" class="lm-profile-rule__fields lm-profile-rule__fields--material">
+                        <sw-single-select
+                            :value="rule.materialId"
+                            :options="allowedMaterialOptions"
+                            :label="$tc('ld-mensura.profile.options.labelMaterial')"
+                            :help-text="$tc('ld-mensura.profile.options.helpMaterialRule')"
+                            :disabled="!canEdit || undefined"
+                            @update:value="setRuleMaterial(rule, $event)"
+                        />
+                        <sw-single-select
+                            :value="rule.mode"
+                            :options="modeOptions"
+                            :label="$tc('ld-mensura.profile.options.labelMode')"
+                            :disabled="!canEdit || undefined"
+                            @update:value="setMode(entry.group.id, $event, rule.materialId)"
+                        />
+                        <sw-multi-select
+                            v-if="rule.mode === 'restrict'"
+                            :value="rule.valueIds || []"
+                            :options="entry.values"
+                            :label="$tc('ld-mensura.profile.options.labelValues')"
+                            :disabled="!canEdit || undefined"
+                            @update:value="setValueIds(entry.group.id, $event, rule.materialId)"
+                        />
+                        <sw-single-select
+                            :value="rule.defaultValueId"
+                            :options="defaultChoices(entry, rule.materialId)"
+                            :label="$tc('ld-mensura.profile.options.labelDefault')"
+                            :disabled="!canEdit || undefined"
+                            @update:value="setDefault(entry.group.id, $event, rule.materialId)"
+                        />
+                        <sw-single-select
+                            v-if="!['fixed', 'hidden'].includes(rule.mode) && entry.group.type === 'standard'"
+                            :value="preselectOf(entry.group.id, rule.materialId)"
+                            :options="preselectOptions"
+                            :label="$tc('ld-mensura.profile.options.labelPreselect')"
+                            :disabled="!canEdit || undefined"
+                            @update:value="setPreselect(entry.group.id, $event, rule.materialId)"
+                        />
+                        <mt-button size="small" variant="secondary" square :aria-label="$tc('ld-mensura.components.remove')" :disabled="!canEdit || undefined" @click="removeRule(rule)">
+                            <mt-icon name="regular-trash" size="14px" />
+                        </mt-button>
+                    </div>
+                    <mt-button
+                        v-if="allowedMaterials.length > 1"
+                        size="small"
+                        variant="secondary"
+                        :disabled="!canEdit || materialRulesOf(entry.group.id).length >= allowedMaterials.length || undefined"
+                        @click="addMaterialRule(entry.group.id)"
+                    >
+                        <mt-icon name="regular-plus-circle" size="14px" /> {{ $tc('ld-mensura.profile.options.addMaterialRule') }}
+                    </mt-button>
+                </div>
+            </mt-card>
+            {% endblock %}
+
+            {% block lm_product_profile_limits %}
+            <mt-card position-identifier="lm-profile-limits" :title="$tc('ld-mensura.profile.limits.card')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.profile.limits.intro') }}</p>
+                <sw-container columns="repeat(auto-fit, minmax(180px, 1fr))" gap="0 30px">
+                    <mt-number-field v-model="profile.widthMin" number-type="int" :label="$tc('ld-mensura.calculation.detail.labelWidthMin')" :help-text="$tc('ld-mensura.profile.limits.helpFormat')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="profile.widthMax" number-type="int" :label="$tc('ld-mensura.calculation.detail.labelWidthMax')" :help-text="$tc('ld-mensura.profile.limits.helpFormat')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="profile.heightMin" number-type="int" :label="$tc('ld-mensura.calculation.detail.labelHeightMin')" :help-text="$tc('ld-mensura.profile.limits.helpFormat')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="profile.heightMax" number-type="int" :label="$tc('ld-mensura.calculation.detail.labelHeightMax')" :help-text="$tc('ld-mensura.profile.limits.helpFormat')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="profile.minQuantity" number-type="int" :label="$tc('ld-mensura.profile.limits.labelMinQuantity')" :help-text="$tc('ld-mensura.profile.limits.helpMinQuantity')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="profile.maxQuantity" number-type="int" :label="$tc('ld-mensura.profile.limits.labelMaxQuantity')" :help-text="$tc('ld-mensura.profile.limits.helpMaxQuantity')" :disabled="!canEdit || undefined" />
+                    <sw-multi-tag-select
+                        :value="(profile.quantitySteps || []).map(String)"
+                        :label="$tc('ld-mensura.calculation.detail.labelQuantitySteps')"
+                        :help-text="$tc('ld-mensura.profile.limits.helpQuantitySteps')"
+                        :disabled="!canEdit || undefined"
+                        @update:value="setQuantitySteps"
+                    />
+                </sw-container>
+            </mt-card>
+
+            <mt-card position-identifier="lm-profile-prices" :title="$tc('ld-mensura.profile.prices.card')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.profile.prices.intro') }}</p>
+                <sw-container columns="repeat(auto-fit, minmax(220px, 1fr))" gap="0 30px">
+                    <mt-number-field v-model="profile.surchargePercent" :digits="2" :label="$tc('ld-mensura.profile.prices.labelSurcharge')" :help-text="$tc('ld-mensura.profile.prices.helpSurcharge')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="profile.minimumPriceSale" :digits="2" :label="$tc('ld-mensura.profile.prices.labelMinimum')" :help-text="$tc('ld-mensura.profile.prices.helpMinimum')" :disabled="!canEdit || undefined" />
+                </sw-container>
+                <lm-price-components
+                    :value="profile.priceComponents"
+                    :show-purchase="false"
+                    :disabled="!canEdit"
+                    :empty-text="$tc('ld-mensura.profile.prices.componentsEmpty')"
+                    @update:value="profile.priceComponents = $event"
+                />
+            </mt-card>
+            {% endblock %}
+
+            {% block lm_product_profile_shop %}
+            <mt-card position-identifier="lm-profile-shop" :title="$tc('ld-mensura.profile.shop.card')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.profile.shop.intro') }}</p>
+                <sw-container columns="repeat(auto-fit, minmax(200px, 1fr))" gap="0 30px">
+                    <sw-single-select
+                        :value="defaults.materialId || null"
+                        :options="allowedMaterialOptions"
+                        :label="$tc('ld-mensura.profile.shop.labelDefaultMaterial')"
+                        :help-text="$tc('ld-mensura.profile.shop.helpDefaultMaterial')"
+                        :disabled="!canEdit || undefined"
+                        @update:value="setDefaultField('materialId', $event)"
+                    />
+                    <mt-number-field :model-value="defaults.format?.width ?? null" number-type="int" :label="$tc('ld-mensura.profile.shop.labelDefaultWidth')" :help-text="$tc('ld-mensura.profile.shop.helpDefaultFormat')" :disabled="!canEdit || undefined" @update:model-value="setDefaultField('width', $event)" />
+                    <mt-number-field :model-value="defaults.format?.height ?? null" number-type="int" :label="$tc('ld-mensura.profile.shop.labelDefaultHeight')" :help-text="$tc('ld-mensura.profile.shop.helpDefaultFormat')" :disabled="!canEdit || undefined" @update:model-value="setDefaultField('height', $event)" />
+                    <mt-number-field :model-value="defaults.motifs ?? null" number-type="int" :min="1" :label="$tc('ld-mensura.calculation.test.motifs')" :help-text="$tc('ld-mensura.profile.shop.helpDefaultQuantity')" :disabled="!canEdit || undefined" @update:model-value="setDefaultField('motifs', $event)" />
+                    <mt-number-field :model-value="defaults.perMotif ?? null" number-type="int" :min="1" :label="$tc('ld-mensura.calculation.test.perMotif')" :help-text="$tc('ld-mensura.profile.shop.helpDefaultQuantity')" :disabled="!canEdit || undefined" @update:model-value="setDefaultField('perMotif', $event)" />
+                </sw-container>
+                <h4 class="lm-tiers__title">{{ $tc('ld-mensura.profile.shop.displayTitle') }}</h4>
+                <sw-container columns="repeat(auto-fit, minmax(200px, 1fr))" gap="0 30px">
+                    <sw-single-select
+                        v-for="key in displayKeys"
+                        :key="key"
+                        :value="displayOf(key)"
+                        :options="displayOptions"
+                        :label="$tc('ld-mensura.profile.shop.display.' + key)"
+                        :help-text="$tc('ld-mensura.profile.shop.helpDisplay')"
+                        :disabled="!canEdit || undefined"
+                        @update:value="setDisplay(key, $event)"
+                    />
+                </sw-container>
+            </mt-card>
+            {% endblock %}
+
+            {% block lm_product_profile_test %}
+            <lm-test-calculator v-if="isSaved" :source="{ productId: product.id }" :reload-key="reloadKey" />
+            <mt-banner v-else variant="info">{{ $tc('ld-mensura.profile.testAfterSave') }}</mt-banner>
+            {% endblock %}
+
+            <div class="lm-profile__remove">
+                <mt-button variant="critical" size="small" :disabled="!canEdit || undefined" @click="showRemove = true">
+                    {{ $tc('ld-mensura.profile.remove.button') }}
+                </mt-button>
+            </div>
+        </template>
+
+        <sw-modal v-if="showCopy" :title="$tc('ld-mensura.profile.copy.title')" variant="small" @modal-close="showCopy = false">
+            <p class="lm-card-intro">{{ $tc('ld-mensura.profile.copy.intro') }}</p>
+            <sw-entity-single-select
+                v-model:value="copySourceId"
+                entity="product"
+                :criteria="sourceCriteria"
+                :label="$tc('ld-mensura.profile.copy.labelSource')"
+                :help-text="$tc('ld-mensura.profile.copy.helpSource')"
+            />
+            <template #modal-footer>
+                <mt-button size="small" variant="secondary" @click="showCopy = false">{{ $tc('global.default.cancel') }}</mt-button>
+                <mt-button size="small" variant="primary" :disabled="!copySourceId || undefined" @click="applyCopy">{{ $tc('ld-mensura.profile.copy.apply') }}</mt-button>
+            </template>
+        </sw-modal>
+
+        <sw-modal v-if="showRemove" :title="$tc('global.default.warning')" variant="small" @modal-close="showRemove = false">
+            <p>{{ $tc('ld-mensura.profile.remove.confirm') }}</p>
+            <template #modal-footer>
+                <mt-button size="small" variant="secondary" @click="showRemove = false">{{ $tc('global.default.cancel') }}</mt-button>
+                <mt-button size="small" variant="critical" @click="removeProfile">{{ $tc('ld-mensura.profile.remove.button') }}</mt-button>
+            </template>
+        </sw-modal>
+    </template>
+</div>
+{% endblock %}

@@ -317,6 +317,102 @@ test('Store-API-Client: Pfade, Header, Kontext-Token', async () => {
     assert.equal(seen[1].init.headers['sw-context-token'], 'neu', 'neues Token aus der Antwort wird weiterverwendet');
 });
 
+test('Storefront-Client: Routen im Sitzungskontext, bei 404 Ausweichen auf die Store-API (nur Lesen), Warenkorb nie ohne Sitzung', async () => {
+    const { StorefrontClient } = await import(join(SRC, 'api-client.js'));
+    const seen = [];
+    const reply = (status, json) => ({ ok: status < 300, status, json: async () => json });
+    const routes = { ok: true };
+    const fetchImpl = async (url, init) => {
+        seen.push({ url, init });
+        if (!routes.ok) return reply(404, { errors: [] });
+        return reply(200, { apiVersion: 1, url });
+    };
+    const fallback = { configurator: async () => ({ apiVersion: 1, from: 'store-api' }), calculate: async () => ({ apiVersion: 1, from: 'store-api' }) };
+    const sf = new StorefrontClient({ baseUrl: 'http://shop.test/en/', fallback, fetchImpl });
+    await sf.configurator(alu.productId);
+    await sf.calculate(byName['alu-mindestpreis'].request, { matrix: true });
+    assert.equal(seen[0].url, `http://shop.test/en/ld-mensura/configurator/${alu.productId}`);
+    assert.equal(seen[1].url, 'http://shop.test/en/ld-mensura/calculate');
+    assert.deepEqual(JSON.parse(seen[1].init.body), { configuration: byName['alu-mindestpreis'].request, matrix: true });
+    assert.equal(seen[1].init.credentials, 'same-origin');
+    assert.ok(!('sw-context-token' in seen[1].init.headers) && !('sw-access-key' in seen[1].init.headers), 'kein Token/Schlüssel nötig');
+    assert.equal((await sf.addToCart(byName['alu-mindestpreis'].request)).ok, true);
+    // Routen fehlen (404): Lesen über die Store-API, Warenkorb schlägt fehl statt in einen fremden Warenkorb zu legen
+    routes.ok = false;
+    const sf2 = new StorefrontClient({ baseUrl: '', fallback, fetchImpl });
+    assert.equal((await sf2.configurator(alu.productId)).from, 'store-api');
+    assert.equal((await sf2.calculate(byName['alu-mindestpreis'].request)).from, 'store-api');
+    await assert.rejects(() => sf2.addToCart(byName['alu-mindestpreis'].request), /cart 404/);
+});
+
+test('geführt ohne Lieferzeit-Gruppe: letzter Schritt heißt „Bestellen“, keine leere Lieferzeit-Frage', () => {
+    const data = structuredClone(alu);
+    data.groups = data.groups.filter((g) => g.type !== 'delivery');
+    const s = S.createState(data, { layout: 'guided', step: 'delivery' });
+    const html = R.renderGuided(ctx, s);
+    const text = textOf(html);
+    assert.ok(text.includes('Bestellen'), 'Schritt-Name');
+    assert.ok(text.includes('Alles richtig? Dann ab in den Warenkorb.'));
+    assert.ok(!text.includes('Wann brauchen Sie die Ware?'));
+    assert.match(html, /data-lm-action="cart"/);
+});
+
+test('Gruppe ohne Vorauswahl (preselect false): „Bitte wählen“, Fehler option.choose am Feld, kein Preis/Warenkorb/Weiter', async () => {
+    const data = structuredClone(alu);
+    const ver = data.groups.find((g) => g.technicalName === 'veredelung');
+    ver.preselect = false;
+    // laut Vertrag fehlt die Gruppe dann in allen Vorbelegungen
+    delete data.defaults.options.veredelung;
+    for (const m of data.materials) if (m.defaults) delete m.defaults.veredelung;
+    const c = new MensuraController({ data, client: new FixtureClient({ configurators: [data], cases, now: () => NOW }), debounceMs: 0 });
+    await c.calculateNow();
+    assert.equal(c.state.config.options.veredelung, undefined, 'nichts vorausgewählt');
+    // robust: auch wenn eine Vorbelegung die Gruppe doch nennt, wird sie bei preselect false nicht übernommen
+    const leaky = structuredClone(data);
+    leaky.defaults.options.veredelung = 'lam-matt';
+    for (const m of leaky.materials) m.defaults = { ...(m.defaults || {}), veredelung: 'lam-matt' };
+    assert.equal(S.createState(leaky).config.options.veredelung, undefined);
+    const err = S.currentErrors(c.state).find((e) => e.code === 'option.choose');
+    assert.equal(err?.field, 'options.veredelung');
+    assert.equal(S.canOrder(c.state), false);
+    const html = R.renderConfigurator(ctx, c.state);
+    assert.match(html, /<option value="" selected disabled>Bitte wählen<\/option>/);
+    assert.ok(textOf(html).includes('Bitte Veredelung wählen'), 'Fehler am Feld');
+    assert.match(html, /data-lm-action="cart" disabled/);
+    assert.ok(!html.includes('lm-total__value'), 'kein Preis');
+    const guided = R.renderGuided(ctx, S.apply(S.apply(c.state, { type: 'layout', value: 'guided' }), { type: 'step', key: 'group:veredelung' }));
+    assert.match(guided, /data-lm-action="next" disabled/);
+    assert.ok(!/data-lm-group="veredelung" data-lm-value="[^"]+" aria-pressed="true"/.test(guided), 'keine Kachel gewählt');
+    // Backend-Liste activeGroups ohne die zu wählende Gruppe: Feld trotzdem sichtbar (Gruppe mit Fehler)
+    const r = structuredClone(c.state.result);
+    r.activeGroups = r.activeGroups.filter((n) => n !== 'veredelung');
+    r.errors = [{ code: 'option.choose', message: 'Bitte Veredelung wählen', field: 'options.veredelung' }];
+    const withGap = S.apply(c.state, { type: 'result', result: r });
+    assert.ok(S.optionGroups(data, withGap).some((g) => g.technicalName === 'veredelung'));
+    assert.match(R.renderCompact(ctx, withGap), /data-lm-group="veredelung"/);
+    // Wahl treffen → Fehler weg
+    c.dispatch({ type: 'option', group: 'veredelung', value: 'keine' });
+    await c.idle();
+    assert.ok(!S.currentErrors(c.state).some((e) => e.code === 'option.choose'));
+    // Materialwechsel mit nicht erlaubtem Wert in einer Gruppe ohne Vorauswahl: Hinweis „bitte neu wählen“
+    const far = data.groups.find((g) => g.technicalName === 'farbigkeit');
+    far.preselect = false;
+    let s = S.createState(data, { initial: { ...byName['alu-comdatek-353'].request } });
+    s = S.apply(s, { type: 'material', id: ACRYL });
+    assert.equal(s.config.options.farbigkeit, undefined);
+    assert.ok(textOf(R.renderNotice(ctx, s)).includes('„4/4 beidseitig bedruckt“ gibt es bei Acrylglas nicht – bitte neu wählen.'));
+});
+
+test('Twig gibt nie den Kontext-Token aus (Shopware 6.7 wirft sonst HTTP 500)', async () => {
+    const { readdirSync, statSync, readFileSync } = await import('node:fs');
+    const { ROOT } = await import('./helpers.mjs');
+    const walk = (dir) => readdirSync(dir).flatMap((f) => (statSync(join(dir, f)).isDirectory() ? walk(join(dir, f)) : [join(dir, f)]));
+    for (const file of walk(join(ROOT, 'src/Resources/views/storefront')).filter((f) => f.endsWith('.twig'))) {
+        const code = readFileSync(file, 'utf8').replace(/\{#[\s\S]*?#\}/g, '');
+        assert.ok(!/context\.token/.test(code), `context.token in ${file}`);
+    }
+});
+
 test('englische Texte (en-GB) ohne fehlende Schlüssel', async () => {
     const c = await controller({ layout: 'guided' });
     for (const layout of ['compact', 'guided']) {

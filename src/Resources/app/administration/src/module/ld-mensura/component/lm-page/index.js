@@ -5,13 +5,20 @@ import { NAV_ITEMS } from '../../constants';
  * Smart-Bar mit Titel, Design-Schalter und Aktionen; Bereichsnavigation je Design
  * (A: keine – Shopware-Menü genügt, B: Reiter oben, C: Seitennavigation links).
  *
- * Slots: default (Inhalt), actions (weitere Smart-Bar-Buttons)
+ * Slots: default (Inhalt), actions (weitere Smart-Bar-Buttons), search-bar (Suchleiste der Listen)
  */
 export default {
     template: `
 <sw-page class="lm-page" :class="lmDesignClass">
+    <template v-if="$slots['search-bar']" #search-bar>
+        <slot name="search-bar" />
+    </template>
+
     <template #smart-bar-header>
-        <h2>{{ title }}</h2>
+        <h2>
+            {{ title }}
+            <span v-if="amount !== null" class="sw-page__smart-bar-amount">({{ amount }})</span>
+        </h2>
     </template>
 
     <template #smart-bar-actions>
@@ -60,6 +67,12 @@ export default {
             type: String,
             required: true,
         },
+
+        amount: {
+            type: Number,
+            required: false,
+            default: null,
+        },
     },
 
     computed: {
@@ -76,6 +89,7 @@ export default {
             return {
                 start: this.$tc('ld-mensura.groups.start'),
                 setup: this.$tc('ld-mensura.groups.setup'),
+                shop: this.$tc('ld-mensura.groups.shop'),
             };
         },
     },

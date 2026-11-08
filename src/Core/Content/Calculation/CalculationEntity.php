@@ -68,6 +68,8 @@ class CalculationEntity extends Entity
     protected ?float $setupPricePurchase = null;
     protected ?float $setupPriceSale = null;
     protected ?array $quantitySteps = null;
+    /** @var array<string, bool>|null optionGroupId → false = keine Vorauswahl */
+    protected ?array $preselect = null;
     protected ?PriceTableCollection $priceTables = null;
 
     public function getTechnicalName(): string
@@ -488,6 +490,18 @@ class CalculationEntity extends Entity
     public function setQuantitySteps(?array $quantitySteps): void
     {
         $this->quantitySteps = $quantitySteps;
+    }
+
+    /** @return array<string, bool>|null */
+    public function getPreselect(): ?array
+    {
+        return $this->preselect;
+    }
+
+    /** @param array<string, bool>|null $preselect */
+    public function setPreselect(?array $preselect): void
+    {
+        $this->preselect = $preselect;
     }
 
     public function getPriceTables(): ?PriceTableCollection

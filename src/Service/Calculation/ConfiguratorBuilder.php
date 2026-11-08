@@ -43,6 +43,7 @@ final class ConfiguratorBuilder
                 $startSet = $catalog->optionSet($calculation['optionSetId'])['technicalName'] ?? null;
             }
             $setId = $material['optionSetId'] ?? $calculation['optionSetId'] ?? null;
+            $materialDefaults = $this->cheapestDefaults($catalog, $entry, $reachable[$entry['materialId']] ?? []);
             $materials[] = [
                 'id' => $entry['materialId'],
                 'technicalName' => (string) $material['technicalName'],
@@ -59,6 +60,9 @@ final class ConfiguratorBuilder
                 'fromPricePerSqm' => $this->fromPricePerSqm($catalog, $calculation, $material, $entry, $surcharge),
                 'limits' => $limits,
             ];
+            if ($materialDefaults !== []) {
+                $materials[array_key_last($materials)]['defaults'] = $materialDefaults;
+            }
         }
 
         $groups = [];
@@ -139,6 +143,11 @@ final class ConfiguratorBuilder
             // Aufpreise dieser Gruppe ausblenden (Fokus auf den Gesamtpreis); fehlt = anzeigen
             if (($group['showPriceHint'] ?? true) === false) {
                 $groupOut['showPriceHint'] = false;
+            }
+            // keine Vorauswahl (für das erste Material, bei dem die Gruppe vorkommt); fehlt = vorauswählen
+            $first = reset($withGroup)['entry'];
+            if (!$this->engine->preselects($catalog, $first['calculationId'], $groupId, $first['materialId'])) {
+                $groupOut['preselect'] = false;
             }
             $groups[] = $groupOut;
         }
@@ -244,6 +253,81 @@ final class ConfiguratorBuilder
         }
 
         return [array_keys($visited), $groups];
+    }
+
+    /**
+     * Vorbelegung je Material (Vertrag materials[].defaults, Regel des Benutzers 08.11.2026: „immer den günstigsten
+     * Fall vorauswählen“): je erreichbarer Gruppe mit Vorauswahl der günstigste erlaubte Wert. Abschläge (z. B. 0/0
+     * unbedruckt) werden nie vorausgewählt; bei gleichem Aufpreis gewinnt der Standardwert der Kalkulation, dann die
+     * Reihenfolge. Feste/ausgeblendete Gruppen: ihr Wert. Gruppen ohne Vorauswahl fehlen.
+     * Aufpreis zum Vergleich: VK-Preisanteile des Werts für ein Stück mit 1 m² (Umfang 4 m) bei diesem Material.
+     *
+     * @param array<string, true> $groupIds
+     *
+     * @return array<string, string> Gruppe (technischer Name) → Wert (technischer Name)
+     */
+    private function cheapestDefaults(Catalog $catalog, array $entry, array $groupIds): array
+    {
+        $calculationId = $entry['calculationId'];
+        $materialId = $entry['materialId'];
+        $materialPrice = (float) ($catalog->material($materialId)['priceSale'] ?? 0);
+        $defaults = [];
+        foreach (array_keys($groupIds) as $groupId) {
+            $group = $catalog->group($groupId);
+            if ($group === null || !$this->engine->preselects($catalog, $calculationId, $groupId, $materialId)) {
+                continue;
+            }
+            $rule = $catalog->profileRule($groupId, $materialId);
+            $allowed = $this->engine->allowedValues($catalog, $calculationId, $materialId, $groupId, $rule);
+            if ($allowed === []) {
+                continue;
+            }
+            $best = null;
+            $bestCost = null;
+            foreach ($allowed as $valueId) {
+                $assignment = $catalog->assignment($calculationId, $valueId, $materialId) ?? [];
+                $cost = $this->referenceCost($assignment['priceComponents'] ?? [], $materialPrice);
+                if ($cost < -1e-9) {
+                    continue;
+                }
+                $better = $bestCost === null || $cost < $bestCost - 1e-9
+                    || (abs($cost - $bestCost) <= 1e-9 && ($assignment['isDefault'] ?? false) && !(($catalog->assignment($calculationId, $best, $materialId) ?? [])['isDefault'] ?? false));
+                if ($better) {
+                    $best = $valueId;
+                    $bestCost = $cost;
+                }
+            }
+            if (\in_array($rule['mode'] ?? 'inherit', ['fixed', 'hidden'], true)) {
+                $best = $allowed[0];
+            }
+            if ($best !== null) {
+                $defaults[(string) $group['technicalName']] = (string) ($catalog->value($best)['technicalName'] ?? $best);
+            }
+        }
+
+        return $defaults;
+    }
+
+    /** Aufpreis der VK-Preisanteile für ein Stück mit 1 m² Fläche und 4 m Umfang. */
+    private function referenceCost(mixed $components, float $materialPrice): float
+    {
+        $cost = 0.0;
+        foreach (\is_array($components) ? $components : [] as $component) {
+            $amount = \is_array($component) && is_numeric($component['sale'] ?? null) ? (float) $component['sale'] : null;
+            if ($amount === null) {
+                continue;
+            }
+            $cost += match ($component['type'] ?? '') {
+                'per_area', 'per_piece', 'per_motif', 'per_order' => $amount,
+                'per_perimeter' => 4 * $amount,
+                'percent' => $materialPrice * $amount / 100,
+                'factor' => $materialPrice * ($amount - 1),
+                'base_area' => $amount - $materialPrice,
+                default => 0.0,
+            };
+        }
+
+        return $cost;
     }
 
     /**
