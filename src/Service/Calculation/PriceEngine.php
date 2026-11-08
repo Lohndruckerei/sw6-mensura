@@ -167,6 +167,17 @@ final class PriceEngine
                     continue;
                 }
 
+                // Keine Vorauswahl (Kalkulation bzw. Profil): ohne gültige Wahl des Kunden bleibt die Gruppe offen;
+                // Pflichtgruppe → Fehler option.choose, kein Preis (docs/contract/README.md „Vorauswahl“)
+                $requestedValid = $requestedId !== null && \in_array($requestedId, $compatible, true);
+                if (!$requestedValid && $mode !== 'fixed' && $mode !== 'hidden' && !$this->preselects($catalog, $config->calculationId, $groupId, $config->materialId)) {
+                    $config->pendingGroupIds[] = $groupId;
+                    if ($required) {
+                        $config->errors[] = $messages->message('option.choose', ['group' => $group['name']], 'options.' . $technicalName);
+                    }
+                    continue;
+                }
+
                 $default = $this->defaultValue($catalog, $config->calculationId, $config->materialId, $compatible, $rule);
                 if ($requestedId !== null && \in_array($requestedId, $compatible, true)) {
                     $chosen = $requestedId;
@@ -299,6 +310,21 @@ final class PriceEngine
         });
 
         return $values;
+    }
+
+    /**
+     * Wird in dieser Gruppe ein Wert vorausgewählt? Profilregel (Material vor allgemein) vor Kalkulation; Standard ja.
+     */
+    public function preselects(Catalog $catalog, string $calculationId, string $groupId, ?string $materialId): bool
+    {
+        foreach ([$materialId !== null ? $catalog->profileRule($groupId, $materialId) : null, $catalog->profileRule($groupId, null)] as $rule) {
+            if (\is_array($rule) && isset($rule['preselect']) && $rule['preselect'] !== null) {
+                return (bool) $rule['preselect'];
+            }
+        }
+        $setting = $catalog->calculation($calculationId)['preselect'] ?? null;
+
+        return !\is_array($setting) || ($setting[$groupId] ?? true) !== false;
     }
 
     /** @param array<string, mixed>|null $rule */

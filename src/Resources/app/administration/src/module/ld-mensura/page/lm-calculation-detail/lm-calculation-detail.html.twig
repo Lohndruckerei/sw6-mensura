@@ -191,6 +191,16 @@
                 :position-identifier="'lm-calc-group-' + group.id"
                 :title="(group.translated?.name || group.technicalName) + ' · ' + $tc('ld-mensura.option.types.' + group.type)"
             >
+                <mt-switch
+                    v-if="group.type === 'standard'"
+                    class="lm-assign__preselect"
+                    :model-value="preselects(group)"
+                    :label="$tc('ld-mensura.calculation.options.labelPreselect')"
+                    :help-text="$tc('ld-mensura.calculation.options.helpPreselect')"
+                    :disabled="!canEdit || undefined"
+                    bordered
+                    @update:model-value="setPreselect(group, $event)"
+                />
                 <div class="lm-assign">
                     <div v-for="value in sortedValues(group)" :key="value.id" class="lm-assign__value">
                         <div class="lm-assign__row">
@@ -201,8 +211,8 @@
                                 @update:model-value="toggleOffered(value, $event)"
                             />
                             <span class="lm-assign__price">{{ priceSummary(generalRow(value)) }}</span>
-                            <lm-status v-if="generalRow(value)?.isDefault" state="ok" :label="$tc('ld-mensura.calculation.options.default')" />
-                            <mt-button v-if="generalRow(value) && !generalRow(value).isDefault" size="small" variant="secondary" :disabled="!canEdit || undefined" @click="setDefault(group, value)">
+                            <lm-status v-if="generalRow(value)?.isDefault && preselects(group)" state="ok" :label="$tc('ld-mensura.calculation.options.default')" />
+                            <mt-button v-if="generalRow(value) && !generalRow(value).isDefault && preselects(group)" size="small" variant="secondary" :disabled="!canEdit || undefined" @click="setDefault(group, value)">
                                 {{ $tc('ld-mensura.calculation.options.makeDefault') }}
                             </mt-button>
                             <mt-button v-if="generalRow(value)" size="small" variant="secondary" @click="openRow(generalRow(value), value)">

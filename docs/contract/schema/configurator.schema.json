@@ -63,6 +63,7 @@
           "required": { "type": "boolean" },
           "mode": { "enum": ["inherit", "restrict", "fixed", "hidden"], "description": "Regel aus dem Produktprofil; hidden = nicht anzeigen, Wert steht in defaults" },
           "showPriceHint": { "type": "boolean", "description": "optional, Standard true: false = Aufpreise (priceHint) der Werte dieser Gruppe im Shop nicht anzeigen, Fokus auf den Gesamtpreis" },
+          "preselect": { "type": "boolean", "description": "optional, Standard true: false = keine Vorauswahl (Einstellung in Kalkulation bzw. Produktprofil, gilt für das erste Material des Profils; je Material maßgeblich ist das Fehlen in defaults bzw. materials[].defaults). Der Kunde muss wählen: Pflichtgruppe ohne Wert → Fehler option.choose, kein Preis, kein Warenkorb; freiwillige Gruppe darf leer bleiben" },
           "values": {
             "type": "array",
             "items": {

@@ -140,6 +140,15 @@
                             :disabled="!canEdit || undefined"
                             @update:value="setDefault(entry.group.id, $event)"
                         />
+                        <sw-single-select
+                            v-if="!['fixed', 'hidden'].includes(modeOf(entry.group.id)) && entry.group.type === 'standard'"
+                            :value="preselectOf(entry.group.id)"
+                            :options="preselectOptions"
+                            :label="$tc('ld-mensura.profile.options.labelPreselect')"
+                            :help-text="$tc('ld-mensura.profile.options.helpPreselect')"
+                            :disabled="!canEdit || undefined"
+                            @update:value="setPreselect(entry.group.id, $event)"
+                        />
                     </div>
 
                     <div v-for="rule in materialRulesOf(entry.group.id)" :key="rule.id" class="lm-profile-rule__fields lm-profile-rule__fields--material">
@@ -172,6 +181,14 @@
                             :label="$tc('ld-mensura.profile.options.labelDefault')"
                             :disabled="!canEdit || undefined"
                             @update:value="setDefault(entry.group.id, $event, rule.materialId)"
+                        />
+                        <sw-single-select
+                            v-if="!['fixed', 'hidden'].includes(rule.mode) && entry.group.type === 'standard'"
+                            :value="preselectOf(entry.group.id, rule.materialId)"
+                            :options="preselectOptions"
+                            :label="$tc('ld-mensura.profile.options.labelPreselect')"
+                            :disabled="!canEdit || undefined"
+                            @update:value="setPreselect(entry.group.id, $event, rule.materialId)"
                         />
                         <mt-button size="small" variant="secondary" square :aria-label="$tc('ld-mensura.components.remove')" :disabled="!canEdit || undefined" @click="removeRule(rule)">
                             <mt-icon name="regular-trash" size="14px" />

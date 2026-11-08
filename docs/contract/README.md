@@ -24,6 +24,17 @@ Shop Storefront-Routen auf. Sie laufen im Sitzungskontext und haben **dieselben 
 | `POST /ld-mensura/calculate` (`frontend.ld-mensura.calculate`) | `POST /store-api/ld-mensura/calculate` |
 | `POST /ld-mensura/cart/add` (`frontend.ld-mensura.cart.add`) | `POST /store-api/ld-mensura/cart/add` |
 
+## Vorauswahl (Wunsch des Benutzers, 08.11.2026)
+
+Je Optionsgruppe lässt sich im Backend einstellen, ob ein Wert vorausgewählt wird – in der Kalkulation, im Produktprofil
+überschreibbar (auch je Material). Standard ist „vorauswählen“ (bisheriges Verhalten).
+
+- Ohne Vorauswahl fehlt die Gruppe in `defaults.options` (bzw. `materials[].defaults`); `groups[].preselect` ist `false`.
+- `calculate` ohne Wert für eine solche **Pflichtgruppe**: `valid: false`, Fehler `option.choose` mit `field: options.<gruppe>`,
+  **kein Preis** und keine Preismatrix, `cart/add` → 400. Freiwillige Gruppen (`required: false`) dürfen leer bleiben.
+- Folge-Sets einer noch nicht gewählten Gruppe erscheinen erst nach der Wahl.
+- Feste und ausgeblendete Gruppen (Profilregel `fixed`/`hidden`) haben immer ihren Wert.
+
 Die Store-API selbst bleibt für Headless/Apps (mit `sw-context-token` des Clients) und für die Testseite.
 
 ## Regeln

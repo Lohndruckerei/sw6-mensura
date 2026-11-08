@@ -403,6 +403,66 @@ final class PriceEngineTest extends TestCase
         self::assertSame(['share' => 0], $builder->build(new Catalog(DemoCatalog::catalog()), ContractTest::context())['layoutTest']);
     }
 
+    public function testNoPreselectionRequiresChoiceBeforePrice(): void
+    {
+        // Wunsch des Benutzers 08.11.2026: Kalkulation „Veredelung ohne Vorauswahl“ → kein Preis, bis gewählt
+        $data = DemoCatalog::catalog();
+        $calcId = DemoCatalog::id('calculation.aluverbund');
+        $veredelung = DemoCatalog::id('group.veredelung');
+        $data['calculations'][$calcId]['preselect'] = [$veredelung => false];
+        $engine = new PriceEngine();
+
+        $open = self::plain($engine->calculate($this->config([]), new Catalog($data), ContractTest::context(), true)->toStoreApi());
+        self::assertFalse($open['valid']);
+        self::assertSame(['option.choose'], array_column($open['errors'], 'code'));
+        self::assertSame('options.veredelung', $open['errors'][0]['field']);
+        self::assertSame('Bitte Veredelung wählen', $open['errors'][0]['message']);
+        self::assertArrayNotHasKey('price', $open);
+        self::assertArrayNotHasKey('veredelung', $open['configuration']['options']);
+
+        $chosen = self::plain($engine->calculate($this->config(['options' => ['veredelung' => 'keine']]), new Catalog($data), ContractTest::context())->toStoreApi());
+        self::assertTrue($chosen['valid']);
+        self::assertSame(12.5, (float) $chosen['price']['total']);
+
+        // Konfigurator: Gruppe ohne Vorauswahl, Vorbelegung ohne diese Gruppe
+        $out = self::plain((new \Lohndruckerei\Mensura\Service\Calculation\ConfiguratorBuilder())->build(new Catalog($data), ContractTest::context()));
+        $groups = array_column($out['groups'], null, 'technicalName');
+        self::assertFalse($groups['veredelung']['preselect']);
+        self::assertArrayNotHasKey('preselect', $groups['farbigkeit']);
+        self::assertArrayNotHasKey('veredelung', $out['defaults']['options']);
+        self::assertArrayNotHasKey('veredelung', $out['materials'][0]['defaults']);
+        self::assertSame('4-0', $out['materials'][0]['defaults']['farbigkeit']);
+
+        // Profil überschreibt: Vorauswahl wieder an (allgemeine Regel), für Acryl gilt die Kalkulation Acryl
+        $data['profile']['options'] = [['optionGroupId' => $veredelung, 'materialId' => null, 'mode' => 'inherit', 'valueIds' => null, 'defaultValueId' => null, 'preselect' => true, 'position' => null]];
+        self::assertTrue($engine->calculate($this->config([]), new Catalog($data), ContractTest::context())->isValid());
+
+        // freiwillige Gruppe ohne Vorauswahl bleibt leer, Preis trotzdem
+        $data['profile']['options'] = [];
+        $data['groups'][$veredelung]['required'] = false;
+        $optional = self::plain($engine->calculate($this->config([]), new Catalog($data), ContractTest::context())->toStoreApi());
+        self::assertTrue($optional['valid']);
+        self::assertArrayNotHasKey('veredelung', $optional['configuration']['options']);
+    }
+
+    public function testMaterialDefaultsAreCheapestWithoutDiscounts(): void
+    {
+        // Regel 08.11.2026 „immer den günstigsten Fall vorauswählen“: Standard „Laminat matt“ (+8 €/m²) verliert gegen „keine“;
+        // „0/0 unbedruckt“ (−8 €/m², Abschlag) wird nie vorausgewählt
+        $data = DemoCatalog::catalog();
+        foreach ($data['calculations'][DemoCatalog::id('calculation.aluverbund')]['optionValues'] as &$row) {
+            if (\in_array($row['optionValueId'], [DemoCatalog::id('value.veredelung.keine'), DemoCatalog::id('value.veredelung.lam-matt')], true)) {
+                $row['isDefault'] = $row['optionValueId'] === DemoCatalog::id('value.veredelung.lam-matt');
+            }
+        }
+        unset($row);
+        $out = self::plain((new \Lohndruckerei\Mensura\Service\Calculation\ConfiguratorBuilder())->build(new Catalog($data), ContractTest::context()));
+
+        self::assertSame('keine', $out['materials'][0]['defaults']['veredelung']);
+        self::assertSame('4-0', $out['materials'][0]['defaults']['farbigkeit']);
+        self::assertSame('lam-matt', $out['defaults']['options']['veredelung'], 'Startkonfiguration unverändert (Standardwert)');
+    }
+
     public function testEnglishTexts(): void
     {
         $api = self::plain((new PriceEngine())->calculate($this->config([]), new Catalog(DemoCatalog::catalog('en')), ContractTest::context(null, 'en'))->toStoreApi());

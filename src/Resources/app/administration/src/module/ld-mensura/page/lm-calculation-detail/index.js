@@ -304,6 +304,21 @@ export default {
             });
         },
 
+        /** Vorauswahl je Gruppe (Kalkulation `preselect` {groupId: false}; fehlt = vorauswählen). */
+        preselects(group) {
+            return this.calculation?.preselect?.[group.id] !== false;
+        },
+
+        setPreselect(group, on) {
+            const preselect = { ...(this.calculation.preselect ?? {}) };
+            if (on) {
+                delete preselect[group.id];
+            } else {
+                preselect[group.id] = false;
+            }
+            this.calculation.preselect = Object.keys(preselect).length ? preselect : null;
+        },
+
         addMaterialRow(value) {
             const used = this.materialRows(value).map((row) => row.materialId);
             const material = this.materialList.find((entry) => !used.includes(entry.id));

@@ -22,7 +22,7 @@ class CatalogLoader
         'id', 'technicalName', 'name', 'active', 'unit', 'formatMode', 'widthMin', 'widthMax', 'heightMin', 'heightMax',
         'allowRotation', 'minArea', 'areaRounding', 'areaScope', 'maxMotifs', 'maxQuantity', 'optionSetId', 'motifMode', 'tierScope',
         'bestPriceMode', 'priceComponents', 'minimumPricePurchase', 'minimumPriceSale', 'tierBasis', 'tiers',
-        'priceRounding', 'setupPricePurchase', 'setupPriceSale', 'quantitySteps', 'supplierId',
+        'priceRounding', 'setupPricePurchase', 'setupPriceSale', 'quantitySteps', 'supplierId', 'preselect',
     ];
     private const MATERIAL_FIELDS = [
         'id', 'technicalName', 'code', 'active', 'position', 'pricePurchase', 'priceSale', 'minimumPricePurchase',
@@ -69,7 +69,7 @@ class CatalogLoader
         }
         $profileData['options'] = [];
         foreach ($profile->get('options') ?? [] as $row) {
-            $profileData['options'][] = $this->fields($row, ['id', 'optionGroupId', 'materialId', 'mode', 'valueIds', 'defaultValueId', 'position']);
+            $profileData['options'][] = $this->fields($row, ['id', 'optionGroupId', 'materialId', 'mode', 'valueIds', 'defaultValueId', 'preselect', 'position']);
         }
         // Steuer des Produkts (auch geerbt bei Varianten) für den Bruttopreis in der Store-API
         $product = $context->enableInheritance(fn (Context $inherited) => $this->registry->getRepository('product')->search(new Criteria([$productId]), $inherited)->first());

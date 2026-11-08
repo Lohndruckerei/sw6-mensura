@@ -143,6 +143,14 @@ export default {
             ];
         },
 
+        preselectOptions() {
+            return [
+                { value: '', label: this.$tc('ld-mensura.profile.options.preselectInherit') },
+                { value: 'on', label: this.$tc('ld-mensura.profile.options.preselectOn') },
+                { value: 'off', label: this.$tc('ld-mensura.profile.options.preselectOff') },
+            ];
+        },
+
         displayOptions() {
             return [
                 { value: '', label: this.$tc('ld-mensura.profile.display.default') },
@@ -298,6 +306,7 @@ export default {
                 rule.mode = 'inherit';
                 rule.valueIds = null;
                 rule.defaultValueId = null;
+                rule.preselect = null;
                 rule.position = 0;
                 this.profile.options.add(rule);
             }
@@ -307,7 +316,7 @@ export default {
 
         /** Allgemeine Regel ohne Wirkung wieder entfernen (übernehmen ohne Standardwert). */
         cleanupRule(rule) {
-            if (rule && !rule.materialId && rule.mode === 'inherit' && !rule.defaultValueId) {
+            if (rule && !rule.materialId && rule.mode === 'inherit' && !rule.defaultValueId && (rule.preselect ?? null) === null) {
                 this.profile.options.remove(rule.id);
             }
         },
@@ -344,6 +353,19 @@ export default {
         setDefault(groupId, valueId, materialId = null) {
             const rule = this.ensureRule(groupId, materialId);
             rule.defaultValueId = valueId || null;
+            this.cleanupRule(rule);
+        },
+
+        /** Vorauswahl der Regel: '' = wie Kalkulation, 'on', 'off' */
+        preselectOf(groupId, materialId = null) {
+            const value = this.ruleOf(groupId, materialId)?.preselect;
+
+            return value === true ? 'on' : value === false ? 'off' : '';
+        },
+
+        setPreselect(groupId, value, materialId = null) {
+            const rule = this.ensureRule(groupId, materialId);
+            rule.preselect = value === 'on' ? true : value === 'off' ? false : null;
             this.cleanupRule(rule);
         },
 
@@ -479,6 +501,7 @@ export default {
                     mode: sourceRule.mode,
                     valueIds: sourceRule.valueIds ? [...sourceRule.valueIds] : null,
                     defaultValueId: sourceRule.defaultValueId,
+                    preselect: sourceRule.preselect ?? null,
                     position: sourceRule.position,
                 });
                 profile.options.add(rule);

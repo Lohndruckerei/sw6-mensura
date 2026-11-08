@@ -20,6 +20,8 @@ class ProductProfileOptionEntity extends Entity
     protected string $mode;
     protected ?array $valueIds = null;
     protected ?string $defaultValueId = null;
+    /** null = wie Kalkulation, true = vorauswählen, false = keine Vorauswahl */
+    protected ?bool $preselect = null;
     protected ?int $position = null;
     protected ?ProductProfileEntity $productProfile = null;
     protected ?OptionGroupEntity $optionGroup = null;
@@ -83,6 +85,16 @@ class ProductProfileOptionEntity extends Entity
     public function setDefaultValueId(?string $defaultValueId): void
     {
         $this->defaultValueId = $defaultValueId;
+    }
+
+    public function getPreselect(): ?bool
+    {
+        return $this->preselect;
+    }
+
+    public function setPreselect(?bool $preselect): void
+    {
+        $this->preselect = $preselect;
     }
 
     public function getPosition(): ?int

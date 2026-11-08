@@ -8,6 +8,7 @@ use Lohndruckerei\Mensura\Core\Content\Material\MaterialDefinition;
 use Lohndruckerei\Mensura\Core\Content\Option\OptionGroupDefinition;
 use Lohndruckerei\Mensura\Core\Content\ProductProfile\ProductProfileDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -60,6 +61,8 @@ class ProductProfileOptionDefinition extends EntityDefinition
             (new StringField('mode', 'mode', 16))->addFlags(new Required()),
             new JsonField('value_ids', 'valueIds'),
             new IdField('default_value_id', 'defaultValueId'),
+            // Vorauswahl: null = wie Kalkulation, true/false überschreibt
+            new BoolField('preselect', 'preselect'),
             new IntField('position', 'position'),
 
             new ManyToOneAssociationField('productProfile', 'product_profile_id', ProductProfileDefinition::class, 'id', false),

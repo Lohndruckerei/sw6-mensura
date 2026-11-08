@@ -29,6 +29,8 @@ final class NormalizedConfiguration
     public array $activeGroupIds = [];
     /** @var list<string> ausgeblendete Gruppen (Profil `hidden`): Wert wird berechnet, aber nicht angezeigt */
     public array $hiddenGroupIds = [];
+    /** @var list<string> sichtbare Gruppen ohne Vorauswahl, in denen der Kunde noch wählen muss */
+    public array $pendingGroupIds = [];
 
     public ?string $deliveryValueId = null;
     /** @var list<string> erlaubte Lieferzeit-Werte in Reihenfolge */

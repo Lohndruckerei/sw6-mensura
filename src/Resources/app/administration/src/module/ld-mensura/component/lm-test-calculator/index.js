@@ -143,7 +143,8 @@ export default {
 
             return (this.configurator?.groups ?? [])
                 .filter((group) => group.type !== 'format' && group.mode !== 'hidden')
-                .filter((group) => !active || group.type === 'delivery' || group.technicalName in active)
+                .filter((group) => !active || group.type === 'delivery' || group.technicalName in active
+                    || (this.response?.result?.errors ?? []).some((error) => error.field === `options.${group.technicalName}`))
                 .map((group) => ({
                     technicalName: group.technicalName,
                     type: group.type,

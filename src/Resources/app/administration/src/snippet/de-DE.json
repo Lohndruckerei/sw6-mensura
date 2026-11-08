@@ -372,6 +372,8 @@
                 "infoText": "Schalte die Werte an, die es in dieser Kalkulation gibt, und pflege ihren Preis als Preisanteile (EK und VK). Mit „Abweichung je Material“ bekommt ein Material einen anderen Preis oder als einziges den Wert (z. B. 4/4 nur bei Aluverbund). Der Standardwert ist vorbelegt.",
                 "default": "Standard",
                 "makeDefault": "Als Standard",
+                "labelPreselect": "Im Shop vorauswählen",
+                "helpPreselect": "An: Der Standardwert ist beim Öffnen gewählt, der Preis erscheint sofort. Aus: Der Kunde muss selbst wählen, z. B. bei Konfektion – bis dahin kein Preis und kein Warenkorb. Im Produktprofil überschreibbar.",
                 "editPrice": "Preis …",
                 "addMaterialRow": "Abweichung je Material",
                 "noSurcharge": "ohne Aufpreis",
@@ -684,7 +686,12 @@
                 "helpDefault": "Vorbelegung im Shop. Bei „Fest“ und „Ausgeblendet“ Pflicht – dieser Wert wird gerechnet, z. B. „Nein“.",
                 "labelMaterial": "Nur für Material",
                 "helpMaterialRule": "Diese Regel gilt nur für das gewählte Material und hat Vorrang, z. B. Acryl: Laminat ausgeblendet.",
-                "addMaterialRule": "Abweichung für ein Material"
+                "addMaterialRule": "Abweichung für ein Material",
+                "labelPreselect": "Vorauswahl",
+                "helpPreselect": "Ob der Standardwert im Shop schon gewählt ist. „Keine“: Der Kunde muss wählen, bis dahin kein Preis – z. B. Konfektion bei Bannern.",
+                "preselectInherit": "wie Kalkulation",
+                "preselectOn": "Standardwert vorauswählen",
+                "preselectOff": "keine – Kunde wählt"
             },
             "limits": {
                 "card": "Format und Menge",

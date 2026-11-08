@@ -372,6 +372,8 @@
                 "infoText": "Switch on the values offered in this calculation and maintain their price as price components (purchase and sale). With “Deviation per material” a material gets a different price or is the only one with the value (e.g. 4/4 only for aluminium composite). The default value is preselected.",
                 "default": "Default",
                 "makeDefault": "Make default",
+                "labelPreselect": "Preselect in the shop",
+                "helpPreselect": "On: the default value is selected on opening, the price appears at once. Off: the customer has to choose, e.g. for banner finishing – no price and no cart until then. Can be overridden in the product profile.",
                 "editPrice": "Price …",
                 "addMaterialRow": "Deviation per material",
                 "noSurcharge": "no surcharge",
@@ -684,7 +686,12 @@
                 "helpDefault": "Preselection in the shop. Required for “Fixed” and “Hidden” – this value is calculated, e.g. “No”.",
                 "labelMaterial": "Only for material",
                 "helpMaterialRule": "This rule applies only to the selected material and takes precedence, e.g. acrylic: laminate hidden.",
-                "addMaterialRule": "Deviation for one material"
+                "addMaterialRule": "Deviation for one material",
+                "labelPreselect": "Preselection",
+                "helpPreselect": "Whether the default value is already selected in the shop. “None”: the customer has to choose, no price until then – e.g. banner finishing.",
+                "preselectInherit": "as calculation",
+                "preselectOn": "Preselect default value",
+                "preselectOff": "none – customer chooses"
             },
             "limits": {
                 "card": "Format and quantity",

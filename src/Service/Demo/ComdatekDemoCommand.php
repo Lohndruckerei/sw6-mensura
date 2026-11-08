@@ -218,6 +218,8 @@ class ComdatekDemoCommand extends Command
                 'minimumPricePurchase' => $calculation['minimum'],
                 'minimumPriceSale' => ComdatekCatalog::vk($calculation['minimum']),
                 'quantitySteps' => $calculation['quantitySteps'] ?? [1, 2, 5, 10, 25, 50, 100],
+                // Vorauswahl überall an (Stand im Code)
+                'preselect' => null,
                 'saleRule' => 'margin',
                 'saleRuleValue' => 25.0,
                 'marginMin' => 20.0,
