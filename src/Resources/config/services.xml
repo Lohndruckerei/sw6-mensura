@@ -96,6 +96,9 @@
         <service id="Lohndruckerei\Mensura\Service\Calculation\CatalogLoader"/>
         <service id="Lohndruckerei\Mensura\Service\Calculation\ContextFactory"/>
         <service id="Lohndruckerei\Mensura\Service\Demo\DemoSeedCommand"/>
+        <service id="Lohndruckerei\Mensura\Service\Demo\ComdatekDemoCommand">
+            <argument key="$productIndexer" type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer"/>
+        </service>
         <!-- Warenkorb: nach dem ProductCartProcessor (5000) neu rechnen -->
         <service id="Lohndruckerei\Mensura\Service\Cart\MensuraCartProcessor">
             <tag name="shopware.cart.processor" priority="4900"/>

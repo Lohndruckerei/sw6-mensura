@@ -8,7 +8,8 @@ Im Backend werden dafür Kalkulationen mit eigenen Berechnungsgrundlagen gepfleg
 Fläche, Staffeln, Mindestpreisen und Optionsaufschlägen, bei Bedarf mit eigener Formel.
 
 - Konzept, Kalkulationsfelder und Formeln: [docs/KONZEPT.md](docs/KONZEPT.md)
-- Administration: eigener Menüpunkt **Mensura** (Übersicht, Kalkulationen, Materialien, Optionen),
+- Administration: eigener Menüpunkt **Mensura** (Übersicht, Produktprofile, Kalkulationen, Materialien, Optionen,
+  Optionssets), Reiter „Mensura“ in der Produktdetailseite,
   Design A/B/C umschaltbar (Plugin-Konfiguration als Standard, Schalter „Design“ je Benutzer)
 
 ## Stand
@@ -24,11 +25,33 @@ per Admin-API nutzbar, Rechte für die Rollenverwaltung) und **Preis-Engine mit 
   (feste `code`s), Mindestpreis, Kundengruppen-Aufschlag, Bestpreisregel, Motiv-Modus, EK parallel
 - Store-API: `GET /store-api/ld-mensura/product/{id}/configurator`, `POST /store-api/ld-mensura/calculate`
   (mit Preismatrix), `POST /store-api/ld-mensura/preset/validate` – ohne Einkaufspreise
-- Demo-Daten passend zu den Vertrags-Beispielfällen: `bin/console mensura:demo:seed`
+- Demo-Daten: siehe Abschnitt **Demo**
+
+## Demo
+
+Beide Befehle sind wiederholbar (feste IDs, keine Doppelungen) und lassen sich in beliebiger Reihenfolge ausführen.
+
+- `bin/console mensura:demo:seed` – Basis-Demo passend zu den Vertrags-Beispielfällen (`docs/contract/fixtures`):
+  „Aluverbund (Mensura-Demo)“ und „Folie (Mensura-Demo)“. Nicht ändern, die Prüfungen rechnen damit.
+- `bin/console mensura:demo:comdatek` – Sortiment aus der **Comdatek-Einkaufspreisliste 2026** (Daten im Code,
+  `src/Service/Demo/ComdatekCatalog.php`):
+  - je Excel-Gruppe eine Kalkulation (`cd-…`): Aluverbund, Kaschierte Platten, Acryl, Hartschaum 1–3 / 5–10 mm / schwarz,
+    Hart-PVC & Polystyrol, Hohlkammer, Displaykarton & DISPA, Re-Board, Stadur, Banner, Textilbanner – 50 Materialien
+  - **EK = Excel, VK = EK ÷ 0,75** (25 % Marge, auf Cent) für Materialpreise, Preisanteile, Staffeln und Mindestpreise;
+    VK-Regel der Kalkulationen: Zielmarge 25 %, Korridor 20–30 %
+  - **Logistikpauschale** (Vectura-Konzept 5.1, Modell D) als Preisanteil je m² jeder Kalkulation, VK = Vorschlag je
+    Materialgruppe, EK = Versand-EK ÷ Fläche; im Shop nicht getrennt ausgewiesen. Der Wert kommt später aus Vectura.
+  - 14 Shopware-Produkte mit Profil in der Kategorie „Mensura-Demo“ (je Gruppe eins plus „Plattendirektdruck“ über alle
+    Plattenkalkulationen; Platten kompakt, Banner geführt), Steuer 19 %, sichtbar in jeder Storefront
+  - mit aktivem **LieferLotse**: Lieferant „Comdatek GmbH“ (`COMDATEK`), Bestellweg „Manuell im Portal“
+    (connect.comdatek.de – es wird nichts gesendet), Produktzuordnungen mit Comdatek-Produkt-ID; in Mensura
+    `supplierId` und `supplierCodes` (Comdatek-Material-IDs) an Kalkulationen und Materialien
+  - setzt Optionssets, Optionszuordnungen der Kalkulationen sowie Materialien und Optionsregeln der Profile seiner
+    Produkte auf den Stand im Code zurück; gemeinsame Optionsgruppen werden nur ergänzt (z. B. Gruppe „Konfektion“)
+  - Prüfen im laufenden Shop: `tests/Backend/Shop/comdatek-demo.php` (Store-API, Sollwerte)
 
 Schnittstellen zu LieferLotse und künftigen Plugins: [docs/INTEGRATION.md](docs/INTEGRATION.md).
-Nächste Schritte: Admin-Oberflächen mit Testrechner, Storefront-Konfigurator (parallel), Warenkorb/Schnappschuss
-(siehe Fahrplan im Konzept).
+Fahrplan und nächste Schritte: siehe Konzept.
 
 ## Entwicklung
 

@@ -233,8 +233,11 @@ export default {
                 const defaults = data.defaults ?? {};
                 if (!this.materials.some((material) => material.id === this.input.materialId)) {
                     this.input.materialId = defaults.materialId ?? this.materials[0]?.id ?? null;
-                    this.input.width = defaults.format?.width ?? this.input.width;
-                    this.input.height = defaults.format?.height ?? this.input.height;
+                    // Vorbelegung nur aus einem Produktprofil; eine Kalkulation hat keine (dort käme das Minimalformat)
+                    if (this.source.productId) {
+                        this.input.width = defaults.format?.width ?? this.input.width;
+                        this.input.height = defaults.format?.height ?? this.input.height;
+                    }
                     this.input.motifs = defaults.motifs ?? 1;
                     this.input.perMotif = defaults.perMotif ?? 1;
                     this.input.options = { ...(defaults.options ?? {}) };

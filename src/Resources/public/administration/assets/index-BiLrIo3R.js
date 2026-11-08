@@ -1,4 +1,4 @@
-import{N as a}from"./ld-mensura-BrmPsxbL.js";const r={template:`
+import{N as a}from"./ld-mensura-ChjaAqLN.js";const r={template:`
 <sw-page class="lm-page" :class="lmDesignClass">
     <template v-if="$slots['search-bar']" #search-bar>
         <slot name="search-bar" />
