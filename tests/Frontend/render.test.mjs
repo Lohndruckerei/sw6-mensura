@@ -383,6 +383,13 @@ test('Gruppe ohne Vorauswahl (preselect false): „Bitte wählen“, Fehler opti
     const guided = R.renderGuided(ctx, S.apply(S.apply(c.state, { type: 'layout', value: 'guided' }), { type: 'step', key: 'group:veredelung' }));
     assert.match(guided, /data-lm-action="next" disabled/);
     assert.ok(!/data-lm-group="veredelung" data-lm-value="[^"]+" aria-pressed="true"/.test(guided), 'keine Kachel gewählt');
+    // Backend-Liste activeGroups ohne die zu wählende Gruppe: Feld trotzdem sichtbar (Gruppe mit Fehler)
+    const r = structuredClone(c.state.result);
+    r.activeGroups = r.activeGroups.filter((n) => n !== 'veredelung');
+    r.errors = [{ code: 'option.choose', message: 'Bitte Veredelung wählen', field: 'options.veredelung' }];
+    const withGap = S.apply(c.state, { type: 'result', result: r });
+    assert.ok(S.optionGroups(data, withGap).some((g) => g.technicalName === 'veredelung'));
+    assert.match(R.renderCompact(ctx, withGap), /data-lm-group="veredelung"/);
     // Wahl treffen → Fehler weg
     c.dispatch({ type: 'option', group: 'veredelung', value: 'keine' });
     await c.idle();

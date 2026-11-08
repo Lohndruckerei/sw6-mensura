@@ -81,8 +81,16 @@ export function activeGroupNames(data, config) {
 
 /** Sichtbare Gruppen (ohne mode=hidden). Format-Gruppen stehen im Abschnitt Endformat, nicht bei den Optionen. */
 export function visibleGroups(data, state) {
-    const fresh = isFresh(state) && Array.isArray(state.result?.activeGroups) ? state.result.activeGroups : activeGroupNames(data, state.config);
-    return fresh.map((n) => getGroup(data, n)).filter((g) => g && g.mode !== 'hidden' && g.type !== 'delivery');
+    const local = activeGroupNames(data, state.config);
+    let names = local;
+    if (isFresh(state) && Array.isArray(state.result?.activeGroups)) {
+        // maßgeblich ist die Liste des Backends; eine Gruppe, zu der ein Fehler gemeldet ist (z. B. option.choose),
+        // bleibt aber immer sichtbar – sonst könnte der Kunde sie nicht wählen
+        const backend = state.result.activeGroups;
+        const errored = new Set((state.result.errors || []).map((e) => String(e.field || '').replace(/^options\./, '')));
+        names = [...local.filter((n) => backend.includes(n) || errored.has(n)), ...backend.filter((n) => !local.includes(n))];
+    }
+    return names.map((n) => getGroup(data, n)).filter((g) => g && g.mode !== 'hidden' && g.type !== 'delivery');
 }
 
 export const optionGroups = (data, state) => visibleGroups(data, state).filter((g) => g.type !== 'format');
