@@ -231,6 +231,16 @@
             </mt-card>
         </template>
         {% endblock %}
+
+        {% block lm_material_detail_logistics %}
+        <template v-if="active === 'logistics' && showLogistics">
+            <lm-logistics-card
+                :target="{ materialId }"
+                :calculation-id="material.calculations?.first?.()?.id ?? null"
+                :sample="{ materialId }"
+            />
+        </template>
+        {% endblock %}
     </template>
 </lm-detail-page>
 {% endblock %}

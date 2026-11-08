@@ -126,6 +126,22 @@
     </card>
 
     <card>
+        <title>Logistics share (internal)</title>
+        <title lang="de-DE">Logistikanteil (intern)</title>
+
+        <input-field type="int">
+            <name>logisticsWarnPercent</name>
+            <label>Warning threshold for the logistics share (% of the selling price)</label>
+            <label lang="de-DE">Warnschwelle Logistikanteil (% vom VK)</label>
+            <helpText>The administration warns when the hidden logistics share of a sample configuration exceeds this share of the price. Example: 15 % – above that, a quote or a visible bulky-goods surcharge is usually more honest.</helpText>
+            <helpText lang="de-DE">Die Administration warnt, wenn der unsichtbare Logistikanteil einer Beispielkonfiguration mehr als diesen Anteil am Preis ausmacht. Beispiel: 15 % – darüber ist meist ein Angebot oder ein sichtbarer Sperrgutzuschlag ehrlicher.</helpText>
+            <defaultValue>15</defaultValue>
+            <min>1</min>
+            <max>100</max>
+        </input-field>
+    </card>
+
+    <card>
         <title>Production and delivery times</title>
         <title lang="de-DE">Produktions- und Lieferzeiten</title>
 

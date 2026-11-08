@@ -64,6 +64,11 @@ export default {
             return this.acl.can('ld_mensura.purchase');
         },
 
+        /** Logistikanteil (KONZEPT 3d.6): nur mit eigenem Recht, erst nach dem ersten Speichern. */
+        showLogistics() {
+            return !!this.materialId && this.acl.can('ld_mensura.logistics');
+        },
+
         hasLieferLotse() {
             return Shopware.EntityDefinition.has('ld_supplier');
         },
@@ -110,6 +115,7 @@ export default {
                 },
                 { name: 'format', label: this.$tc('ld-mensura.material.detail.tabFormat'), icon: 'regular-crop', group: 'material' },
                 { name: 'supplier', label: this.$tc('ld-mensura.material.detail.tabSupplier'), icon: 'regular-truck', group: 'connection' },
+                ...(this.showLogistics ? [{ name: 'logistics', label: this.$tc('ld-mensura.logistics.tab'), icon: 'regular-truck', group: 'connection' }] : []),
             ];
         },
 

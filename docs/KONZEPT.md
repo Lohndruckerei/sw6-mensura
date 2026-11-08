@@ -643,7 +643,12 @@ Gestaltung nach `ld-admin-design` (Präfix `lm-`, Tokens, Bausteine `lm-chip`, `
 | 7 | `backend/logistikanteil` | Admin-Route `preview` + Karte `lm-logistics-card` (Liste, Modal, Hilfetexte, Vorschau, Warnungen, Einstellung `logisticsWarnPercent`), eingebunden in Kalkulation/Material/Optionswert | im Admin in Design A/B/C, mit/ohne Recht, schmales Fenster |
 | 8 | `backend/vectura-vorschlaege` (nach Vectura-Schritt 4) | Karte „Vorschlag aus Vectura übernehmen“ gegen das Antwortformat aus INTEGRATION.md 7; bis dahin mit Beispiel-JSON | ohne Vectura unsichtbar; mit Vectura legt „Übernehmen“ eine neue Regel mit gültig-ab an |
 
-**Stand 08.11.2026:** Schritte 1–6 umgesetzt (Schritt 6: `OrderMinimum` verteilt den Mindestbetrag je Bestellung;
+**Stand 08.11.2026:** Schritte 1–7 umgesetzt (Schritt 7: Reiter „Logistik“ an Kalkulation, Material und Optionsgruppe
+(Wert wählen) mit `lm-logistics-card`; Karte speichert eigenständig, Änderung einer gültigen Regel legt eine neue Zeile
+mit „gültig ab“ an; Vorschau über `POST /api/_action/ld-mensura/logistics/preview` (Entwurf + gespeicherte Regeln,
+`LogisticsPreview`); Plugin-Einstellung `logisticsWarnPercent`; Testrechner zeigt „davon Logistikanteil“ nur mit Recht.
+Admin-Build und Bedienung im Shop noch nicht geprüft, Templates mit dem Vue-Compiler geprüft).
+Davor: Schritte 1–6 umgesetzt (Schritt 6: `OrderMinimum` verteilt den Mindestbetrag je Bestellung;
 CartProcessor und Bestell-Schnappschuss rechnen erst jede Position allein, dann mit den verteilten Anteilen; eine einzelne
 Position behält den vollen Betrag; Gruppen mit `scope = supplier` werden je Lieferant getrennt).
 Davor: Schritte 1–5 umgesetzt (Schritt 4: linearer Anteil in Aufpreis-Hinweis und „ab“-Preis, gleichartige

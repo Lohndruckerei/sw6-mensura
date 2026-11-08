@@ -16,6 +16,7 @@ Shopware.Component.register('lm-value-modal', () => import('./component/lm-value
 Shopware.Component.register('lm-assignment-modal', () => import('./component/lm-assignment-modal'));
 Shopware.Component.register('lm-price-tables', () => import('./component/lm-price-tables'));
 Shopware.Component.register('lm-test-calculator', () => import('./component/lm-test-calculator'));
+Shopware.Component.register('lm-logistics-card', () => import('./component/lm-logistics-card'));
 
 // Seiten
 Shopware.Component.register('lm-overview', () => import('./page/lm-overview'));

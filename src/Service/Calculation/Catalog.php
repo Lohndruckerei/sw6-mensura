@@ -246,6 +246,16 @@ final class Catalog
     }
 
     /**
+     * Kopie mit anderen Logistikregeln (Vorschau im Admin: gespeicherte Regeln + Entwurf).
+     *
+     * @param list<array<string, mixed>> $rules
+     */
+    public function withLogisticsRules(array $rules): self
+    {
+        return new self(['logisticsRules' => array_values($rules)] + $this->data);
+    }
+
+    /**
      * Kundengruppen-Aufschlag: Regel der Kalkulation vor globaler Regel. Ohne Regel 0 % (Basis-VK = Wiederverkäufer).
      *
      * @return array{surchargePercent: float, priceRounding: float|null}

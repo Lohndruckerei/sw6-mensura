@@ -196,6 +196,13 @@ export default {
                 { key: 'setup', label: this.$tc('ld-mensura.calculation.test.lineSetup'), sale: value(sale, 'setup'), purchase: value(purchase, 'setup') },
                 { key: 'tier', label: this.$tc('ld-mensura.calculation.test.lineTier'), sale: value(sale, 'tierDiscountPercent', 1, ' %'), purchase: value(purchase, 'tierDiscountPercent', 1, ' %') },
                 { key: 'percent', label: this.$tc('ld-mensura.calculation.test.linePercent'), sale: value(sale, 'percent', 1, ' %'), purchase: value(purchase, 'percent', 1, ' %') },
+                // Logistikanteil (KONZEPT 3d.7) nur mit Recht ld_mensura.logistics; steckt in der Zwischensumme
+                ...(this.response?.logistics ? [{
+                    key: 'logistics',
+                    label: this.$tc('ld-mensura.calculation.test.lineLogistics', { share: this.num(this.response.logistics.sharePercent, 1) }),
+                    sale: this.money(this.response.logistics.sale),
+                    purchase: '–',
+                }] : []),
                 { key: 'subtotal', label: this.$tc('ld-mensura.calculation.test.lineSubtotal'), sale: value(sale, 'subtotal'), purchase: value(purchase, 'subtotal') },
                 { key: 'minimum', label: this.$tc('ld-mensura.calculation.test.lineMinimum'), sale: value(sale, 'minimum'), purchase: value(purchase, 'minimum') },
                 { key: 'group', label: this.$tc('ld-mensura.calculation.test.lineCustomerGroup'), sale: value(sale, 'customerGroupPercent', 1, ' %'), purchase: '–' },

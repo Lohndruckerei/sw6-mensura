@@ -91,6 +91,19 @@ class MensuraAdminApiController
             $response['purchase'] = $snapshot['breakdown']['purchase'];
             $response['contributionMargin'] = $snapshot['contributionMargin'];
         }
+        // Logistikanteil (KONZEPT 3d.7) nur mit eigenem Recht; sonst steckt er unsichtbar in der Zwischensumme
+        $response['logistics'] = null;
+        if (self::canSeeLogistics($context) && $result->getLogistics() !== null) {
+            $logistics = $result->getLogistics();
+            $response['logistics'] = [
+                'sale' => $logistics['sale'],
+                'sharePercent' => $logistics['sharePercent'],
+                'lines' => array_map(static fn (array $line) => [
+                    'costType' => $line['costType'],
+                    'amount' => round((float) $line['amount'], 2),
+                ], $logistics['lines']),
+            ];
+        }
 
         return new JsonResponse($response);
     }
@@ -104,6 +117,17 @@ class MensuraAdminApiController
         }
 
         return $source->isAdmin() || $source->isAllowed(self::PURCHASE_PRIVILEGE);
+    }
+
+    /** Admin oder Rolle mit `ld_mensura.logistics` darf den unsichtbaren Logistikanteil sehen. */
+    public static function canSeeLogistics(Context $context): bool
+    {
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            return false;
+        }
+
+        return $source->isAdmin() || $source->isAllowed('ld_mensura.logistics');
     }
 
     /**

@@ -542,3 +542,62 @@ $lm-sunken: var(--color-background-tertiary-default, #f0f2f5);
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+// Logistikanteil (KONZEPT 3d.6)
+.lm-logistics {
+    .lm-logistics__rules tr.is--inactive td {
+        opacity: 0.65;
+    }
+
+    .lm-logistics__vectura {
+        margin-top: 8px;
+    }
+
+    .lm-logistics__preview {
+        margin-top: 24px;
+
+        h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+    }
+
+    .lm-logistics__format {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .mt-field,
+        .sw-field {
+            max-width: 110px;
+            margin-bottom: 0;
+        }
+    }
+
+    td.lm-num .mt-field {
+        max-width: 90px;
+        margin: 0 0 0 auto;
+    }
+
+    .lm-logistics__warn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        color: var(--lm-warn);
+        font-weight: 600;
+        font-size: 13px;
+    }
+}
+
+.lm-logistics__ramp {
+    display: block;
+    width: 100%;
+    height: 60px;
+    margin: 0 0 16px;
+    // Modal liegt außerhalb des lm-design-Wurzelelements → Meteor-Tokens statt lm-Tokens
+    color: var(--color-text-secondary-default);
+    background: var(--color-background-tertiary-default);
+    border-radius: 8px;
+}

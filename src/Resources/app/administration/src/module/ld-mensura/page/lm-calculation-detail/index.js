@@ -114,6 +114,11 @@ export default {
             return this.acl.can('ld_mensura.customer_groups');
         },
 
+        /** Logistikanteil (KONZEPT 3d.6): nur mit eigenem Recht, erst nach dem ersten Speichern. */
+        showLogistics() {
+            return !!this.calculationId && this.acl.can('ld_mensura.logistics');
+        },
+
         rule() {
             return ruleOf(this.calculation);
         },
@@ -163,6 +168,7 @@ export default {
                 // Kundengruppen-Aufschläge nur mit Recht ld_mensura.customer_groups (KONZEPT 3b)
                 ...(this.canEditCustomerGroups ? [{ name: 'customerGroups', label: this.$tc('ld-mensura.calculation.detail.tabCustomerGroups'), icon: 'regular-users', group: 'assortment', count: this.calculation?.customerGroups?.length ?? 0 }] : []),
                 { name: 'priceTables', label: this.$tc('ld-mensura.calculation.detail.tabPriceTables'), icon: 'regular-list', group: 'assortment', count: this.calculation?.priceTables?.length ?? 0 },
+                ...(this.showLogistics ? [{ name: 'logistics', label: this.$tc('ld-mensura.logistics.tab'), icon: 'regular-truck', group: 'assortment' }] : []),
                 { name: 'test', label: this.$tc('ld-mensura.calculation.detail.tabTest'), icon: 'regular-play', group: 'check' },
             ];
         },

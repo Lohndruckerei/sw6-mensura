@@ -89,6 +89,24 @@ export default {
             </mt-card>
         </template>
 
+        <template v-if="active === 'logistics' && showLogistics">
+            <mt-card position-identifier="lm-option-logistics-value" :title="$tc('ld-mensura.logistics.cardValue')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.logistics.introValue') }}</p>
+                <sw-single-select
+                    v-model:value="logisticsValueId"
+                    :options="valueOptions"
+                    :label="$tc('ld-mensura.logistics.labelValueChoice')"
+                    :help-text="$tc('ld-mensura.logistics.helpValueChoice')"
+                />
+            </mt-card>
+            <lm-logistics-card
+                v-if="logisticsValue"
+                :target="{ optionValueId: logisticsValue.id }"
+                :sample="logisticsSample"
+                :option-info="{ groupType: group.type, showPriceHint: group.showPriceHint !== false }"
+            />
+        </template>
+
         <lm-value-modal v-if="editValue" :value="editValue" :group-type="group.type" :disabled="!canEdit" @close="editValue = null" />
     </template>
 </lm-detail-page>`,
@@ -104,7 +122,7 @@ export default {
     },
 
     data() {
-        return { group: null, isLoading: false, isSaveSuccessful: false, activeTab: 'base', editValue: null, sets: [] };
+        return { group: null, isLoading: false, isSaveSuccessful: false, activeTab: 'base', editValue: null, sets: [], logisticsValueId: null };
     },
 
     metaInfo() {
@@ -144,7 +162,35 @@ export default {
                     warn: (this.group?.values?.length ?? 0) === 0,
                     warnText: this.$tc('ld-mensura.option.detail.emptyValuesTitle'),
                 },
+                ...(this.showLogistics ? [{ name: 'logistics', label: this.$tc('ld-mensura.logistics.tab'), icon: 'regular-truck', group: 'group' }] : []),
             ];
+        },
+
+        /** Logistikanteil (KONZEPT 3d.6): nur mit eigenem Recht, nur für gespeicherte Werte. */
+        showLogistics() {
+            return !!this.groupId && this.group?.type !== 'format' && this.acl.can('ld_mensura.logistics');
+        },
+
+        valueOptions() {
+            return this.sortedValues
+                .filter((value) => !value.isNew?.())
+                .map((value) => ({ value: value.id, label: value.translated?.name || value.name || value.technicalName }));
+        },
+
+        logisticsValue() {
+            return this.sortedValues.find((value) => value.id === this.logisticsValueId) ?? null;
+        },
+
+        /** Beispielkonfiguration der Vorschau mit diesem Wert (Lieferzeit oder Option). */
+        logisticsSample() {
+            if (!this.logisticsValue) {
+                return {};
+            }
+            if (this.group.type === 'delivery') {
+                return { deliveryValue: this.logisticsValue.technicalName };
+            }
+
+            return { options: { [this.group.technicalName]: this.logisticsValue.technicalName } };
         },
 
         tabGroups() {

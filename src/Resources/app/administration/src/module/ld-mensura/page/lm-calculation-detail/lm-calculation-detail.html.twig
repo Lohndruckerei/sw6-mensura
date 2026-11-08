@@ -279,6 +279,12 @@
         </template>
         {% endblock %}
 
+        {% block lm_calculation_detail_logistics %}
+        <template v-if="active === 'logistics' && showLogistics">
+            <lm-logistics-card :target="{ calculationId }" :calculation-id="calculationId" />
+        </template>
+        {% endblock %}
+
         {% block lm_calculation_detail_test %}
         <template v-if="active === 'test'">
             <lm-test-calculator v-if="calculationId" :source="{ calculationId }" :reload-key="testKey" />

@@ -129,6 +129,11 @@
         <service id="Lohndruckerei\Mensura\Controller\Admin\MensuraAdminApiController" public="true">
             <tag name="controller.service_arguments"/>
         </service>
+        <!-- Logistikanteil (KONZEPT 3d): Vorschau für die Admin-Karte, nur mit ld_mensura.logistics -->
+        <service id="Lohndruckerei\Mensura\Service\Calculation\LogisticsPreview"/>
+        <service id="Lohndruckerei\Mensura\Controller\Admin\MensuraLogisticsAdminController" public="true">
+            <tag name="controller.service_arguments"/>
+        </service>
 
         <service id="Lohndruckerei\Mensura\Extension\ProductExtension">
             <tag name="shopware.entity.extension"/>
