@@ -82,6 +82,50 @@ final class CalculationResult
     }
 
     /**
+     * Logistik-Schnappschuss für `ld_mensura_order_line_item_logistics` (KONZEPT 3d.5, INTEGRATION.md 7.1):
+     * Logistikanteil und Produktionszeit-Aufschlag im Endpreis getrennt, Zeilen mit den gemeinsamen Schlüsseln
+     * (calculationKey, materialKey, deliveryKey bzw. optionKey) statt Fremdschlüsseln. Nur Admin-API.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function toLogisticsSnapshot(): ?array
+    {
+        if ($this->sale === null) {
+            return null;
+        }
+        $logistics = $this->sale['logistics'] ?? null;
+        $logisticsSale = round((float) ($logistics['sale'] ?? 0), 2);
+        $sale = (float) $this->sale['total'];
+        $purchase = $this->purchase['total'] ?? null;
+
+        $lines = [];
+        foreach ($logistics['lines'] ?? [] as $line) {
+            $keys = [];
+            if ($line['optionValueId'] !== null) {
+                $value = $this->catalog->value($line['optionValueId']) ?? [];
+                $type = $this->catalog->group($value['optionGroupId'] ?? null)['type'] ?? 'standard';
+                $keys[$type === 'delivery' ? 'deliveryKey' : 'optionKey'] = $value['technicalName'] ?? null;
+            } elseif ($line['materialId'] !== null) {
+                $keys['materialKey'] = $this->catalog->material($line['materialId'])['technicalName'] ?? null;
+            }
+            if ($line['calculationId'] !== null) {
+                $keys['calculationKey'] = $this->catalog->calculation($line['calculationId'])['technicalName'] ?? null;
+            }
+            unset($line['calculationId'], $line['materialId'], $line['optionValueId']);
+            $lines[] = $keys + $line;
+        }
+
+        return [
+            'schemaVersion' => 1,
+            'logisticsSale' => $logisticsSale,
+            'productionTimeSale' => $this->sale['productionTime'] ?? null,
+            'sharePercent' => (float) ($logistics['sharePercent'] ?? 0.0),
+            'goodsContributionMargin' => $purchase !== null ? round($sale - $logisticsSale - (float) $purchase, 2) : null,
+            'lines' => $lines,
+        ];
+    }
+
+    /**
      * @param array<string, mixed>|null $side
      *
      * @return array<string, mixed>|null
@@ -89,7 +133,8 @@ final class CalculationResult
     private static function withoutLogistics(?array $side): ?array
     {
         if ($side !== null) {
-            unset($side['logistics']);
+            // productionTime verrät zusammen mit den Summen den Express-Logistikanteil
+            unset($side['logistics'], $side['productionTime']);
         }
 
         return $side;

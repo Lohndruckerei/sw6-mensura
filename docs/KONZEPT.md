@@ -643,8 +643,9 @@ Gestaltung nach `ld-admin-design` (Präfix `lm-`, Tokens, Bausteine `lm-chip`, `
 | 7 | `backend/logistikanteil` | Admin-Route `preview` + Karte `lm-logistics-card` (Liste, Modal, Hilfetexte, Vorschau, Warnungen, Einstellung `logisticsWarnPercent`), eingebunden in Kalkulation/Material/Optionswert | im Admin in Design A/B/C, mit/ohne Recht, schmales Fenster |
 | 8 | `backend/vectura-vorschlaege` (nach Vectura-Schritt 4) | Karte „Vorschlag aus Vectura übernehmen“ gegen das Antwortformat aus INTEGRATION.md 7; bis dahin mit Beispiel-JSON | ohne Vectura unsichtbar; mit Vectura legt „Übernehmen“ eine neue Regel mit gültig-ab an |
 
-**Stand 08.11.2026:** Schritte 1–4 umgesetzt (Schritt 4: linearer Anteil in Aufpreis-Hinweis und „ab“-Preis, gleichartige
-Aufpreise eines Werts zu einem Betrag zusammengefasst) (Branch `backend/logistikanteil`, Vertrag `contract/logistik-beispiel`),
+**Stand 08.11.2026:** Schritte 1–5 umgesetzt (Schritt 4: linearer Anteil in Aufpreis-Hinweis und „ab“-Preis, gleichartige
+Aufpreise eines Werts zu einem Betrag zusammengefasst; Schritt 5: `ld_mensura_order_line_item_logistics` wird beim
+Bestellen geschrieben, `goodsContributionMargin` zusätzlich vom EK-Schutz behandelt, Recht `ld_mensura.logistics` liest ihn) (Branch `backend/logistikanteil`, Vertrag `contract/logistik-beispiel`),
 Unit- und Vertragstests grün, Migration in einer Test-Datenbank geprüft. Offen: Test im laufenden Shop (`dal:validate`,
 Admin-API mit/ohne Recht, `mensura:demo:seed`, Store-API Acryl 1.500 × 1.000 = 120,16 €). Der Admin-Testrechner zeigt den
 Anteil bis Schritt 7 nicht (er nutzt den Schnappschuss-Rechenweg ohne Logistik).

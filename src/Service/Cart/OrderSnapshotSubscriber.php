@@ -93,6 +93,11 @@ class OrderSnapshotSubscriber implements EventSubscriberInterface
                 'saleTotal' => $snapshot['saleTotal'],
                 'artwork' => $configuration['artwork'] ?? null,
             ];
+            // Logistik-Schnappschuss (KONZEPT 3d.5): eigene Tabelle mit eigenem Recht, für Vectura
+            $logistics = $result->toLogisticsSnapshot();
+            if ($logistics !== null) {
+                $converted['lineItems'][$index]['ldMensuraLogistics'] = ['id' => Uuid::randomHex()] + $logistics;
+            }
             $changed = true;
         }
 

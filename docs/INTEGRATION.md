@@ -182,6 +182,9 @@ Rechenweg-Schnappschuss beim Umwandeln des Warenkorbs:
 }
 ```
 
+Umgesetzt (Schritt 5): Zeilen tragen statt IDs die Schlüssel `calculationKey`, `materialKey` und `deliveryKey` (bzw.
+`optionKey` bei anderen Optionen). `productionTimeSale` = Preis mit gewählter − mit Standard-Lieferzeit, beide ohne Logistik.
+`goodsContributionMargin` ist ohne `ld_mensura.purchase` null (EK-Schutz).
 Beträge netto im Endpreis der Position (nach Mindestpreis-Anteil und Kundengruppen-Aufschlag). Vectura liest die Tabelle
 per DAL über den Entity-Namen, wenn Mensura installiert ist. Ohne Mensura fehlt die Erlösseite, und Vectura zeigt nur die
 Kosten. Felder werden nur ergänzt. Bei einem Bruch steigt `schemaVersion`.

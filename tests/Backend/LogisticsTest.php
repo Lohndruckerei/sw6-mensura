@@ -181,6 +181,42 @@ final class LogisticsTest extends TestCase
         self::assertSame(62.0, $this->fromPrice(self::ACRYL, null));
     }
 
+    public function testLogisticsSnapshotSeparatesShareAndProductionTime(): void
+    {
+        $express = DemoCatalog::id('value.lieferzeit.express');
+        $rules = [
+            self::rule(['id' => 'alu-base', 'materialId' => self::ALU, 'form' => 'per_position', 'value' => 2.0]),
+            self::rule(['id' => 'express', 'optionValueId' => $express, 'costType' => 'express', 'form' => 'per_sqm', 'value' => 4.18, 'minimumAmount' => 25.0, 'minimumScope' => 'order']),
+        ];
+        // 5 m² Alu Express: Waren 150 € × 1,30 (Express +30 %) = 195 €; Logistik 2 € + max(25, 20,90) = 27 €
+        $result = $this->calc(['format' => ['width' => 1000, 'height' => 500], 'perMotif' => 10, 'deliveryValue' => 'express'], $rules);
+        $snapshot = $result->toLogisticsSnapshot();
+
+        self::assertSame(222.0, $result->getSaleTotal());
+        self::assertSame(27.0, $snapshot['logisticsSale']);
+        self::assertSame(45.0, $snapshot['productionTimeSale']); // 195 − 150, ohne Logistik
+        self::assertSame(round(27 / 222 * 100, 2), $snapshot['sharePercent']);
+        // EK Express: 135,50 × 1,20 = 162,60 → Waren-DB = 222 − 27 − 162,60
+        self::assertSame(32.4, $snapshot['goodsContributionMargin']);
+        self::assertSame(['materialKey' => 'alu-3mm'], array_intersect_key($snapshot['lines'][0], ['materialKey' => 1, 'deliveryKey' => 1]));
+        self::assertSame('express', $snapshot['lines'][1]['deliveryKey']);
+        self::assertTrue($snapshot['lines'][1]['minimumApplied']);
+        self::assertArrayNotHasKey('materialId', $snapshot['lines'][0]);
+
+        // Standard-Lieferzeit: kein Produktionszeit-Aufschlag; allgemeiner Schnappschuss ohne beides
+        self::assertSame(0.0, $this->calc(['format' => ['width' => 1000, 'height' => 500], 'perMotif' => 10], $rules)->toLogisticsSnapshot()['productionTimeSale']);
+        self::assertNoLogistics($result->toSnapshot());
+        self::assertArrayNotHasKey('productionTime', $result->toSnapshot()['breakdown']['sale']);
+    }
+
+    public function testLogisticsSnapshotWithoutRules(): void
+    {
+        $snapshot = $this->calc(['format' => ['width' => 1000, 'height' => 500], 'perMotif' => 10], [])->toLogisticsSnapshot();
+        self::assertSame(0.0, $snapshot['logisticsSale']);
+        self::assertSame([], $snapshot['lines']);
+        self::assertSame(14.5, $snapshot['goodsContributionMargin']); // 150 − 135,50
+    }
+
     /** Kein Feld und kein Text mit „logistic“ (KONZEPT 3d.4 Nr. 5). */
     public static function assertNoLogistics(mixed $data, string $path = ''): void
     {

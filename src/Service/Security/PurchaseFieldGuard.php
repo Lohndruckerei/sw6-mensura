@@ -52,10 +52,14 @@ final class PurchaseFieldGuard
             'purchaseTotal' => ['purchase_total', 'scalar'],
             'breakdown' => ['breakdown', 'breakdown'],
         ],
+        // Waren-Deckungsbeitrag = VK − Logistik − EK: verrät den EK (Logistik-Schnappschuss, KONZEPT 3d.5)
+        'ld_mensura_order_line_item_logistics' => [
+            'goodsContributionMargin' => ['goods_contribution_margin', 'scalar'],
+        ],
     ];
 
     /** Felder, nach denen ohne Recht nicht gefiltert, sortiert oder aggregiert werden darf. */
-    private const SEARCH_BLOCKED = ['pricePurchase', 'minimumPricePurchase', 'setupPricePurchase', 'purchaseTotal'];
+    private const SEARCH_BLOCKED = ['pricePurchase', 'minimumPricePurchase', 'setupPricePurchase', 'purchaseTotal', 'goodsContributionMargin'];
     private const SEARCH_BLOCKED_JSON = ['priceComponents', 'tiers', 'breakdown'];
 
     public static function isProtectedEntity(string $entity): bool

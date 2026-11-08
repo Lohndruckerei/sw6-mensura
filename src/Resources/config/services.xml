@@ -98,6 +98,9 @@
         <service id="Lohndruckerei\Mensura\Core\Checkout\OrderLineItem\MensuraOrderLineItemDefinition">
             <tag name="shopware.entity.definition" entity="ld_mensura_order_line_item"/>
         </service>
+        <service id="Lohndruckerei\Mensura\Core\Checkout\OrderLineItem\MensuraOrderLineItemLogisticsDefinition">
+            <tag name="shopware.entity.definition" entity="ld_mensura_order_line_item_logistics"/>
+        </service>
         <!-- Preis-Engine, Store-API, Demo-Daten -->
         <service id="Lohndruckerei\Mensura\Service\Calculation\PriceEngine"/>
         <service id="Lohndruckerei\Mensura\Service\Calculation\ConfiguratorBuilder"/>

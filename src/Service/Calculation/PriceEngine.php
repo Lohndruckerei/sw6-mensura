@@ -40,6 +40,8 @@ final class PriceEngine
                 $config->errors[] = $messages->message('price.not_available');
             } else {
                 $calculation = $catalog->calculation($config->calculationId);
+                // nur intern (Logistik-Schnappschuss für Vectura, KONZEPT 3d.5)
+                $sale['productionTime'] = $this->productionTime($config, $catalog, $context, $sale);
                 if ($sale['minimumApplied']) {
                     $config->hints[] = $messages->message('price.minimum_applied', ['price' => $messages->money($sale['minimumDisplayed'])]);
                 }
@@ -819,6 +821,31 @@ final class PriceEngine
                 ['key' => 'customerGroupPercent', 'amount' => $customerGroupPercent],
             ]),
         ];
+    }
+
+    /**
+     * Produktionszeit-Aufschlag im Endpreis (KONZEPT 3d.5): Preis mit gewählter Lieferzeit − Preis mit der
+     * Standard-Lieferzeit, beide ohne Logistikanteil. 0 bei Standard oder ohne Lieferzeit-Gruppe.
+     *
+     * @param array<string, mixed> $sale
+     */
+    private function productionTime(NormalizedConfiguration $config, Catalog $catalog, CalculationContext $context, array $sale): ?float
+    {
+        if ($config->deliveryValueId === null || $config->deliveryValueIds === []) {
+            return 0.0;
+        }
+        $groupId = (string) ($catalog->value($config->deliveryValueId)['optionGroupId'] ?? '');
+        $standard = $this->defaultValue($catalog, (string) $config->calculationId, (string) $config->materialId, $config->deliveryValueIds, $catalog->profileRule($groupId, $config->materialId));
+        if ($standard === $config->deliveryValueId) {
+            return 0.0;
+        }
+        $standardPrice = $this->price($config, $catalog, $context, 'sale', null, $standard);
+        if ($standardPrice === null) {
+            return null;
+        }
+        $withoutLogistics = static fn (array $price) => (float) $price['total'] - (float) ($price['logistics']['sale'] ?? 0);
+
+        return round($withoutLogistics($sale) - $withoutLogistics($standardPrice), 2);
     }
 
     public static function roundPrice(float $amount, ?float $step): float
