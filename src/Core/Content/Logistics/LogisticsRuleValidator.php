@@ -34,7 +34,7 @@ class LogisticsRuleValidator implements EventSubscriberInterface
     public function validate(PreWriteValidationEvent $event): void
     {
         foreach ($event->getCommands() as $command) {
-            if ($command->getDefinition()->getEntityName() !== LogisticsRuleDefinition::ENTITY_NAME) {
+            if ($command->getEntityName() !== LogisticsRuleDefinition::ENTITY_NAME) {
                 continue;
             }
             if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
