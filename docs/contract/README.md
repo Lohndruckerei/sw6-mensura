@@ -34,6 +34,9 @@ Je Optionsgruppe lässt sich im Backend einstellen, ob ein Wert vorausgewählt w
   **kein Preis** und keine Preismatrix, `cart/add` → 400. Freiwillige Gruppen (`required: false`) dürfen leer bleiben.
 - Folge-Sets einer noch nicht gewählten Gruppe erscheinen erst nach der Wahl.
 - Feste und ausgeblendete Gruppen (Profilregel `fixed`/`hidden`) haben immer ihren Wert.
+- `materials[].defaults` („immer den günstigsten Fall vorauswählen“) – Auslegung bestätigt vom Benutzer am 08.11.2026:
+  günstigster erlaubter Wert **ohne Abschläge** (z. B. „0/0 unbedruckt“ wird nie vorausgewählt), bei gleichem Aufpreis
+  der Standardwert der Kalkulation, sonst die Reihenfolge.
 
 Die Store-API selbst bleibt für Headless/Apps (mit `sw-context-token` des Clients) und für die Testseite.
 
