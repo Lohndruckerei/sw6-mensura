@@ -40,15 +40,27 @@
                 <mt-icon name="regular-products" size="20px" />
                 <span><b>{{ counts.profilesActive ?? '–' }}</b><small>{{ $tc('ld-mensura.overview.kpi.profiles', { total: counts.profile ?? 0 }, 0) }}</small></span>
             </router-link>
-            <div class="lm-kpi lm-kpi--all">
-                <mt-icon name="regular-shopping-bag" size="20px" />
-                <span><b>{{ orders ? orders.positions : '–' }}</b><small>{{ $tc('ld-mensura.overview.kpi.positions') }}</small></span>
-            </div>
-            <div class="lm-kpi lm-kpi--all">
-                <mt-icon name="regular-euro" size="20px" />
-                <span><b>{{ orders ? money(orders.sale) : '–' }}</b><small>{{ $tc('ld-mensura.overview.kpi.sale') }}</small></span>
-            </div>
-            <div v-if="canSeePurchase" class="lm-kpi" :class="'lm-kpi--' + (margin ? margin.state : 'all')">
+            <template v-if="canSeeOrders">
+                <div class="lm-kpi lm-kpi--all">
+                    <mt-icon name="regular-shopping-bag" size="20px" />
+                    <span><b>{{ orders ? orders.positions : '–' }}</b><small>{{ $tc('ld-mensura.overview.kpi.positions') }}</small></span>
+                </div>
+                <div class="lm-kpi lm-kpi--all">
+                    <mt-icon name="regular-euro" size="20px" />
+                    <span><b>{{ orders ? money(orders.sale) : '–' }}</b><small>{{ $tc('ld-mensura.overview.kpi.sale') }}</small></span>
+                </div>
+            </template>
+            <template v-else>
+                <router-link class="lm-kpi lm-kpi--all" :to="{ name: 'ld.mensura.material' }">
+                    <mt-icon name="regular-layer-group" size="20px" />
+                    <span><b>{{ counts.material ?? '–' }}</b><small>{{ $tc('ld-mensura.areas.material.title') }}</small></span>
+                </router-link>
+                <router-link class="lm-kpi lm-kpi--all" :to="{ name: 'ld.mensura.option' }">
+                    <mt-icon name="regular-sliders-v" size="20px" />
+                    <span><b>{{ counts.option ?? '–' }}</b><small>{{ $tc('ld-mensura.areas.option.title') }}</small></span>
+                </router-link>
+            </template>
+            <div v-if="canSeePurchase && canSeeOrders" class="lm-kpi" :class="'lm-kpi--' + (margin ? margin.state : 'all')">
                 <mt-icon name="regular-chart-line" size="20px" />
                 <span>
                     <b>{{ orders && orders.purchase !== null ? money(orders.sale - orders.purchase) : '–' }}</b>

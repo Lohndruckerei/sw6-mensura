@@ -110,6 +110,10 @@ export default {
             return this.acl.can('ld_mensura.purchase');
         },
 
+        canEditCustomerGroups() {
+            return this.acl.can('ld_mensura.customer_groups');
+        },
+
         rule() {
             return ruleOf(this.calculation);
         },
@@ -156,7 +160,8 @@ export default {
                 { name: 'prices', label: this.$tc('ld-mensura.calculation.detail.tabPrices'), icon: 'regular-euro', group: 'calculation' },
                 { name: 'materials', label: this.$tc('ld-mensura.areas.material.title'), icon: 'regular-layer-group', group: 'assortment', count: this.calculation?.materials?.length ?? 0, warn: noMaterial, warnText: this.$tc('ld-mensura.calculation.list.filterNoMaterial') },
                 { name: 'options', label: this.$tc('ld-mensura.areas.option.title'), icon: 'regular-sliders-v', group: 'assortment', count: this.offeredCount, warn: this.missingDefaults.length > 0, warnText: this.$tc('ld-mensura.calculation.warnings.noDefault', { groups: this.missingDefaults.map((group) => group.translated?.name).join(', ') }) },
-                { name: 'customerGroups', label: this.$tc('ld-mensura.calculation.detail.tabCustomerGroups'), icon: 'regular-users', group: 'assortment', count: this.calculation?.customerGroups?.length ?? 0 },
+                // Kundengruppen-Aufschläge nur mit Recht ld_mensura.customer_groups (KONZEPT 3b)
+                ...(this.canEditCustomerGroups ? [{ name: 'customerGroups', label: this.$tc('ld-mensura.calculation.detail.tabCustomerGroups'), icon: 'regular-users', group: 'assortment', count: this.calculation?.customerGroups?.length ?? 0 }] : []),
                 { name: 'priceTables', label: this.$tc('ld-mensura.calculation.detail.tabPriceTables'), icon: 'regular-list', group: 'assortment', count: this.calculation?.priceTables?.length ?? 0 },
                 { name: 'test', label: this.$tc('ld-mensura.calculation.detail.tabTest'), icon: 'regular-play', group: 'check' },
             ];

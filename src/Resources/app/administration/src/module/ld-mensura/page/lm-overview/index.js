@@ -33,6 +33,10 @@ export default {
             return this.acl.can('ld_mensura.purchase');
         },
 
+        canSeeOrders() {
+            return this.acl.can('ld_mensura.orders');
+        },
+
         areas() {
             return AREAS.map((area) => ({ ...area, count: this.counts[area.name] ?? null }));
         },
@@ -125,6 +129,10 @@ export default {
         },
 
         async loadOrders() {
+            if (!this.canSeeOrders) {
+                this.orders = null;
+                return;
+            }
             const since = new Date(Date.now() - DAYS * 24 * 3600 * 1000).toISOString();
             const criteria = new Criteria(1, 1);
             criteria.setTotalCountMode(1);

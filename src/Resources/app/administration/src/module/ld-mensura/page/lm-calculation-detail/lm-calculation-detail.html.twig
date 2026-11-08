@@ -237,7 +237,7 @@
         {% endblock %}
 
         {% block lm_calculation_detail_customer_groups %}
-        <template v-if="active === 'customerGroups'">
+        <template v-if="active === 'customerGroups' && canEditCustomerGroups">
             <mt-card position-identifier="lm-calc-groups" :title="$tc('ld-mensura.calculation.customerGroups.card')">
                 <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.calculation.customerGroups.intro') }}</p>
                 <div v-for="rule in calculation.customerGroups" :key="rule.id" class="lm-codes__row">

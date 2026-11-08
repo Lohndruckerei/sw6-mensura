@@ -1,4 +1,4 @@
-import{T as r}from"./ld-mensura-Dg7Wf4L2.js";const o={template:`
+import{T as r}from"./ld-mensura-BrmPsxbL.js";const o={template:`
 <lm-chip
     :label="label"
     :color="config.color"

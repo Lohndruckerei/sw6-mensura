@@ -131,7 +131,7 @@
                     {{ $tc('ld-mensura.profile.list.copyTo') }}
                 </sw-context-menu-item>
                 <sw-context-menu-divider />
-                <sw-context-menu-item variant="danger" :disabled="!acl.can('ld_mensura.deleter') || undefined" @click="deleteItem = item">
+                <sw-context-menu-item variant="danger" :disabled="!canEdit || undefined" @click="deleteItem = item">
                     {{ $tc('global.default.delete') }}
                 </sw-context-menu-item>
             </template>

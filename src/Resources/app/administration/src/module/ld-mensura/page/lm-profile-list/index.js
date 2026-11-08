@@ -95,7 +95,7 @@ export default {
         },
 
         canEdit() {
-            return this.acl.can('ld_mensura.editor') && this.acl.can('product.editor');
+            return this.acl.can('ld_mensura.profiles') && this.acl.can('product.editor');
         },
     },
 

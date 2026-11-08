@@ -629,6 +629,7 @@
             "emptyTitle": "Noch kein Mensura-Profil",
             "emptySubline": "Mit einem Profil wird dieses Produkt im Shop konfigurierbar (Material, Format, Optionen, Preis live).",
             "buttonCreate": "Profil anlegen",
+            "readOnly": "Nur ansehen: Zum Bearbeiten braucht deine Rolle die Rechte „Mensura · Produktprofile pflegen“ und „Produkte bearbeiten“ (Einstellungen → Benutzer & Rechte).",
             "newHint": "Neues Profil – Materialien wählen und das Produkt speichern. Das Profil ist zunächst inaktiv, damit im Shop nichts Halbfertiges erscheint.",
             "testAfterSave": "Der Testrechner erscheint nach dem ersten Speichern des Produkts.",
             "preview": "Im Shop ansehen",
@@ -780,7 +781,17 @@
     "sw-privileges": {
         "permissions": {
             "ld_mensura": {
-                "label": "Mensura – Konfigurator & Kalkulation"
+                "label": "Mensura – Katalog (Kalkulationen, Materialien, Optionen, nur VK)"
+            }
+        },
+        "additional_permissions": {
+            "ld_mensura": {
+                "label": "Mensura",
+                "profiles": "Produktprofile pflegen",
+                "purchase": "Einkaufspreise, Margen und Deckungsbeitrag",
+                "customer_groups": "Kundengruppen-Aufschläge",
+                "orders": "Rechenweg in Bestellungen",
+                "settings": "Plugin-Einstellungen"
             }
         }
     }

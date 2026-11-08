@@ -7,6 +7,10 @@
             {{ $tc('ld-mensura.profile.info.text') }}
         </lm-info-card>
 
+        <mt-banner v-if="!canEdit" variant="neutral" icon="regular-lock" class="lm-profile__warning">
+            {{ $tc('ld-mensura.profile.readOnly') }}
+        </mt-banner>
+
         {% block lm_product_profile_empty %}
         <mt-card v-if="!profile" position-identifier="lm-profile-empty">
             <sw-empty-state :title="$tc('ld-mensura.profile.emptyTitle')" :subline="$tc('ld-mensura.profile.emptySubline')" icon="regular-crop" :absolute="false">
@@ -261,7 +265,7 @@
             {% endblock %}
 
             <div class="lm-profile__remove">
-                <mt-button variant="critical" size="small" :disabled="!acl.can('ld_mensura.deleter') || !canEdit || undefined" @click="showRemove = true">
+                <mt-button variant="critical" size="small" :disabled="!canEdit || undefined" @click="showRemove = true">
                     {{ $tc('ld-mensura.profile.remove.button') }}
                 </mt-button>
             </div>

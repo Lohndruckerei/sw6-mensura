@@ -364,9 +364,27 @@ Geplante Rechte für Mensura (heute gibt es `ld_mensura` mit Ansehen/Bearbeiten/
 
 **Wichtig:** EK-Felder liegen heute in denselben Datensätzen wie die VK-Felder (`pricePurchase`, `purchase` in
 den Preisanteilen). Damit eine Rolle ohne `ld_mensura.purchase` sie auch über die API nicht sieht und nicht ändert, filtert ein
-serverseitiger Schutz die EK-Werte beim Lesen heraus und weist Schreibzugriffe darauf ab. Alternativ werden die EK-Werte in eine
-eigene Tabelle ausgelagert. Das wird mit den Admin-Oberflächen umgesetzt und getestet. LieferLotse und spätere Plugins
+serverseitiger Schutz die EK-Werte beim Lesen heraus und weist Schreibzugriffe darauf ab. LieferLotse und spätere Plugins
 (Auftragsverwaltung, Rechnung, Buchhaltung) folgen demselben Muster.
+
+**Umsetzung (v0.4.0, Admin-Schritt 6):**
+- Rollenverwaltung: Raster „Mensura – Katalog“ = Schlüssel `ld_mensura` mit Ansehen/Bearbeiten/Anlegen/Löschen (entspricht
+  `ld_mensura.catalog`, Name beibehalten wegen bestehender Rollen); zusätzliche Rechte `ld_mensura.profiles`, `.purchase`,
+  `.customer_groups`, `.orders`, `.settings` unter „Zusätzliche Berechtigungen“. Produktprofile und Kundengruppen-Aufschläge sind
+  mit dem Katalog nur lesbar; Bestell-Schnappschüsse nur mit `orders`.
+- `Service\Security\PurchaseProtectionSubscriber` (Regeln in `PurchaseFieldGuard`) gilt für Benutzer und Integrationen der
+  Admin-API ohne Admin-Rolle und ohne `ld_mensura.purchase`; Shop, Warenkorb und Systemprozesse sind nicht betroffen.
+  - Lesen: `pricePurchase`, `minimumPricePurchase`, `setupPricePurchase`, `purchaseTotal` = null; in `priceComponents` `purchase`
+    = null, in `tiers` die EK-Seite entfernt, im Schnappschuss `breakdown.purchase` und `contributionMargin` entfernt
+    (Material, Kalkulation, Optionszuordnung, Preistabellenzeile, Schnappschuss).
+  - Suchen: Filtern, Sortieren und Aggregieren über EK-Felder → HTTP 403 `LD_MENSURA__PURCHASE_ACCESS_DENIED`.
+  - Schreiben: EK-Feld ändern → 403; bei Preisanteilen und Staffeln wird der EK-Teil aus dem gespeicherten Stand übernommen
+    (VK-Änderung löscht keinen EK); Neuanlagen ohne Recht (auch Kopien) übernehmen keinen EK.
+  - Testrechner: rechnet intern mit EK, liefert EK-Rechenweg und Deckungsbeitrag nur mit Recht.
+- Oberfläche: EK-Felder, Margen und DB nur mit `purchase`; Reiter „Kundengruppen“ nur mit `customer_groups`; Profile bearbeiten
+  nur mit `profiles` + Produkte bearbeiten (sonst Hinweis „Nur ansehen“); Bestellkennzahlen der Übersicht nur mit `orders`.
+- Geprüft: Unit-Test `tests/Backend/PurchaseFieldGuardTest.php` (check-all) und im laufenden Shop
+  `tests/Backend/Shop/purchase-protection.php` (zwei Test-Integrationen ohne/mit Recht, 14 Prüfungen).
 
 ## 4. Standardformel (Engine)
 

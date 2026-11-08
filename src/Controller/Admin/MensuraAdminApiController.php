@@ -10,6 +10,7 @@ use Lohndruckerei\Mensura\Service\Calculation\CatalogLoader;
 use Lohndruckerei\Mensura\Service\Calculation\ConfiguratorBuilder;
 use Lohndruckerei\Mensura\Service\Calculation\ContextFactory;
 use Lohndruckerei\Mensura\Service\Calculation\PriceEngine;
+use Lohndruckerei\Mensura\Service\Security\PurchaseFieldGuard;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,7 +31,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route(defaults: ['_routeScope' => ['api']])]
 class MensuraAdminApiController
 {
-    public const PURCHASE_PRIVILEGE = 'ld_mensura.purchase';
+    public const PURCHASE_PRIVILEGE = PurchaseFieldGuard::PRIVILEGE;
 
     public function __construct(
         private readonly CatalogLoader $loader,
@@ -111,6 +112,17 @@ class MensuraAdminApiController
      * @return array{0: ?Catalog, 1: ?JsonResponse}
      */
     private function catalog(array $body, Context $context): array
+    {
+        // intern mit EK rechnen (Rechenweg vollständig); ausgeliefert wird EK nur mit Recht (testCalculate)
+        return $context->state(fn (): array => $this->loadCatalog($body, $context), PurchaseFieldGuard::STATE_INTERNAL);
+    }
+
+    /**
+     * @param array<string, mixed> $body
+     *
+     * @return array{0: ?Catalog, 1: ?JsonResponse}
+     */
+    private function loadCatalog(array $body, Context $context): array
     {
         $isId = static fn (mixed $id): bool => \is_string($id) && preg_match('/^[0-9a-f]{32}$/', $id) === 1;
         if ($isId($body['productId'] ?? null)) {

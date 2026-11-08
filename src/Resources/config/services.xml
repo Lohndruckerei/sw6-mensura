@@ -106,6 +106,8 @@
         <service id="Lohndruckerei\Mensura\Controller\StoreApi\MensuraStoreApiController" public="true">
             <tag name="controller.service_arguments"/>
         </service>
+        <!-- Einkaufspreise serverseitig schützen (Recht ld_mensura.purchase, KONZEPT 3b) -->
+        <service id="Lohndruckerei\Mensura\Service\Security\PurchaseProtectionSubscriber"/>
         <service id="Lohndruckerei\Mensura\Controller\Admin\MensuraAdminApiController" public="true">
             <tag name="controller.service_arguments"/>
         </service>

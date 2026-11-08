@@ -629,6 +629,7 @@
             "emptyTitle": "No Mensura profile yet",
             "emptySubline": "With a profile this product becomes configurable in the shop (material, format, options, live price).",
             "buttonCreate": "Create profile",
+            "readOnly": "View only: to edit, your role needs the rights “Mensura · Maintain product profiles” and “Edit products” (Settings → Users & permissions).",
             "newHint": "New profile – choose materials and save the product. The profile starts inactive so nothing half-finished appears in the shop.",
             "testAfterSave": "The test calculator appears after the product has been saved for the first time.",
             "preview": "View in shop",
@@ -780,7 +781,17 @@
     "sw-privileges": {
         "permissions": {
             "ld_mensura": {
-                "label": "Mensura – Configurator & Calculation"
+                "label": "Mensura – catalogue (calculations, materials, options, sale prices only)"
+            }
+        },
+        "additional_permissions": {
+            "ld_mensura": {
+                "label": "Mensura",
+                "profiles": "Maintain product profiles",
+                "purchase": "Purchase prices, margins and contribution margin",
+                "customer_groups": "Customer group surcharges",
+                "orders": "Calculation path in orders",
+                "settings": "Plugin settings"
             }
         }
     }
