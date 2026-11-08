@@ -12,6 +12,20 @@ Die GitHub-Prüfung (`.github/workflows/ci.yml`) stellt das bei jedem Push siche
 | `schema/calculation-result.schema.json` | Antwort der Preisberechnung (gültig?, Fehler, Hinweise, Preis, Lieferzeiten, normalisierte Konfiguration) |
 | `fixtures/` | Beispielfälle: Anfrage + **Sollergebnis**. Das Backend muss diese Ergebnisse liefern, das Frontend nutzt sie als Testdaten, solange das Backend noch fehlt |
 
+## Storefront-Routen (Aufruf aus dem Shop)
+
+Shopware 6.7 gibt den Kontext-Token nicht mehr in HTML/JS heraus (`context.token` in Twig wirft einen Fehler). Damit Preise
+für die Kundengruppe der Sitzung gelten und „In den Warenkorb“ im Warenkorb der Sitzung landet, ruft der Konfigurator im
+Shop Storefront-Routen auf. Sie laufen im Sitzungskontext und haben **dieselben Bodies und Antworten** wie die Store-API-Routen:
+
+| Storefront-Route (relativ zur Storefront-URL inkl. Sprachpräfix) | entspricht Store-API |
+|---|---|
+| `GET /ld-mensura/configurator/{productId}` (`frontend.ld-mensura.configurator`) | `GET /store-api/ld-mensura/product/{productId}/configurator` |
+| `POST /ld-mensura/calculate` (`frontend.ld-mensura.calculate`) | `POST /store-api/ld-mensura/calculate` |
+| `POST /ld-mensura/cart/add` (`frontend.ld-mensura.cart.add`) | `POST /store-api/ld-mensura/cart/add` |
+
+Die Store-API selbst bleibt für Headless/Apps (mit `sw-context-token` des Clients) und für die Testseite.
+
 ## Regeln
 
 1. **Erst der Vertrag, dann der Code.** Neue oder geänderte Felder werden zuerst hier eingetragen, mit Beispielfall.
