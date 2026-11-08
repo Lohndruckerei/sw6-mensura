@@ -89,6 +89,7 @@ export default {
             return {
                 start: this.$tc('ld-mensura.groups.start'),
                 setup: this.$tc('ld-mensura.groups.setup'),
+                shop: this.$tc('ld-mensura.groups.shop'),
             };
         },
     },

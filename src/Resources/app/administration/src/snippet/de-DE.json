@@ -31,7 +31,8 @@
         },
         "groups": {
             "start": "Start",
-            "setup": "Einrichtung"
+            "setup": "Einrichtung",
+            "shop": "Shop"
         },
         "filter": {
             "all": "Alle",

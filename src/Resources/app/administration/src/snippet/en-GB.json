@@ -31,7 +31,8 @@
         },
         "groups": {
             "start": "Start",
-            "setup": "Setup"
+            "setup": "Setup",
+            "shop": "Shop"
         },
         "filter": {
             "all": "All",
