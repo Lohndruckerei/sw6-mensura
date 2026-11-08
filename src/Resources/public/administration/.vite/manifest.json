@@ -8,7 +8,7 @@
     "name": "technical-name"
   },
   "ld-admin-design/component/chip/index.js": {
-    "file": "assets/index-ChL278Kc.js",
+    "file": "assets/index-DvA7of0Y.js",
     "name": "index",
     "src": "ld-admin-design/component/chip/index.js",
     "isDynamicEntry": true,
@@ -17,7 +17,7 @@
     ]
   },
   "ld-admin-design/component/design-switch/index.js": {
-    "file": "assets/index-VnN_6LLX.js",
+    "file": "assets/index-BzZ_qjJy.js",
     "name": "index",
     "src": "ld-admin-design/component/design-switch/index.js",
     "isDynamicEntry": true,
@@ -26,7 +26,7 @@
     ]
   },
   "ld-admin-design/component/status/index.js": {
-    "file": "assets/index-Ki6EgBUe.js",
+    "file": "assets/index-3JMBtba5.js",
     "name": "index",
     "src": "ld-admin-design/component/status/index.js",
     "isDynamicEntry": true,
@@ -41,7 +41,7 @@
     "isDynamicEntry": true
   },
   "ld-admin-design/component/transport-chip/index.js": {
-    "file": "assets/index-w0PWp4I_.js",
+    "file": "assets/index-ChZmbqa6.js",
     "name": "index",
     "src": "ld-admin-design/component/transport-chip/index.js",
     "isDynamicEntry": true,
@@ -50,7 +50,7 @@
     ]
   },
   "main.js": {
-    "file": "assets/ld-mensura-CDsxFh5T.js",
+    "file": "assets/ld-mensura-CmQGd2pN.js",
     "name": "ld-mensura",
     "src": "main.js",
     "isEntry": true,
@@ -113,7 +113,7 @@
     "isDynamicEntry": true
   },
   "module/ld-mensura/component/lm-page/index.js": {
-    "file": "assets/index-BE6rRUDB.js",
+    "file": "assets/index-BoR1LRA9.js",
     "name": "index",
     "src": "module/ld-mensura/component/lm-page/index.js",
     "isDynamicEntry": true,
@@ -241,7 +241,7 @@
     "isDynamicEntry": true
   },
   "module/ld-mensura/page/lm-overview/index.js": {
-    "file": "assets/index-yZrywTe_.js",
+    "file": "assets/index-BiAfFUjq.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-overview/index.js",
     "isDynamicEntry": true,
@@ -251,7 +251,7 @@
     ]
   },
   "module/ld-mensura/page/lm-product-profile/index.js": {
-    "file": "assets/index-IA4AIUmY.js",
+    "file": "assets/index-CeCBDYvm.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-product-profile/index.js",
     "isDynamicEntry": true,

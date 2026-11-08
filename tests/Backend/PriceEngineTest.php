@@ -214,6 +214,23 @@ final class PriceEngineTest extends TestCase
         self::assertArrayNotHasKey('price', $api);
     }
 
+    public function testHardLimitsWithoutConfiguredLimitsAndNoOverflow(): void
+    {
+        // Demo-Daten setzen weder maxQuantity noch maxMotifs → feste Obergrenzen greifen
+        $api = self::plain($this->calc(['perMotif' => 1e20])->toStoreApi());
+        self::assertFalse($api['valid']);
+        self::assertSame(['quantity.max'], array_column($api['errors'], 'code'));
+        self::assertSame(['perMotif' => PriceEngine::HARD_MAX_QUANTITY], $api['errors'][0]['fix']);
+
+        $api = self::plain($this->calc(['motifs' => PHP_INT_MAX, 'perMotif' => PHP_INT_MAX])->toStoreApi());
+        self::assertFalse($api['valid']);
+        self::assertSame(['quantity.motifs_max', 'quantity.max'], array_column($api['errors'], 'code'));
+
+        // genau an der Grenze gültig; Unsinn wie Text oder negative Werte wird wie bisher zu 1
+        self::assertTrue(self::plain($this->calc(['perMotif' => PriceEngine::HARD_MAX_QUANTITY])->toStoreApi())['valid']);
+        self::assertSame(1, self::plain($this->calc(['perMotif' => 'abc', 'motifs' => -5])->toStoreApi())['configuration']['perMotif']);
+    }
+
     public function testDeliveryAvailabilityAndReset(): void
     {
         $api = self::plain($this->calc(['perMotif' => 60, 'deliveryValue' => 'express'])->toStoreApi());

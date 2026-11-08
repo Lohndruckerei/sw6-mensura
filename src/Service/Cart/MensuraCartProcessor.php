@@ -6,7 +6,10 @@ namespace Lohndruckerei\Mensura\Service\Cart;
 
 use Lohndruckerei\Mensura\Service\Calculation\Catalog;
 use Lohndruckerei\Mensura\Service\Calculation\CatalogLoader;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Lohndruckerei\Mensura\Service\Calculation\ContextFactory;
+use Lohndruckerei\Mensura\Service\Calculation\Messages;
 use Lohndruckerei\Mensura\Service\Calculation\PriceEngine;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -18,6 +21,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -35,6 +39,7 @@ class MensuraCartProcessor implements CartProcessorInterface
         private readonly PriceEngine $engine,
         private readonly ContextFactory $contextFactory,
         private readonly QuantityPriceCalculator $calculator,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -42,7 +47,23 @@ class MensuraCartProcessor implements CartProcessorInterface
     {
         $catalogs = [];
         $calculationContext = null;
-        foreach ($toCalculate->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE) as $lineItem) {
+        $productLineItems = $toCalculate->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+
+        // Produkte mit aktivem Mensura-Profil sind nur konfiguriert käuflich – Positionen ohne Konfiguration
+        // (Kauf-Button im Listing, /checkout/line-item/add, Store-API) würden sonst zum Stammpreis verkauft.
+        $unconfigured = array_filter($productLineItems, static fn (LineItem $item) => !\is_array($item->getPayloadValue(LineItemFactory::PAYLOAD_KEY)['configuration'] ?? null));
+        $configurable = $this->configurableProductIds(array_map(static fn (LineItem $item) => (string) $item->getReferencedId(), $unconfigured));
+        foreach ($unconfigured as $lineItem) {
+            if (!isset($configurable[strtolower((string) $lineItem->getReferencedId())])) {
+                continue;
+            }
+            $calculationContext ??= $this->contextFactory->fromSalesChannelContext($context);
+            $toCalculate->getLineItems()->removeElement($lineItem);
+            $original->getLineItems()->remove($lineItem->getId());
+            $toCalculate->addErrors(new MensuraCartError($lineItem->getId(), (string) $lineItem->getLabel(), (new Messages($calculationContext->language))->text('cart.configuration_required')));
+        }
+
+        foreach ($productLineItems as $lineItem) {
             $payload = $lineItem->getPayloadValue(LineItemFactory::PAYLOAD_KEY);
             if (!\is_array($payload) || !\is_array($payload['configuration'] ?? null)) {
                 continue;
@@ -94,5 +115,27 @@ class MensuraCartProcessor implements CartProcessorInterface
                 $quantity,
             ));
         }
+    }
+
+    /**
+     * Produkt-IDs (klein, hex) mit aktivem Mensura-Profil – eine Abfrage für alle unkonfigurierten Positionen.
+     *
+     * @param list<string> $productIds
+     *
+     * @return array<string, true>
+     */
+    private function configurableProductIds(array $productIds): array
+    {
+        $productIds = array_values(array_unique(array_filter($productIds, static fn (string $id) => Uuid::isValid($id))));
+        if ($productIds === []) {
+            return [];
+        }
+        $rows = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(product_id)) FROM ld_mensura_product_profile WHERE active = 1 AND product_id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($productIds)],
+            ['ids' => ArrayParameterType::BINARY],
+        );
+
+        return array_fill_keys(array_map('strval', $rows), true);
     }
 }

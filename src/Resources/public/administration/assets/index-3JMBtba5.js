@@ -1,4 +1,4 @@
-import{S as s,a}from"./ld-mensura-CDsxFh5T.js";const n={template:`
+import{S as s,a}from"./ld-mensura-CmQGd2pN.js";const n={template:`
 <span
     class="lm-status"
     :class="'lm-status--' + state"

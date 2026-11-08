@@ -13,6 +13,7 @@ final class Messages
     private const TEXTS = [
         'de' => [
             'product.not_configurable' => 'Dieses Produkt ist nicht konfigurierbar',
+            'cart.configuration_required' => 'Bitte zuerst im Konfigurator auf der Produktseite Material, Maße und Ausführung wählen',
             'material.reset' => 'Das gewählte Material gibt es hier nicht – jetzt „{new}“',
             'material.unavailable' => 'Für dieses Produkt ist kein Material verfügbar',
             'format.width_min' => '{material}: Breite mindestens {limit} mm',
@@ -50,6 +51,7 @@ final class Messages
         ],
         'en' => [
             'product.not_configurable' => 'This product cannot be configured',
+            'cart.configuration_required' => 'Please choose material, size and finish in the configurator on the product page first',
             'material.reset' => 'The selected material is not available here – now “{new}”',
             'material.unavailable' => 'No material is available for this product',
             'format.width_min' => '{material}: width at least {limit} mm',

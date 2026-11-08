@@ -41,6 +41,12 @@ Kunde ─► Mensura-Konfigurator ─► Warenkorb (Produktposition + Konfigurat
   `configuration` (normalisierte Konfiguration laut `docs/contract/schema/configuration.schema.json`, daraus rechnet der
   `MensuraCartProcessor` bei jeder Warenkorbberechnung neu). Menge der Position = Gesamtmenge der Konfiguration; das
   Shopware-Produkt braucht eine ausreichende Höchstbestellmenge (`maxPurchase`), sonst kürzt Shopware vorher.
+- **Nur konfiguriert käuflich:** Positionen eines Produkts mit aktivem Mensura-Profil **ohne** `configuration` (Kauf-Button
+  im Listing, `/checkout/line-item/add`, Store-API) entfernt der `MensuraCartProcessor` mit Hinweis
+  (`cart.configuration_required`) – sonst ginge das Produkt zum Shopware-Stammpreis weg.
+- **Feste Obergrenzen** unabhängig von Kalkulation und Profil: höchstens 1.000 Motive und 1.000.000 Stück je Position
+  (`PriceEngine::HARD_MAX_MOTIFS`/`HARD_MAX_QUANTITY`, Fehler `quantity.motifs_max`/`quantity.max` mit `fix`); Riesenzahlen
+  laufen nicht mehr über.
 - **Gewicht und Maße für den Versand:** `weight` = Gewicht je m² des Materials × Fläche (kg). Zusätzlich setzt der
   CartProcessor die Shopware-Lieferinformation der Position (Gewicht je Stück in kg, Breite/Höhe in mm aus der
   Konfiguration). So rechnen Shopware-Versandregeln (z. B. Warenkorbgewicht) und ein späteres Versand-Plugin mit den

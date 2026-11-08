@@ -26,6 +26,11 @@ final class PriceEngine
 {
     private const MAX_SET_DEPTH = 20;
 
+    /** Feste Obergrenzen, auch wenn Kalkulation und Profil keine setzen (Schutz vor Unsinns-/Überlaufeingaben). */
+    public const HARD_MAX_MOTIFS = 1000;
+    public const HARD_MAX_QUANTITY = 1000000;
+    private const HARD_MAX_SIDE = 1000000;
+
     public function calculate(array $input, Catalog $catalog, CalculationContext $context, bool $matrix = false): CalculationResult
     {
         $messages = new Messages($context->language);
@@ -102,8 +107,8 @@ final class PriceEngine
 
         // Format
         $format = \is_array($input['format'] ?? null) ? $input['format'] : (\is_array($defaults['format'] ?? null) ? $defaults['format'] : []);
-        $config->width = max(1, (int) ($format['width'] ?? $limits['widthMin'] ?? 100));
-        $config->height = max(1, (int) ($format['height'] ?? $limits['heightMin'] ?? 100));
+        $config->width = self::count($format['width'] ?? $limits['widthMin'] ?? 100, self::HARD_MAX_SIDE);
+        $config->height = self::count($format['height'] ?? $limits['heightMin'] ?? 100, self::HARD_MAX_SIDE);
         $formatValueId = $format['formatValueId'] ?? null;
         if (\is_string($formatValueId) && $formatValueId !== '') {
             $formatValue = $catalog->value($formatValueId);
@@ -123,8 +128,9 @@ final class PriceEngine
         }
 
         // Menge
-        $config->motifs = max(1, (int) ($input['motifs'] ?? $defaults['motifs'] ?? 1));
-        $config->perMotif = max(1, (int) ($input['perMotif'] ?? $defaults['perMotif'] ?? 1));
+        // eine über der festen Grenze, damit die Prüfung unten greift (kein Überlauf bei Riesenzahlen)
+        $config->motifs = self::count($input['motifs'] ?? $defaults['motifs'] ?? 1, self::HARD_MAX_MOTIFS + 1);
+        $config->perMotif = self::count($input['perMotif'] ?? $defaults['perMotif'] ?? 1, self::HARD_MAX_QUANTITY + 1);
         if (isset($input['reference']) && \is_string($input['reference'])) {
             $config->reference = mb_substr($input['reference'], 0, 255);
         }
@@ -241,15 +247,17 @@ final class PriceEngine
         $profile = $catalog->profile();
         $motifMode = (string) ($calculation['motifMode'] ?? 'multiply');
         $quantity = $config->quantity($motifMode);
-        if ($limits['maxMotifs'] !== null && $config->motifs > $limits['maxMotifs']) {
-            $config->errors[] = $messages->message('quantity.motifs_max', ['limit' => $messages->number($limits['maxMotifs'])], 'motifs', ['motifs' => $limits['maxMotifs']]);
+        $maxMotifs = min($limits['maxMotifs'] ?? self::HARD_MAX_MOTIFS, self::HARD_MAX_MOTIFS);
+        if ($config->motifs > $maxMotifs) {
+            $config->errors[] = $messages->message('quantity.motifs_max', ['limit' => $messages->number($maxMotifs)], 'motifs', ['motifs' => $maxMotifs]);
         }
         $minQuantity = isset($profile['minQuantity']) ? (int) $profile['minQuantity'] : null;
         if ($minQuantity !== null && $quantity < $minQuantity) {
             $config->errors[] = $messages->message('quantity.min', ['limit' => $messages->number($minQuantity)], 'perMotif', ['perMotif' => $this->perMotifFor($config, $motifMode, $minQuantity, true)]);
         }
-        if ($limits['maxQuantity'] !== null && $quantity > $limits['maxQuantity']) {
-            $config->errors[] = $messages->message('quantity.max', ['limit' => $messages->number($limits['maxQuantity'])], 'perMotif', ['perMotif' => $this->perMotifFor($config, $motifMode, $limits['maxQuantity'], false)]);
+        $maxQuantity = min($limits['maxQuantity'] ?? self::HARD_MAX_QUANTITY, self::HARD_MAX_QUANTITY);
+        if ($quantity > $maxQuantity) {
+            $config->errors[] = $messages->message('quantity.max', ['limit' => $messages->number($maxQuantity)], 'perMotif', ['perMotif' => $this->perMotifFor($config, $motifMode, $maxQuantity, false)]);
         }
 
         // Lieferzeit
@@ -261,6 +269,19 @@ final class PriceEngine
         $config->hints = array_merge($otherHints, $removedHints, $optionHints);
 
         return $config;
+    }
+
+    /**
+     * Ganzzahl ≥ 1 aus einer Eingabe (Zahl oder numerischer Text, Nachkommastellen abgeschnitten), höchstens `$cap` –
+     * ohne Überlauf bei sehr großen Werten (z. B. 1e20 oder PHP_INT_MAX); Nicht-Zahlen ergeben 1.
+     */
+    private static function count(mixed $value, int $cap): int
+    {
+        if (!is_numeric($value)) {
+            return 1;
+        }
+
+        return (int) min(max((float) $value, 1.0), (float) $cap);
     }
 
     /**

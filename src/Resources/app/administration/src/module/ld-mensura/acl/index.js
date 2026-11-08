@@ -40,6 +40,20 @@ const PROFILES = [
     'ld_mensura_use_case_assignment',
 ];
 
+/**
+ * Unterdaten, die beim Bearbeiten einer Detailseite entfernt werden (Zeile löschen + Speichern):
+ * Optionswerte einer Gruppe, Zuordnungen/Preise einer Kalkulation, Gruppen eines Optionssets, Preistabellen und
+ * deren Zeilen. Ohne `delete` darauf scheitert das Speichern für die Rolle „Bearbeiten“ mit 403.
+ */
+const CHILDREN = [
+    'ld_mensura_calculation_material',
+    'ld_mensura_calculation_option_value',
+    'ld_mensura_option_value',
+    'ld_mensura_option_set_group',
+    'ld_mensura_price_table',
+    'ld_mensura_price_table_row',
+];
+
 const READ_ONLY = ['ld_mensura_customer_group_rule'];
 
 const privileges = (entities, ...actions) => entities.flatMap((entity) => actions.map((action) => `${entity}:${action}`));
@@ -65,7 +79,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             dependencies: [],
         },
         editor: {
-            privileges: privileges(CATALOG, 'update', 'create'),
+            privileges: [...privileges(CATALOG, 'update', 'create'), ...privileges(CHILDREN, 'delete')],
             dependencies: ['ld_mensura.viewer'],
         },
         creator: {
