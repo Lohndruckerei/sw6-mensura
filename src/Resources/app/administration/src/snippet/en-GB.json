@@ -43,7 +43,35 @@
         },
         "overview": {
             "title": "Configurator & calculation",
-            "subline": "Set up how films, boards and other articles are calculated: calculations with their own formula, materials with prices per m² and options with surcharges."
+            "subline": "Set up how films, boards and other articles are calculated: calculations with their own formula, materials with prices per m² and options with surcharges.",
+            "statusReady": "Ready",
+            "statusNoProfile": "No active product yet",
+            "statusTodos": "{count} notice | {count} notices",
+            "entries": "No entries | 1 entry | {count} entries",
+            "flow": {
+                "title": "How everything fits together",
+                "text": "Materials have prices per m². A calculation groups materials and calculates them with options (e.g. laminate, cutting) and tiers. A product profile makes a Shopware product configurable and selects from the calculations – e.g. shower panel with three materials only. In the shop the server always calculates.",
+                "material": "Materials",
+                "calculation": "Calculations",
+                "option": "Options & sets",
+                "profile": "Product profiles",
+                "shop": "Configurator in the shop"
+            },
+            "kpi": {
+                "profiles": "active product profiles (of {total})",
+                "positions": "Mensura line items, last 30 days",
+                "sale": "Net revenue (sale), last 30 days",
+                "contribution": "Contribution margin, last 30 days · margin {margin} %"
+            },
+            "todos": {
+                "title": "To do",
+                "none": "Everything set up – no open notices.",
+                "profilesNoMaterial": "Product profile without material – not configurable in the shop | {count} product profiles without material – not configurable in the shop",
+                "calculationsNoMaterial": "Active calculation without material | {count} active calculations without material",
+                "materialsNoPrice": "Active material without sale price per m² | {count} active materials without sale price per m²",
+                "groupsNoValues": "Option group without values | {count} option groups without values",
+                "profilesInactive": "Product profile is still inactive | {count} product profiles are still inactive"
+            }
         },
         "areas": {
             "profile": {

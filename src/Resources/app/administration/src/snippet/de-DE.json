@@ -43,7 +43,35 @@
         },
         "overview": {
             "title": "Konfigurator & Kalkulation",
-            "subline": "Hier richtest du ein, wie Folien, Platten und weitere Artikel berechnet werden: Kalkulationen mit eigener Formel, Materialien mit Preisen je m² und Optionen mit Aufschlägen."
+            "subline": "Hier richtest du ein, wie Folien, Platten und weitere Artikel berechnet werden: Kalkulationen mit eigener Formel, Materialien mit Preisen je m² und Optionen mit Aufschlägen.",
+            "statusReady": "Bereit",
+            "statusNoProfile": "Noch kein aktives Produkt",
+            "statusTodos": "{count} Hinweis | {count} Hinweise",
+            "entries": "Keine Einträge | 1 Eintrag | {count} Einträge",
+            "flow": {
+                "title": "So greift alles ineinander",
+                "text": "Materialien haben Preise je m². Eine Kalkulation fasst Materialien zusammen und rechnet sie mit Optionen (z. B. Laminat, Schnitt) und Staffeln. Ein Produktprofil macht ein Shopware-Produkt konfigurierbar und wählt aus den Kalkulationen aus – z. B. Duschrückwand nur mit drei Materialien. Im Shop rechnet immer der Server.",
+                "material": "Materialien",
+                "calculation": "Kalkulationen",
+                "option": "Optionen & Sets",
+                "profile": "Produktprofile",
+                "shop": "Konfigurator im Shop"
+            },
+            "kpi": {
+                "profiles": "aktive Produktprofile (von {total})",
+                "positions": "Mensura-Positionen, letzte 30 Tage",
+                "sale": "Umsatz netto (VK), letzte 30 Tage",
+                "contribution": "Deckungsbeitrag, letzte 30 Tage · Marge {margin} %"
+            },
+            "todos": {
+                "title": "Zu erledigen",
+                "none": "Alles eingerichtet – keine offenen Hinweise.",
+                "profilesNoMaterial": "Produktprofil ohne Material – im Shop nicht konfigurierbar | {count} Produktprofile ohne Material – im Shop nicht konfigurierbar",
+                "calculationsNoMaterial": "Aktive Kalkulation ohne Material | {count} aktive Kalkulationen ohne Material",
+                "materialsNoPrice": "Aktives Material ohne VK je m² | {count} aktive Materialien ohne VK je m²",
+                "groupsNoValues": "Optionsgruppe ohne Werte | {count} Optionsgruppen ohne Werte",
+                "profilesInactive": "Produktprofil ist noch inaktiv | {count} Produktprofile sind noch inaktiv"
+            }
         },
         "areas": {
             "profile": {

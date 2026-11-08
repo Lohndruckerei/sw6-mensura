@@ -1,0 +1,104 @@
+{% block lm_overview %}
+<lm-page :title="$tc('ld-mensura.general.mainMenuItem')" active="overview">
+    <div class="lm-header">
+        <span class="lm-header__icon">
+            <mt-icon name="regular-crop" size="22px" />
+        </span>
+        <div class="lm-header__main">
+            <h3 class="lm-header__title">
+                {{ $tc('ld-mensura.overview.title') }}
+                <lm-status v-if="headerStatus" v-bind="headerStatus" />
+            </h3>
+            <div class="lm-header__meta">
+                {{ $tc('ld-mensura.overview.subline') }}
+            </div>
+        </div>
+    </div>
+
+    <div class="lm-dashboard">
+        {% block lm_overview_flow %}
+        <lm-info-card name="overview" :title="$tc('ld-mensura.overview.flow.title')">
+            {{ $tc('ld-mensura.overview.flow.text') }}
+            <div class="lm-empty-steps lm-flow">
+                <template v-for="(step, index) in flow" :key="step.key">
+                    <span v-if="index > 0" class="lm-flow__arrow" aria-hidden="true">→</span>
+                    <router-link class="lm-empty-step" :to="{ name: 'ld.mensura.' + step.key }">
+                        {{ index + 1 }} · {{ $tc('ld-mensura.overview.flow.' + step.key) }}
+                        <b v-if="step.count !== null && step.count !== undefined">({{ step.count }})</b>
+                    </router-link>
+                </template>
+                <span class="lm-flow__arrow" aria-hidden="true">→</span>
+                <span class="lm-empty-step">{{ $tc('ld-mensura.overview.flow.shop') }}</span>
+            </div>
+        </lm-info-card>
+        {% endblock %}
+
+        {% block lm_overview_kpis %}
+        <sw-skeleton v-if="isLoading" />
+        <div v-else class="lm-kpis">
+            <router-link class="lm-kpi lm-kpi--all" :to="{ name: 'ld.mensura.profile' }">
+                <mt-icon name="regular-products" size="20px" />
+                <span><b>{{ counts.profilesActive ?? '–' }}</b><small>{{ $tc('ld-mensura.overview.kpi.profiles', { total: counts.profile ?? 0 }, 0) }}</small></span>
+            </router-link>
+            <div class="lm-kpi lm-kpi--all">
+                <mt-icon name="regular-shopping-bag" size="20px" />
+                <span><b>{{ orders ? orders.positions : '–' }}</b><small>{{ $tc('ld-mensura.overview.kpi.positions') }}</small></span>
+            </div>
+            <div class="lm-kpi lm-kpi--all">
+                <mt-icon name="regular-euro" size="20px" />
+                <span><b>{{ orders ? money(orders.sale) : '–' }}</b><small>{{ $tc('ld-mensura.overview.kpi.sale') }}</small></span>
+            </div>
+            <div v-if="canSeePurchase" class="lm-kpi" :class="'lm-kpi--' + (margin ? margin.state : 'all')">
+                <mt-icon name="regular-chart-line" size="20px" />
+                <span>
+                    <b>{{ orders && orders.purchase !== null ? money(orders.sale - orders.purchase) : '–' }}</b>
+                    <small>{{ $tc('ld-mensura.overview.kpi.contribution', { margin: margin ? num(margin.margin) : '–' }, 0) }}</small>
+                </span>
+            </div>
+            <router-link v-else class="lm-kpi lm-kpi--all" :to="{ name: 'ld.mensura.calculation' }">
+                <mt-icon name="regular-euro" size="20px" />
+                <span><b>{{ counts.calculation ?? '–' }}</b><small>{{ $tc('ld-mensura.areas.calculation.title') }}</small></span>
+            </router-link>
+        </div>
+        {% endblock %}
+
+        {% block lm_overview_todos %}
+        <mt-card v-if="!isLoading" position-identifier="lm-overview-todos" :title="$tc('ld-mensura.overview.todos.title')">
+            <p v-if="todos.length === 0" class="lm-overview__done">
+                <lm-status state="ok" :label="$tc('ld-mensura.overview.todos.none')" />
+            </p>
+            <ul v-else class="lm-usage lm-todos">
+                <li v-for="item in todos" :key="item.key">
+                    <router-link class="lm-todo" :to="{ name: item.route }">
+                        <span class="lm-sicon" :class="{ 'is--off': item.state === 'off' }"><mt-icon :name="item.icon" size="16px" /></span>
+                        <span class="lm-todo__text">{{ $tc('ld-mensura.overview.todos.' + item.key, { count: item.count }, item.count) }}</span>
+                        <lm-status :state="item.state" :label="String(item.count)" />
+                    </router-link>
+                </li>
+            </ul>
+        </mt-card>
+        {% endblock %}
+    </div>
+
+    {% block lm_overview_areas %}
+    <div class="lm-areas">
+        <router-link
+            v-for="area in areas"
+            :key="area.name"
+            class="lm-area"
+            :class="'lm-area--' + area.color"
+            :to="{ name: area.route }"
+        >
+            <span class="lm-area__icon">
+                <mt-icon :name="area.icon" size="20px" />
+            </span>
+            <b>{{ $tc('ld-mensura.areas.' + area.name + '.title') }}</b>
+            <p>{{ $tc('ld-mensura.areas.' + area.name + '.description') }}</p>
+            <span class="lm-area__foot lm-muted">
+                {{ area.count === null ? '–' : $tc('ld-mensura.overview.entries', { count: area.count }, area.count) }}
+            </span>
+        </router-link>
+    </div>
+    {% endblock %}
+</lm-page>
+{% endblock %}

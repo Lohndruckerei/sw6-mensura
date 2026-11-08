@@ -96,6 +96,78 @@ $lm-sunken: var(--color-background-tertiary-default, #f0f2f5);
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
 
+// ---------- Übersicht: Ablauf, Kennzahlen, Zu erledigen ----------
+.lm-page__content > .lm-dashboard {
+    margin: 16px 24px 0;
+}
+
+.lm-dashboard > .lm-info-card {
+    margin-bottom: 16px;
+}
+
+.lm-dashboard > .mt-card__wrapper {
+    margin-bottom: 24px;
+
+    > .mt-card {
+        max-width: none;
+    }
+}
+
+.lm-flow {
+    align-items: center;
+    justify-content: flex-start;
+
+    a.lm-empty-step {
+        color: inherit;
+        text-decoration: none;
+
+        &:hover {
+            border-color: var(--lm-accent);
+        }
+    }
+
+    &__arrow {
+        color: $lm-text2;
+    }
+}
+
+.lm-dashboard a.lm-kpi {
+    text-decoration: none;
+
+    &:hover {
+        border-color: var(--lm-accent);
+    }
+}
+
+.lm-dashboard .lm-kpi {
+    cursor: default;
+}
+
+.lm-dashboard a.lm-kpi,
+.lm-todo {
+    cursor: pointer;
+}
+
+.lm-todo {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    color: $lm-text;
+    text-decoration: none;
+
+    &__text {
+        flex: 1;
+    }
+
+    &:hover &__text {
+        text-decoration: underline;
+    }
+}
+
+.lm-overview__done {
+    margin: 0;
+}
+
 // ---------- Listen: eigene Elemente mit 24 px Rand über der randlosen Liste (DESIGN.md 5) ----------
 .lm-page__content > .lm-list > .lm-info-card,
 .lm-page__content > .lm-list > .lm-kpis,
