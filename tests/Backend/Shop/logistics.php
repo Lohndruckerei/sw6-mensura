@@ -93,7 +93,7 @@ try {
     // Testrechner
     $cfg = ['calculationId' => $acrylCalc, 'configuration' => ['materialId' => $acryl, 'format' => ['width' => 1500, 'height' => 1000], 'perMotif' => 1]];
     [$s, $d] = admin('POST', '/_action/ld-mensura/test-calculate', $cfg, $none[2]);
-    check('Testrechner ohne Recht: kein Logistikanteil, Rechenweg ohne Logistik', $s === 200 && $d['logistics'] === null && !preg_match('/logisti/i', json_encode($d)), "status $s total " . json_encode($d['result']['price']['total'] ?? null));
+    check('Testrechner ohne Recht: kein Logistikanteil, Rechenweg ohne Logistik', $s === 200 && !array_key_exists('logistics', $d ?? []) && !preg_match('/logisti/i', json_encode($d)), "status $s total " . json_encode($d['result']['price']['total'] ?? null));
     [$s, $d] = admin('POST', '/_action/ld-mensura/test-calculate', $cfg, $reader[2]);
     check('Testrechner mit Recht: „davon Logistik“ 26,66 €', $s === 200 && abs(($d['logistics']['sale'] ?? 0) - 26.66) < 0.011, json_encode($d['logistics'] ?? null));
 
