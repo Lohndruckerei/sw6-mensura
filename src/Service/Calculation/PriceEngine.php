@@ -172,6 +172,8 @@ final class PriceEngine
                 $requestedValid = $requestedId !== null && \in_array($requestedId, $compatible, true);
                 if (!$requestedValid && $mode !== 'fixed' && $mode !== 'hidden' && !$this->preselects($catalog, $config->calculationId, $groupId, $config->materialId)) {
                     $config->pendingGroupIds[] = $groupId;
+                    // sichtbar und in Reihenfolge (activeGroups), nur noch ohne Wert
+                    $config->activeGroupIds[] = $groupId;
                     if ($required) {
                         $config->errors[] = $messages->message('option.choose', ['group' => $group['name']], 'options.' . $technicalName);
                     }
@@ -213,7 +215,9 @@ final class PriceEngine
         // sichtbare Gruppen zuerst, ausgeblendete danach
         $ordered = [];
         foreach (array_merge($config->activeGroupIds, $config->hiddenGroupIds) as $groupId) {
-            $ordered[$groupId] = $config->options[$groupId];
+            if (isset($config->options[$groupId])) {
+                $ordered[$groupId] = $config->options[$groupId];
+            }
         }
         $config->options = $ordered;
 

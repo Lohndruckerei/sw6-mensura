@@ -419,6 +419,7 @@ final class PriceEngineTest extends TestCase
         self::assertSame('Bitte Veredelung wählen', $open['errors'][0]['message']);
         self::assertArrayNotHasKey('price', $open);
         self::assertArrayNotHasKey('veredelung', $open['configuration']['options']);
+        self::assertSame(['farbigkeit', 'veredelung', 'bohrung', 'schnitt'], $open['activeGroups'], 'offene Gruppe bleibt sichtbar, in Reihenfolge');
 
         $chosen = self::plain($engine->calculate($this->config(['options' => ['veredelung' => 'keine']]), new Catalog($data), ContractTest::context())->toStoreApi());
         self::assertTrue($chosen['valid']);
