@@ -161,7 +161,7 @@ final class ComdatekCatalog
 
         return [
             'aluverbund' => [
-                'name' => 'Aluverbund (Comdatek)', 'size' => [1500, 3000], 'minimum' => 12.50, 'logistics' => 'alu', 'supplierCode' => '124',
+                'name' => 'Aluverbundplatten', 'size' => [1500, 3000], 'minimum' => 12.50, 'logistics' => 'alu', 'supplierCode' => '124',
                 'sets' => $plates,
                 'materials' => [
                     'alu-3mm' => ['Aluverbund 3 mm', 'Aluminium composite 3 mm', 26.0, ['supplierCode' => '29']],
@@ -184,7 +184,7 @@ final class ComdatekCatalog
                 ],
             ],
             'kaschiert' => [
-                'name' => 'Kaschierte Platten (Comdatek)', 'size' => [1500, 3000], 'minimum' => 15.00, 'logistics' => 'alu', 'supplierCode' => '40',
+                'name' => 'Kaschierte Platten', 'size' => [1500, 3000], 'minimum' => 15.00, 'logistics' => 'alu', 'supplierCode' => '40',
                 // Druck 4/0 auf Orajet 3551 inkl. Laminat ist fester Bestandteil – die Trägerplatte ist das Material
                 'components' => [self::component('per_area', 15.0, null, 'Druck 4/0 + Laminat')],
                 'sets' => ['veredelung', 'schnitt', 'bohrung'],
@@ -203,7 +203,7 @@ final class ComdatekCatalog
                 ],
             ],
             'acryl' => [
-                'name' => 'Acrylglas (Comdatek)', 'size' => [1500, 3000], 'minimum' => 12.50, 'logistics' => 'acryl', 'supplierCode' => '122',
+                'name' => 'Acrylglasplatten', 'size' => [1500, 3000], 'minimum' => 12.50, 'logistics' => 'acryl', 'supplierCode' => '122',
                 'sets' => ['farbigkeit', 'schnitt', 'bohrung'],
                 'materials' => [
                     'acryl-3mm' => ['Acrylglas 3 mm', 'Acrylic glass 3 mm', 40.0, ['supplierCode' => '36']],
@@ -218,7 +218,7 @@ final class ComdatekCatalog
                 ],
             ],
             'hartschaum-1-3' => [
-                'name' => 'Hartschaum 1–3 mm (Comdatek)', 'size' => [2000, 3000], 'minimum' => 12.50, 'logistics' => 'hartschaum', 'supplierCode' => '123',
+                'name' => 'Hartschaum 1–3 mm', 'size' => [2000, 3000], 'minimum' => 12.50, 'logistics' => 'hartschaum', 'supplierCode' => '123',
                 'sets' => ['farbigkeit', 'schnitt', 'bohrung'],
                 'materials' => [
                     'hs-1mm' => ['Hartschaum 1 mm', 'Foam PVC 1 mm', 10.8],
@@ -228,7 +228,7 @@ final class ComdatekCatalog
                 'options' => ['farbigkeit' => $print(6.0, -2.0), 'schnitt' => $cut(0.10, 3.0, 0.10), 'bohrung' => $holes(0.20)],
             ],
             'hartschaum-5-10' => [
-                'name' => 'Hartschaum 5–10 mm (Comdatek)', 'size' => [2000, 3000], 'minimum' => 12.50, 'logistics' => 'hartschaum', 'supplierCode' => '123',
+                'name' => 'Hartschaum 5–10 mm', 'size' => [2000, 3000], 'minimum' => 12.50, 'logistics' => 'hartschaum', 'supplierCode' => '123',
                 'sets' => ['farbigkeit', 'schnitt', 'bohrung'],
                 'materials' => [
                     'hs-5mm' => ['Hartschaum 5 mm', 'Foam PVC 5 mm', 16.0],
@@ -238,7 +238,7 @@ final class ComdatekCatalog
                 'options' => ['farbigkeit' => $print(8.0, -2.0), 'schnitt' => $cut(0.20, 6.0, 0.20), 'bohrung' => $holes(0.20)],
             ],
             'hartschaum-schwarz' => [
-                'name' => 'Hartschaum schwarz (Comdatek)', 'size' => [2000, 3000], 'minimum' => 12.50, 'logistics' => 'hartschaum', 'supplierCode' => '123',
+                'name' => 'Hartschaum schwarz', 'size' => [2000, 3000], 'minimum' => 12.50, 'logistics' => 'hartschaum', 'supplierCode' => '123',
                 'sets' => ['farbigkeit', 'schnitt', 'bohrung'],
                 'materials' => [
                     'hs-schwarz-3mm' => ['Hartschaum schwarz 3 mm', 'Black foam PVC 3 mm', 17.0],
@@ -255,7 +255,7 @@ final class ComdatekCatalog
                 ],
             ],
             'pvc-ps' => [
-                'name' => 'Hart-PVC & Polystyrol (Comdatek)', 'size' => [1500, 3000], 'minimum' => 12.50, 'logistics' => 'ps', 'supplierCode' => '126',
+                'name' => 'Hart-PVC & Polystyrol', 'size' => [1500, 3000], 'minimum' => 12.50, 'logistics' => 'ps', 'supplierCode' => '126',
                 'sets' => ['farbigkeit', 'schnitt', 'bohrung'],
                 'materials' => [
                     'hart-pvc-025' => ['Hart-PVC 0,25 mm', 'Rigid PVC 0.25 mm', 10.0],
@@ -266,7 +266,7 @@ final class ComdatekCatalog
                 'options' => ['farbigkeit' => $print(5.0), 'schnitt' => $cut(0.10, 3.0, 0.10), 'bohrung' => $holes(0.10)],
             ],
             'hohlkammer' => [
-                'name' => 'Hohlkammerplatten (Comdatek)', 'size' => [1500, 3000], 'minimum' => 12.50, 'logistics' => 'hohlkammer', 'supplierCode' => '128',
+                'name' => 'Hohlkammerplatten', 'size' => [1500, 3000], 'minimum' => 12.50, 'logistics' => 'hohlkammer', 'supplierCode' => '128',
                 'sets' => ['farbigkeit', 'schnitt', 'bohrung'],
                 'materials' => [
                     'hohlkammer-welle-3mm' => ['Hohlkammer Welle 3 mm', 'Twin-wall sheet flute 3 mm', 8.0],
@@ -275,7 +275,7 @@ final class ComdatekCatalog
                 'options' => ['farbigkeit' => $print(3.0), 'schnitt' => $cut(0.05, 2.0, 0.05), 'bohrung' => $holes(0.05)],
             ],
             'displaykarton' => [
-                'name' => 'Displaykarton & DISPA (Comdatek)', 'size' => [1500, 3000], 'minimum' => 9.80, 'logistics' => 'papier', 'supplierCode' => '127',
+                'name' => 'Displaykarton & DISPA', 'size' => [1500, 3000], 'minimum' => 9.80, 'logistics' => 'papier', 'supplierCode' => '127',
                 'sets' => ['farbigkeit', 'schnitt', 'bohrung'],
                 'materials' => [
                     'displaykarton-1mm' => ['Displaykarton 1 mm', 'Display board 1 mm', 7.0],
@@ -286,7 +286,7 @@ final class ComdatekCatalog
                 'options' => ['farbigkeit' => $print(4.0), 'schnitt' => $cut(0.10, 2.0, 0.10), 'bohrung' => $holes(0.05)],
             ],
             'reboard' => [
-                'name' => 'Re-Board Wabe (Comdatek)', 'size' => [1500, 3000], 'minimum' => 9.80, 'logistics' => 'papier', 'supplierCode' => '127',
+                'name' => 'Re-Board Wabenplatten', 'size' => [1500, 3000], 'minimum' => 9.80, 'logistics' => 'papier', 'supplierCode' => '127',
                 'sets' => ['farbigkeit', 'schnitt', 'bohrung'],
                 'materials' => [
                     'reboard-10mm' => ['Re-Board 10 mm', 'Re-Board 10 mm', 21.0],
@@ -295,7 +295,7 @@ final class ComdatekCatalog
                 'options' => ['farbigkeit' => $print(4.0), 'schnitt' => $cut(0.20, 3.0, 0.20), 'bohrung' => $holes(0.25)],
             ],
             'stadur' => [
-                'name' => 'Stadur Leichtschaum (Comdatek)', 'size' => [1500, 3000], 'minimum' => 9.80, 'logistics' => 'hartschaum', 'supplierCode' => '125',
+                'name' => 'Stadur Leichtschaumplatten', 'size' => [1500, 3000], 'minimum' => 9.80, 'logistics' => 'hartschaum', 'supplierCode' => '125',
                 'sets' => ['farbigkeit', 'schnitt', 'bohrung'],
                 'materials' => [
                     'stadur-5mm' => ['Stadur 5 mm', 'Stadur 5 mm', 21.0],
@@ -307,7 +307,7 @@ final class ComdatekCatalog
                 'options' => ['farbigkeit' => $print(5.0), 'schnitt' => $cut(0.10, 5.0, 0.0), 'bohrung' => $holes(0.25)],
             ],
             'banner' => [
-                'name' => 'Banner (Comdatek)', 'size' => [5000, 50000], 'minimum' => 7.15, 'logistics' => 'banner', 'supplierCode' => '1',
+                'name' => 'Banner', 'size' => [5000, 50000], 'minimum' => 7.15, 'logistics' => 'banner', 'supplierCode' => '1',
                 'quantitySteps' => [1, 2, 3, 5, 10, 20, 50],
                 'sets' => ['farbigkeit', 'schnitt', 'konfektion'],
                 'materials' => [
@@ -331,8 +331,9 @@ final class ComdatekCatalog
                     'farbigkeit' => ['4-0' => ['default' => true], '4-4' => ['area' => 5.0, 'only' => ['banner-blockout-610']]],
                     'schnitt' => ['recht' => ['default' => true], 'kontur' => ['area' => 4.0, 'only' => ['pvc-linoleum-1000']]],
                     'konfektion' => [
-                        'ohne' => [],
-                        'saum-oesen' => ['area' => 1.0, 'default' => true, 'except' => ['banner-blockout-610', 'pvc-linoleum-1000']],
+                        // kostenpflichtige Optionen nie vorauswählen (KONZEPT/WETTBEWERB)
+                        'ohne' => ['default' => true],
+                        'saum-oesen' => ['area' => 1.0, 'except' => ['banner-blockout-610', 'pvc-linoleum-1000']],
                         'nur-oesen' => ['area' => 0.5, 'except' => ['pvc-linoleum-1000']],
                         'nur-saum' => ['area' => 0.5, 'except' => ['banner-blockout-610', 'pvc-linoleum-1000']],
                         'hohlsaum' => ['area' => 3.0, 'except' => ['banner-blockout-610', 'pvc-linoleum-1000']],
@@ -341,7 +342,7 @@ final class ComdatekCatalog
                 ],
             ],
             'textilbanner' => [
-                'name' => 'Textilbanner (Comdatek)', 'size' => [3200, 50000], 'minimum' => 8.30, 'logistics' => 'banner', 'supplierCode' => '41',
+                'name' => 'Textilbanner', 'size' => [3200, 50000], 'minimum' => 8.30, 'logistics' => 'banner', 'supplierCode' => '41',
                 'quantitySteps' => [1, 2, 3, 5, 10, 20, 50],
                 'sets' => ['konfektion'],
                 'materials' => [
@@ -351,8 +352,8 @@ final class ComdatekCatalog
                 ],
                 'options' => [
                     'konfektion' => [
-                        'ohne' => [],
-                        'saum-oesen' => ['area' => 1.5, 'default' => true, 'except' => ['textil-prolight-200']],
+                        'ohne' => ['default' => true],
+                        'saum-oesen' => ['area' => 1.5, 'except' => ['textil-prolight-200']],
                         'hohlsaum' => ['area' => 3.0, 'except' => ['textil-prolight-200']],
                         'flauschband' => ['perimeter' => 1.5, 'except' => ['textil-prolight-200']],
                         'gummilippe' => ['perimeter' => 1.0],
@@ -391,6 +392,31 @@ final class ComdatekCatalog
             'pvc-linoleum' => ['CD-LINOLEUM', 'PVC-Linoleum-Fußboden', 'PVC linoleum floor', 'guided', [['banner', 'pvc-linoleum-1000']], '1', $banner],
             'textilbanner' => ['CD-TEXTIL', 'Textilbanner', 'Fabric banners', 'guided', [['textilbanner', null]], '41', $banner],
         ];
+    }
+
+    /**
+     * Kundentext der Materialien je Kalkulation [de, en] – im Shop sichtbar (Material-Kachel), daher ohne Hinweis
+     * auf Lieferant oder Einkaufspreise.
+     *
+     * @return array{0: string, 1: string}
+     */
+    public static function customerText(string $calculation): array
+    {
+        return match ($calculation) {
+            'aluverbund' => ['Formstabile Verbundplatte für Schilder innen und außen, wetterfest.', 'Rigid composite panel for indoor and outdoor signs, weatherproof.'],
+            'kaschiert' => ['Digitaldruck auf Folie mit Schutzlaminat, auf die Trägerplatte kaschiert.', 'Digital print on film with protective laminate, mounted on the carrier board.'],
+            'acryl' => ['Glasklare Platte mit edler Tiefenwirkung, ideal für Praxis- und Firmenschilder.', 'Crystal-clear panel with an elegant depth effect, ideal for office signs.'],
+            'hartschaum-1-3', 'hartschaum-5-10' => ['Leichte, glatte PVC-Hartschaumplatte für Innen und kurzfristig außen.', 'Light, smooth foam PVC board for indoor and short-term outdoor use.'],
+            'hartschaum-schwarz' => ['Schwarze Hartschaumplatte, Druck mit weißer Unterlegung für kräftige Farben.', 'Black foam PVC board, printed with white underlay for vivid colours.'],
+            'pvc-ps' => ['Dünne, flexible Platte für Displays, Aufsteller und Verpackungen.', 'Thin, flexible sheet for displays, stands and packaging.'],
+            'hohlkammer' => ['Sehr leichte Kunststoffplatte, z. B. für Wahl- und Bauschilder.', 'Very light plastic sheet, e.g. for election and construction signs.'],
+            'displaykarton' => ['Recyclingfähige Papier- und Kartonplatte für Aufsteller und Messen.', 'Recyclable paper and board for stands and trade fairs.'],
+            'reboard' => ['Leichte, stabile Papierwabenplatte – nachhaltig für Messe und Ladenbau.', 'Light, stiff paper honeycomb board – sustainable for fairs and shopfitting.'],
+            'stadur' => ['Leichtschaumplatte mit glatter Oberfläche, auch in großen Stärken.', 'Lightweight foam board with smooth surface, also in large thicknesses.'],
+            'banner' => ['Reißfestes Bannermaterial für Werbung an Zaun, Gerüst und Fassade.', 'Tear-resistant banner material for fences, scaffolding and façades.'],
+            'textilbanner' => ['Knitterarmer Stoff mit brillanten Farben, waschbar.', 'Crease-resistant fabric with brilliant colours, washable.'],
+            default => ['', ''],
+        };
     }
 
     public static function calculationId(string $key): string

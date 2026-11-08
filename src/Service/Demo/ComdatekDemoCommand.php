@@ -149,7 +149,8 @@ class ComdatekDemoCommand extends Command
     private function seedMaterials(Context $context): int
     {
         $materials = [];
-        foreach (ComdatekCatalog::calculations() as $calculation) {
+        foreach (ComdatekCatalog::calculations() as $calculationKey => $calculation) {
+            [$textDe, $textEn] = ComdatekCatalog::customerText($calculationKey);
             $position = 0;
             foreach ($calculation['materials'] as $key => [$de, $en, $ek]) {
                 $extra = $calculation['materials'][$key][3] ?? [];
@@ -172,8 +173,9 @@ class ComdatekDemoCommand extends Command
                     'supplierId' => ComdatekCatalog::SUPPLIER_ID,
                     'supplierCodes' => isset($extra['supplierCode']) ? [['supplierId' => ComdatekCatalog::SUPPLIER_ID, 'code' => $extra['supplierCode']]] : null,
                     'translations' => [
-                        'de-DE' => ['name' => $de, 'description' => 'Comdatek-Einkaufspreisliste 2026 (Demo).'],
-                        'en-GB' => ['name' => $en, 'description' => 'Comdatek purchase price list 2026 (demo).'],
+                        // im Shop sichtbar – kein Hinweis auf Lieferant oder Einkaufspreise
+                        'de-DE' => ['name' => $de, 'description' => $textDe],
+                        'en-GB' => ['name' => $en, 'description' => $textEn],
                     ],
                 ];
             }
@@ -248,8 +250,9 @@ class ComdatekDemoCommand extends Command
             'productAssignmentType' => 'product',
             'displayNestedProducts' => true,
             'translations' => [
-                'de-DE' => ['name' => 'Mensura-Demo', 'description' => 'Demo-Produkte aus der Comdatek-Einkaufspreisliste 2026, konfigurierbar mit Mensura.'],
-                'en-GB' => ['name' => 'Mensura demo', 'description' => 'Demo products from the Comdatek price list 2026, configurable with Mensura.'],
+                // im Shop sichtbar – kein Hinweis auf Lieferant oder Einkaufspreise
+                'de-DE' => ['name' => 'Mensura-Demo', 'description' => 'Platten, Banner und Textil – Format, Material und Ausführung selbst wählen, Preis sofort sehen.'],
+                'en-GB' => ['name' => 'Mensura demo', 'description' => 'Boards, banners and fabric – choose format, material and finish, see the price instantly.'],
             ],
         ]], $context);
     }
@@ -288,8 +291,8 @@ class ComdatekDemoCommand extends Command
                 'taxId' => $taxId,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => round($net * 1.19, 2), 'net' => $net, 'linked' => true]],
                 'translations' => [
-                    'de-DE' => ['name' => $nameDe, 'description' => 'Demo-Produkt aus der Comdatek-Einkaufspreisliste 2026 – Preis je Konfiguration (Material, Format, Menge, Optionen).'],
-                    'en-GB' => ['name' => $nameEn, 'description' => 'Demo product from the Comdatek price list 2026 – price per configuration.'],
+                    'de-DE' => ['name' => $nameDe, 'description' => 'Individuell im Wunschformat gedruckt. Material, Format, Menge und Ausführung wählen – der Preis wird sofort berechnet.'],
+                    'en-GB' => ['name' => $nameEn, 'description' => 'Printed to your size. Choose material, format, quantity and finish – the price is calculated instantly.'],
                 ],
                 'categories' => [['id' => ComdatekCatalog::CATEGORY_ID]],
                 'visibilities' => array_map(static fn (string $id) => [

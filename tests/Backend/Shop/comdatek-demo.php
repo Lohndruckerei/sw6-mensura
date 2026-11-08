@@ -22,7 +22,8 @@ $products = ['aluverbund', 'kaschiert', 'acryl', 'hartschaum', 'pvc-ps', 'hohlka
 foreach ($products as $p) {
     [$c, $cfg] = call('GET', '/ld-mensura/product/' . $id("product.$p") . '/configurator');
     if ($c !== 200) { echo "FEHL $p configurator $c\n"; $fail++; continue; }
-    $groups = implode(',', array_map(fn ($g) => $g['technicalName'] . '(' . count($g['values']) . ')', $cfg['groups']));
+    if (preg_match('/omdatek|Einkauf|purchase price|price list/i', json_encode($cfg, JSON_UNESCAPED_UNICODE), $leak)) { echo "FEHL $p Kundentext verrät „{$leak[0]}“\n"; $fail++; }
+    $groups = implode(',',array_map(fn ($g) => $g['technicalName'] . '(' . count($g['values']) . ')', $cfg['groups']));
     [$c2, $res] = call('POST', '/ld-mensura/calculate', ['configuration' => $cfg['defaults']]);
     $ok = $c2 === 200 && ($res['valid'] ?? false) && ($res['price']['total'] ?? 0) > 0;
     if (!$ok) { $fail++; }
