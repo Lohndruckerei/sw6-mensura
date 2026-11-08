@@ -41,6 +41,14 @@ final class LogisticsPreview
             }
             $clean = self::sanitize($rule);
             $clean['id'] ??= 'draft-' . $index;
+            if ($clean['active'] !== false) {
+                // „als gälte der Entwurf schon heute“: gespeicherte Regeln derselben Kostenart dieses Ziels treten zurück
+                foreach ($rules as $id => $saved) {
+                    if ($id !== $clean['id'] && self::sameTarget($saved, $clean) && ($saved['costType'] ?? null) === $clean['costType']) {
+                        $rules[$id]['active'] = false;
+                    }
+                }
+            }
             $rules[$clean['id']] = $clean;
         }
         $draftCatalog = $catalog->withLogisticsRules(array_values($rules));
@@ -106,6 +114,21 @@ final class LogisticsPreview
         }
 
         return ['warnPercent' => $warnPercent, 'samples' => $rows];
+    }
+
+    /**
+     * @param array<string, mixed> $a
+     * @param array<string, mixed> $b
+     */
+    private static function sameTarget(array $a, array $b): bool
+    {
+        foreach (['calculationId', 'materialId', 'optionValueId'] as $field) {
+            if (($a[$field] ?? null) !== ($b[$field] ?? null)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

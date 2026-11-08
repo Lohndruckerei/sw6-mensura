@@ -91,8 +91,8 @@ class MensuraAdminApiController
             $response['purchase'] = $snapshot['breakdown']['purchase'];
             $response['contributionMargin'] = $snapshot['contributionMargin'];
         }
-        // Logistikanteil (KONZEPT 3d.7) nur mit eigenem Recht; sonst steckt er unsichtbar in der Zwischensumme
-        $response['logistics'] = null;
+        // Logistikanteil (KONZEPT 3d.7) nur mit eigenem Recht; sonst fehlt das Feld ganz und der Anteil steckt
+        // unsichtbar in der Zwischensumme
         if (self::canSeeLogistics($context) && $result->getLogistics() !== null) {
             $logistics = $result->getLogistics();
             $response['logistics'] = [

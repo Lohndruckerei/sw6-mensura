@@ -50,6 +50,18 @@ final class LogisticsPreviewTest extends TestCase
         self::assertSame(15.0, $out['warnPercent']);
     }
 
+    public function testNewDraftReplacesSavedRuleOfTheSameCostType(): void
+    {
+        // neuer Entwurf (andere ID) für dieselbe Kostenart: gilt in der Vorschau statt der gespeicherten Regel
+        $draft = [['materialId' => DemoCatalog::MATERIAL_ACRYL, 'costType' => 'bulky', 'form' => 'per_sqm', 'value' => 20, 'rampFrom' => 1000, 'rampTo' => 1400]];
+        $samples = [['materialId' => DemoCatalog::MATERIAL_ACRYL, 'format' => ['width' => 1500, 'height' => 1000]]];
+        $out = (new LogisticsPreview(new PriceEngine()))->preview(new Catalog(DemoCatalog::catalog()), $draft, $samples, ContractTest::context(), 15.0);
+
+        self::assertSame(123.5, $out['samples'][0]['total']);
+        self::assertSame(120.16, $out['samples'][0]['totalSaved']);
+        self::assertCount(1, $out['samples'][0]['lines']);
+    }
+
     public function testSanitizeKeepsOnlyKnownFields(): void
     {
         $clean = LogisticsPreview::sanitize(['value' => '1.5', 'rampFrom' => '1000', 'validFrom' => '2026-12-01T00:00:00+00:00', 'evil' => 'x']);
