@@ -1,4 +1,4 @@
-import{D as t,f as s,s as l,m as i}from"./margin-CYtqVi4K.js";const u={template:`
+import{D as t,f as s,s as l,m as i}from"./margin-fIe6izj8.js";const u={template:`
 <div class="lm-price-pair">
     <div class="lm-price-pair__fields" :class="{ 'is--single': !showPurchase }">
         <mt-number-field

@@ -5,7 +5,7 @@ import { NAV_ITEMS } from '../../constants';
  * Smart-Bar mit Titel, Design-Schalter und Aktionen; Bereichsnavigation je Design
  * (A: keine – Shopware-Menü genügt, B: Reiter oben, C: Seitennavigation links).
  *
- * Slots: default (Inhalt), actions (weitere Smart-Bar-Buttons)
+ * Slots: default (Inhalt), actions (weitere Smart-Bar-Buttons), search-bar (Suchleiste der Listen)
  */
 export default {
     template: `

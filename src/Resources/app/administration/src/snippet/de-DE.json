@@ -3,8 +3,6 @@
         "general": {
             "mainMenuItem": "Mensura",
             "description": "Produkt-Konfigurator und Flächen-/Preiskalkulation",
-            "statusSetup": "Im Aufbau",
-            "comingSoon": "Folgt als Nächstes",
             "showExplanation": "Erklärung anzeigen",
             "viewTiles": "Kacheln",
             "viewList": "Liste",

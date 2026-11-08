@@ -1,4 +1,4 @@
-// Mensura-eigene Seitenstile (Seitenrahmen, Bereichskacheln der Übersicht).
+// Mensura-eigene Seitenstile (Seitenrahmen, Übersicht, Listen, Detailseiten, Editoren, Produktprofil).
 // Gemeinsame Bausteine und Farben kommen aus ../../ld-admin-design (generiert, dort nicht ändern).
 
 $lm-text: var(--color-text-primary-default, #1c1c1c);
@@ -534,12 +534,7 @@ $lm-sunken: var(--color-background-tertiary-default, #f0f2f5);
 }
 
 @media (max-width: 1000px) {
-    .lm-profile-material {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
-
-@media (max-width: 1000px) {
+    .lm-profile-material,
     .lm-price-pair__fields,
     .lm-components__row,
     .lm-tiers__row,

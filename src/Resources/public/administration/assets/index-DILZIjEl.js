@@ -2,7 +2,6 @@ import{e as o}from"./technical-name-D27wtO-E.js";const{Mixin:l}=Shopware,{Criter
 <lm-detail-page
     :title="title"
     icon="regular-sliders-v"
-    :status="null"
     :tabs="tabs"
     :groups="tabGroups"
     v-model:active="activeTab"
@@ -11,7 +10,7 @@ import{e as o}from"./technical-name-D27wtO-E.js";const{Mixin:l}=Shopware,{Criter
     :is-loading="isLoading"
     :can-edit="canEdit"
     @save="onSave"
-    @cancel="$router.push({ name: 'ld.mensura.option' })"
+    @cancel="onCancel"
 >
     <template #header-meta>
         <span>{{ group.technicalName }}</span>

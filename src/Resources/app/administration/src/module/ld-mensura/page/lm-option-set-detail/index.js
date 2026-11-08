@@ -17,7 +17,7 @@ export default {
     :is-loading="isLoading"
     :can-edit="canEdit"
     @save="onSave"
-    @cancel="$router.push({ name: 'ld.mensura.optionSet' })"
+    @cancel="onCancel"
 >
     <template #header-meta>
         <span>{{ set.technicalName }}</span>

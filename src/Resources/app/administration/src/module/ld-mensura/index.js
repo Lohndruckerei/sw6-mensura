@@ -19,7 +19,6 @@ Shopware.Component.register('lm-test-calculator', () => import('./component/lm-t
 
 // Seiten
 Shopware.Component.register('lm-overview', () => import('./page/lm-overview'));
-Shopware.Component.register('lm-area-placeholder', () => import('./page/lm-area-placeholder'));
 Shopware.Component.register('lm-material-list', () => import('./page/lm-material-list'));
 Shopware.Component.register('lm-material-detail', () => import('./page/lm-material-detail'));
 Shopware.Component.register('lm-calculation-list', () => import('./page/lm-calculation-list'));

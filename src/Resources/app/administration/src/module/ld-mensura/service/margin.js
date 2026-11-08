@@ -92,3 +92,8 @@ export function formatNumber(value, digits = 2) {
         maximumFractionDigits: digits,
     });
 }
+
+/** Betrag mit zwei Nachkommastellen und „€“, ohne Wert „–“. */
+export function formatMoney(value) {
+    return value === null || value === undefined ? '–' : `${formatNumber(value, 2)} €`;
+}

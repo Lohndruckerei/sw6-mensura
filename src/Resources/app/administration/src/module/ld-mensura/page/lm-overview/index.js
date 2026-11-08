@@ -1,6 +1,6 @@
 import template from './lm-overview.html.twig';
 import { AREAS } from '../../constants';
-import { formatNumber, marginInfo } from '../../service/margin';
+import { formatMoney, formatNumber, marginInfo } from '../../service/margin';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -154,7 +154,7 @@ export default {
         },
 
         money(value) {
-            return value === null || value === undefined ? '–' : `${formatNumber(value, 2)} €`;
+            return formatMoney(value);
         },
 
         num(value, digits = 1) {

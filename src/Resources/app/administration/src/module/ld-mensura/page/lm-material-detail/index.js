@@ -19,7 +19,6 @@ export default {
         Mixin.getByName('placeholder'),
         Mixin.getByName('notification'),
         Mixin.getByName('discard-detail-page-changes')('material'),
-        Mixin.getByName('lm-design'),
     ],
 
     shortcuts: {
@@ -121,14 +120,6 @@ export default {
             };
         },
 
-        tooltipSave() {
-            if (this.canEdit) {
-                return { message: `${this.$device.getSystemKey()} + S`, appearance: 'light' };
-            }
-
-            return { showDelay: 300, message: this.$tc('sw-privileges.tooltip.warning'), disabled: this.canEdit, showOnDisabledElements: true };
-        },
-
         ...mapPropertyErrors('material', ['name', 'technicalName']),
     },
 
@@ -208,10 +199,6 @@ export default {
             } finally {
                 this.isLoading = false;
             }
-        },
-
-        onTabChange(item) {
-            this.activeTab = typeof item === 'string' ? item : item?.name ?? 'base';
         },
 
         onCancel() {

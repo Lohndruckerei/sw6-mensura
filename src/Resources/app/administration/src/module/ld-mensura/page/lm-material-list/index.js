@@ -1,166 +1,85 @@
-import template from './lm-material-list.html.twig';
 import { marginInfo, ruleOf, formatNumber } from '../../service/margin';
 
-const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-const FILTERS = ['all', 'active', 'noPrice', 'inactive'];
-
 /**
- * Materialliste (DESIGN.md 7.7): A = nur Liste, B = Filterchips, C = Kennzahlen als Filter + Kacheln/Liste.
+ * Materialien (KONZEPT 3.2) mit VK je m², Marge (nur mit Recht ld_mensura.purchase) und Kalkulationen.
  */
 export default {
-    template,
+    template: `
+<lm-entity-list
+    entity="ld_mensura_material"
+    area="material"
+    :title="$tc('ld-mensura.areas.material.title')"
+    icon="regular-layer-group"
+    snippet="ld-mensura.material.list"
+    info-snippet="ld-mensura.material.info"
+    detail-route="ld.mensura.materialDetail"
+    create-route="ld.mensura.materialCreate"
+    default-sort="position"
+    :status-of="statusOf"
+    :columns="columns"
+    :filters="filters"
+    :associations="['calculations']"
+    :clone-overwrites="cloneOverwrites"
+>
+    <template #column-priceSale="{ item }">
+        <span class="lm-num">{{ priceLabel(item) }}</span>
+    </template>
+    <template #column-margin="{ item }">
+        <lm-status v-if="marginOf(item)" :state="marginOf(item).state" :label="fmt(marginOf(item).margin, 1) + ' %'" />
+        <span v-else class="lm-muted">–</span>
+    </template>
+    <template #column-calculations="{ item }">
+        <lm-chip v-for="calculation in item.calculations" :key="calculation.id" color="c1" icon="regular-euro" :label="calculation.name" />
+        <span v-if="!item.calculations || item.calculations.length === 0" class="lm-muted">–</span>
+    </template>
+    <template #column-active="{ item }">
+        <lm-status v-bind="statusOf(item)" />
+    </template>
+    <template #tile="{ item }">
+        <div><lm-chip v-for="calculation in item.calculations" :key="calculation.id" color="c1" icon="regular-euro" :label="calculation.name" /></div>
+        <div class="lm-tile__meta">
+            <span>{{ priceLabel(item) }}</span>
+            <span v-if="item.weightPerSqm">{{ fmt(item.weightPerSqm, 2) }} kg/m²</span>
+        </div>
+    </template>
+</lm-entity-list>`,
 
-    inject: ['repositoryFactory', 'acl'],
-
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('lm-design'),
-    ],
-
-    data() {
-        return {
-            materials: null,
-            isLoading: true,
-            sortBy: 'position',
-            sortDirection: 'ASC',
-            total: 0,
-            filter: 'all',
-            counts: { all: null, active: null, noPrice: null, inactive: null },
-            tileView: true,
-            deleteItem: null,
-        };
-    },
+    inject: ['acl'],
 
     metaInfo() {
         return { title: this.$createTitle() };
     },
 
     computed: {
-        materialRepository() {
-            return this.repositoryFactory.create('ld_mensura_material');
-        },
-
         showPurchase() {
             return this.acl.can('ld_mensura.purchase');
         },
 
-        columns() {
-            const columns = [
-                { property: 'technicalName', label: 'ld-mensura.material.list.columnName', routerLink: 'ld.mensura.materialDetail', primary: true, allowResize: true },
+        filters() {
+            return [
+                { name: 'all', label: this.$tc('ld-mensura.filter.all'), icon: 'regular-layer-group', variant: 'all' },
+                { name: 'active', label: this.$tc('ld-mensura.filter.active'), icon: 'regular-checkmark-s', variant: 'ok', filters: () => [Criteria.equals('active', true)] },
+                { name: 'noPrice', label: this.$tc('ld-mensura.filter.noPrice'), icon: 'regular-exclamation-triangle', variant: 'warn', filters: () => [Criteria.equals('priceSale', null)] },
+                { name: 'inactive', label: this.$tc('ld-mensura.filter.inactive'), icon: 'regular-ban', variant: 'off', filters: () => [Criteria.equals('active', false)] },
             ];
-            if (this.lmDesign === 'a') {
-                columns.push({ property: 'name', label: 'ld-mensura.material.list.columnLabel', allowResize: true });
-            }
-            columns.push(
-                { property: 'priceSale', label: 'ld-mensura.material.list.columnPrice', align: 'right', allowResize: true },
-            );
-            if (this.showPurchase) {
-                columns.push({ property: 'margin', label: 'ld-mensura.material.list.columnMargin', sortable: false, allowResize: true });
-            }
-            columns.push(
-                { property: 'calculations', label: 'ld-mensura.material.list.columnCalculations', sortable: false, allowResize: true },
-                { property: 'active', label: 'ld-mensura.general.columnStatus', allowResize: true },
-            );
-
-            return columns;
-        },
-
-        criteria() {
-            const criteria = new Criteria(this.page, this.limit);
-            criteria.setTerm(this.term);
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
-            criteria.addAssociation('calculations');
-            this.filtersFor(this.lmDesign === 'a' ? 'all' : this.filter).forEach((filter) => criteria.addFilter(filter));
-
-            return criteria;
-        },
-
-        filterItems() {
-            return FILTERS.map((name) => ({ name, label: this.$tc(`ld-mensura.filter.${name}`), count: this.counts[name] }));
-        },
-
-        kpiItems() {
-            const icons = { all: 'regular-layer-group', active: 'regular-checkmark-s', noPrice: 'regular-exclamation-triangle', inactive: 'regular-ban' };
-            const variants = { all: 'all', active: 'ok', noPrice: 'warn', inactive: 'off' };
-
-            return FILTERS.map((name) => ({
-                name,
-                icon: icons[name],
-                variant: variants[name],
-                label: this.$tc(`ld-mensura.filter.${name}`),
-                count: this.counts[name] ?? '–',
-            }));
-        },
-
-        showTiles() {
-            return this.lmDesign === 'c' && this.tileView;
-        },
-    },
-
-    watch: {
-        lmDesign() {
-            this.filter = 'all';
-            this.getList();
         },
     },
 
     methods: {
-        async getList() {
-            this.isLoading = true;
-            try {
-                const result = await this.materialRepository.search(this.criteria);
-                this.materials = result;
-                this.total = result.total;
-            } finally {
-                this.isLoading = false;
-            }
-            if (this.lmDesign !== 'a') {
-                this.loadCounts();
-            }
+        columns(design) {
+            return [
+                { property: 'technicalName', label: 'ld-mensura.material.list.columnName', routerLink: 'ld.mensura.materialDetail', primary: true, allowResize: true },
+                ...(design === 'a' ? [{ property: 'name', label: 'ld-mensura.material.list.columnLabel', allowResize: true }] : []),
+                { property: 'priceSale', label: 'ld-mensura.material.list.columnPrice', align: 'right', allowResize: true },
+                ...(this.showPurchase ? [{ property: 'margin', label: 'ld-mensura.material.list.columnMargin', sortable: false, allowResize: true }] : []),
+                { property: 'calculations', label: 'ld-mensura.material.list.columnCalculations', sortable: false, allowResize: true },
+                { property: 'active', label: 'ld-mensura.general.columnStatus', allowResize: true },
+            ];
         },
 
-        filtersFor(name) {
-            switch (name) {
-                case 'active':
-                    return [Criteria.equals('active', true)];
-                case 'inactive':
-                    return [Criteria.equals('active', false)];
-                case 'noPrice':
-                    return [Criteria.equals('priceSale', null)];
-                default:
-                    return [];
-            }
-        },
-
-        async loadCounts() {
-            const entries = await Promise.all(FILTERS.map(async (name) => {
-                const criteria = new Criteria(1, 1);
-                criteria.setTerm(this.term);
-                criteria.setTotalCountMode(1);
-                this.filtersFor(name).forEach((filter) => criteria.addFilter(filter));
-                try {
-                    return [name, (await this.materialRepository.searchIds(criteria)).total];
-                } catch {
-                    return [name, null];
-                }
-            }));
-            this.counts = Object.fromEntries(entries);
-        },
-
-        setFilter(name) {
-            this.filter = this.filter === name && name !== 'all' ? 'all' : name;
-            this.page = 1;
-            this.getList();
-        },
-
-        updateTotal({ total }) {
-            this.total = total;
-        },
-
-        status(item) {
+        statusOf(item) {
             if (!item.active) {
                 return { state: 'off', label: this.$tc('lm-design.states.off') };
             }
@@ -169,6 +88,11 @@ export default {
             }
 
             return { state: 'ok', label: this.$tc('lm-design.states.ok') };
+        },
+
+        /** Kopieren (KONZEPT 3a Punkt 6): gleiche Daten, neuer technischer Name, inaktiv bis zur Prüfung. */
+        cloneOverwrites() {
+            return { active: false };
         },
 
         marginOf(item) {
@@ -181,37 +105,6 @@ export default {
 
         fmt(value, digits) {
             return formatNumber(value, digits);
-        },
-
-        /** Kopieren (KONZEPT 3a Punkt 6): gleiche Daten, neuer technischer Name, inaktiv bis zur Prüfung. */
-        async onDuplicate(item) {
-            try {
-                const suffix = Date.now().toString(36).slice(-4);
-                const result = await this.materialRepository.clone(item.id, {
-                    overwrites: { technicalName: `${item.technicalName}-kopie-${suffix}`.slice(0, 64), active: false },
-                }, Shopware.Context.api);
-                this.createNotificationSuccess({ message: this.$tc('ld-mensura.general.duplicated') });
-                this.$router.push({ name: 'ld.mensura.materialDetail', params: { id: result.id } });
-            } catch {
-                this.createNotificationError({ message: this.$tc('ld-mensura.general.duplicateError') });
-            }
-        },
-
-        onDelete(item) {
-            this.deleteItem = item;
-        },
-
-        async confirmDelete() {
-            const item = this.deleteItem;
-            this.deleteItem = null;
-            try {
-                await this.materialRepository.delete(item.id, Shopware.Context.api);
-                this.createNotificationSuccess({ message: this.$tc('ld-mensura.general.deleted') });
-                this.getList();
-            } catch {
-                // RestrictDelete: Material wird noch in Produktprofilen verwendet
-                this.createNotificationError({ message: this.$tc('ld-mensura.material.list.deleteRestricted') });
-            }
         },
     },
 };

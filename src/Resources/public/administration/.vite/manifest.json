@@ -1,6 +1,6 @@
 {
-  "_margin-CYtqVi4K.js": {
-    "file": "assets/margin-CYtqVi4K.js",
+  "_margin-fIe6izj8.js": {
+    "file": "assets/margin-fIe6izj8.js",
     "name": "margin"
   },
   "_technical-name-D27wtO-E.js": {
@@ -8,7 +8,7 @@
     "name": "technical-name"
   },
   "ld-admin-design/component/chip/index.js": {
-    "file": "assets/index-DbmGPqrq.js",
+    "file": "assets/index-Cimf5jdH.js",
     "name": "index",
     "src": "ld-admin-design/component/chip/index.js",
     "isDynamicEntry": true,
@@ -17,7 +17,7 @@
     ]
   },
   "ld-admin-design/component/design-switch/index.js": {
-    "file": "assets/index-BrE06vnm.js",
+    "file": "assets/index-CE2hnhsq.js",
     "name": "index",
     "src": "ld-admin-design/component/design-switch/index.js",
     "isDynamicEntry": true,
@@ -26,7 +26,7 @@
     ]
   },
   "ld-admin-design/component/status/index.js": {
-    "file": "assets/index-Bz5P5Yxc.js",
+    "file": "assets/index-DG9OAYl2.js",
     "name": "index",
     "src": "ld-admin-design/component/status/index.js",
     "isDynamicEntry": true,
@@ -41,7 +41,7 @@
     "isDynamicEntry": true
   },
   "ld-admin-design/component/transport-chip/index.js": {
-    "file": "assets/index-K1_k6PN7.js",
+    "file": "assets/index-p9aE2-Uc.js",
     "name": "index",
     "src": "ld-admin-design/component/transport-chip/index.js",
     "isDynamicEntry": true,
@@ -50,7 +50,7 @@
     ]
   },
   "main.js": {
-    "file": "assets/ld-mensura-DfDvsFek.js",
+    "file": "assets/ld-mensura-DtH3d0dc.js",
     "name": "ld-mensura",
     "src": "main.js",
     "isEntry": true,
@@ -73,7 +73,6 @@
       "module/ld-mensura/component/lm-price-tables/index.js",
       "module/ld-mensura/component/lm-test-calculator/index.js",
       "module/ld-mensura/page/lm-overview/index.js",
-      "module/ld-mensura/page/lm-area-placeholder/index.js",
       "module/ld-mensura/page/lm-material-list/index.js",
       "module/ld-mensura/page/lm-material-detail/index.js",
       "module/ld-mensura/page/lm-calculation-list/index.js",
@@ -86,7 +85,7 @@
       "module/ld-mensura/page/lm-product-profile/index.js"
     ],
     "css": [
-      "assets/ld-mensura-CJO9AybD.css"
+      "assets/ld-mensura-CTHHAAhO.css"
     ]
   },
   "module/ld-mensura/component/lm-assignment-modal/index.js": {
@@ -102,7 +101,7 @@
     "isDynamicEntry": true
   },
   "module/ld-mensura/component/lm-entity-list/index.js": {
-    "file": "assets/index-DPVa53Zt.js",
+    "file": "assets/index-CRQ2VB5Y.js",
     "name": "index",
     "src": "module/ld-mensura/component/lm-entity-list/index.js",
     "isDynamicEntry": true
@@ -114,7 +113,7 @@
     "isDynamicEntry": true
   },
   "module/ld-mensura/component/lm-page/index.js": {
-    "file": "assets/index-D80wBHHW.js",
+    "file": "assets/index-Bc20Tq7x.js",
     "name": "index",
     "src": "module/ld-mensura/component/lm-page/index.js",
     "isDynamicEntry": true,
@@ -129,21 +128,21 @@
     "isDynamicEntry": true
   },
   "module/ld-mensura/component/lm-price-pair/index.js": {
-    "file": "assets/index-DBbP0Rlf.js",
+    "file": "assets/index-BaTDBWhT.js",
     "name": "index",
     "src": "module/ld-mensura/component/lm-price-pair/index.js",
     "isDynamicEntry": true,
     "imports": [
-      "_margin-CYtqVi4K.js"
+      "_margin-fIe6izj8.js"
     ]
   },
   "module/ld-mensura/component/lm-price-tables/index.js": {
-    "file": "assets/index-CN-MfaNM.js",
+    "file": "assets/index-Cw2zUt5U.js",
     "name": "index",
     "src": "module/ld-mensura/component/lm-price-tables/index.js",
     "isDynamicEntry": true,
     "imports": [
-      "_margin-CYtqVi4K.js"
+      "_margin-fIe6izj8.js"
     ]
   },
   "module/ld-mensura/component/lm-supplier-codes/index.js": {
@@ -153,12 +152,12 @@
     "isDynamicEntry": true
   },
   "module/ld-mensura/component/lm-test-calculator/index.js": {
-    "file": "assets/index-MH65nJNr.js",
+    "file": "assets/index-DCMOjs9m.js",
     "name": "index",
     "src": "module/ld-mensura/component/lm-test-calculator/index.js",
     "isDynamicEntry": true,
     "imports": [
-      "_margin-CYtqVi4K.js"
+      "_margin-fIe6izj8.js"
     ]
   },
   "module/ld-mensura/component/lm-tier-editor/index.js": {
@@ -173,55 +172,46 @@
     "src": "module/ld-mensura/component/lm-value-modal/index.js",
     "isDynamicEntry": true
   },
-  "module/ld-mensura/page/lm-area-placeholder/index.js": {
-    "file": "assets/index-BbfHD3Wu.js",
-    "name": "index",
-    "src": "module/ld-mensura/page/lm-area-placeholder/index.js",
-    "isDynamicEntry": true,
-    "imports": [
-      "main.js"
-    ]
-  },
   "module/ld-mensura/page/lm-calculation-detail/index.js": {
-    "file": "assets/index-CB4_TYRs.js",
+    "file": "assets/index-Bx-CxA3T.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-calculation-detail/index.js",
     "isDynamicEntry": true,
     "imports": [
-      "_margin-CYtqVi4K.js",
+      "_margin-fIe6izj8.js",
       "_technical-name-D27wtO-E.js"
     ]
   },
   "module/ld-mensura/page/lm-calculation-list/index.js": {
-    "file": "assets/index-D1WdlHwK.js",
+    "file": "assets/index-jY_ju3f8.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-calculation-list/index.js",
     "isDynamicEntry": true,
     "imports": [
-      "_margin-CYtqVi4K.js"
+      "_margin-fIe6izj8.js"
     ]
   },
   "module/ld-mensura/page/lm-material-detail/index.js": {
-    "file": "assets/index-CWdDLchU.js",
+    "file": "assets/index-Bss4g1Tk.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-material-detail/index.js",
     "isDynamicEntry": true,
     "imports": [
-      "_margin-CYtqVi4K.js",
+      "_margin-fIe6izj8.js",
       "_technical-name-D27wtO-E.js"
     ]
   },
   "module/ld-mensura/page/lm-material-list/index.js": {
-    "file": "assets/index-DFZkEtAP.js",
+    "file": "assets/index-0vDMhV8D.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-material-list/index.js",
     "isDynamicEntry": true,
     "imports": [
-      "_margin-CYtqVi4K.js"
+      "_margin-fIe6izj8.js"
     ]
   },
   "module/ld-mensura/page/lm-option-detail/index.js": {
-    "file": "assets/index-C979nuRx.js",
+    "file": "assets/index-DILZIjEl.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-option-detail/index.js",
     "isDynamicEntry": true,
@@ -236,7 +226,7 @@
     "isDynamicEntry": true
   },
   "module/ld-mensura/page/lm-option-set-detail/index.js": {
-    "file": "assets/index-B4vwiJyQ.js",
+    "file": "assets/index-BdDRYK-G.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-option-set-detail/index.js",
     "isDynamicEntry": true,
@@ -251,17 +241,17 @@
     "isDynamicEntry": true
   },
   "module/ld-mensura/page/lm-overview/index.js": {
-    "file": "assets/index-VdjghsYK.js",
+    "file": "assets/index-C3hgUJt1.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-overview/index.js",
     "isDynamicEntry": true,
     "imports": [
       "main.js",
-      "_margin-CYtqVi4K.js"
+      "_margin-fIe6izj8.js"
     ]
   },
   "module/ld-mensura/page/lm-product-profile/index.js": {
-    "file": "assets/index-DSa41y72.js",
+    "file": "assets/index-BJclFZwQ.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-product-profile/index.js",
     "isDynamicEntry": true,

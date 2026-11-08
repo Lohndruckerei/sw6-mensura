@@ -1,4 +1,4 @@
-import { formatNumber, marginInfo } from '../../service/margin';
+import { formatMoney, formatNumber, marginInfo } from '../../service/margin';
 
 /**
  * Testrechner einer Kalkulation oder eines Produktprofils (KONZEPT 3a Punkt 4, Abschnitt 5).
@@ -298,7 +298,7 @@ export default {
         },
 
         money(value) {
-            return value === null || value === undefined ? '–' : `${formatNumber(value, 2)} €`;
+            return formatMoney(value);
         },
     },
 };

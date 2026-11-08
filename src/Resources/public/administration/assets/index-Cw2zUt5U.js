@@ -1,4 +1,4 @@
-import{f as o}from"./margin-CYtqVi4K.js";const d={template:`
+import{f as o}from"./margin-fIe6izj8.js";const d={template:`
 <div class="lm-price-tables">
     <mt-card
         v-for="table in sortedTables"

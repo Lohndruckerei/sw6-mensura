@@ -1,4 +1,4 @@
-import{f as t}from"./margin-CYtqVi4K.js";const{Criteria:a}=Shopware.Data,r={template:`
+import{f as t}from"./margin-fIe6izj8.js";const{Criteria:a}=Shopware.Data,r={template:`
 <lm-entity-list
     entity="ld_mensura_calculation"
     area="calculation"

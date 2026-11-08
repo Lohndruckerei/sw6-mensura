@@ -15,7 +15,6 @@ export default {
 <lm-detail-page
     :title="title"
     icon="regular-sliders-v"
-    :status="null"
     :tabs="tabs"
     :groups="tabGroups"
     v-model:active="activeTab"
@@ -24,7 +23,7 @@ export default {
     :is-loading="isLoading"
     :can-edit="canEdit"
     @save="onSave"
-    @cancel="$router.push({ name: 'ld.mensura.option' })"
+    @cancel="onCancel"
 >
     <template #header-meta>
         <span>{{ group.technicalName }}</span>

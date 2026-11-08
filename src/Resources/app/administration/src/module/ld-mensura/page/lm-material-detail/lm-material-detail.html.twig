@@ -1,297 +1,236 @@
 {% block lm_material_detail %}
-<sw-page class="lm-material-detail" :class="lmDesignClass">
-    <template #smart-bar-header>
-        <h2>{{ title }}</h2>
+<lm-detail-page
+    :title="title"
+    icon="regular-layer-group"
+    :status="status"
+    :tabs="tabItems"
+    :groups="tabGroups"
+    v-model:active="activeTab"
+    v-model:save-success="isSaveSuccessful"
+    :ready="material !== null"
+    :is-loading="isLoading"
+    :can-edit="canEdit"
+    @save="onSave"
+    @cancel="onCancel"
+>
+    <template #header-meta>
+        <span v-if="material.technicalName">{{ material.technicalName }}</span>
+        <span v-if="material.code">{{ $tc('ld-mensura.material.detail.labelCode') }}: {{ material.code }}</span>
+    </template>
+    <template #header-chips>
+        <lm-chip
+            v-for="calculation in material.calculations"
+            :key="calculation.id"
+            color="c1"
+            icon="regular-euro"
+            :label="calculation.name"
+        />
+    </template>
+    <template #header-stats>
+        <span class="lm-header__stat" :class="{ 'is--warn': material.priceSale === null }">
+            <b>{{ material.priceSale === null ? '–' : fmt(material.priceSale) + ' €' }}</b>
+            {{ $tc('ld-mensura.material.detail.statPrice') }}
+        </span>
+        <span v-if="showPurchase" class="lm-header__stat" :class="{ 'is--warn': margin && margin.state !== 'ok' }">
+            <b>{{ margin ? fmt(margin.margin, 1) + ' %' : '–' }}</b>
+            {{ $tc('ld-mensura.price.margin') }}
+        </span>
+        <span class="lm-header__stat">
+            <b>{{ material.calculations ? material.calculations.length : 0 }}</b>
+            {{ $tc('ld-mensura.areas.calculation.title') }}
+        </span>
     </template>
 
-    <template #smart-bar-actions>
-        <lm-design-switch />
-        <mt-button variant="secondary" size="default" :disabled="isLoading || undefined" @click="onCancel">
-            {{ $tc('global.default.cancel') }}
-        </mt-button>
-        <sw-button-process
-            v-model:process-success="isSaveSuccessful"
-            v-tooltip.bottom="tooltipSave"
-            :is-loading="isLoading"
-            :disabled="isLoading || !canEdit || undefined"
-            variant="primary"
-            @click.prevent="onSave"
-        >
-            {{ $tc('global.default.save') }}
-        </sw-button-process>
-    </template>
-
-    <template #content>
-        <sw-card-view :class="lmDesignClass">
-            <template v-if="material === null">
-                <sw-skeleton variant="detail-bold" />
-                <sw-skeleton />
-            </template>
-
-            <template v-else>
-                {% block lm_material_detail_header %}
-                <div v-if="lmDesign !== 'a'" class="lm-header" :class="'lm-header--' + lmDesign">
-                    <span class="lm-header__icon">
-                        <mt-icon name="regular-layer-group" size="24px" />
-                    </span>
-                    <div class="lm-header__main">
-                        <h3 class="lm-header__title">
-                            {{ title }}
-                            <lm-status v-bind="status" />
-                        </h3>
-                        <div class="lm-header__meta">
-                            <span v-if="material.technicalName">{{ material.technicalName }}</span>
-                            <span v-if="material.code">{{ $tc('ld-mensura.material.detail.labelCode') }}: {{ material.code }}</span>
-                        </div>
-                    </div>
-                    <div v-if="lmDesign === 'b'" class="lm-header__chips">
-                        <lm-chip
-                            v-for="calculation in material.calculations"
-                            :key="calculation.id"
-                            color="c1"
-                            icon="regular-euro"
-                            :label="calculation.name"
-                        />
-                    </div>
-                    <div v-else class="lm-header__stats">
-                        <span class="lm-header__stat" :class="{ 'is--warn': material.priceSale === null }">
-                            <b>{{ material.priceSale === null ? '–' : fmt(material.priceSale) + ' €' }}</b>
-                            {{ $tc('ld-mensura.material.detail.statPrice') }}
-                        </span>
-                        <span v-if="showPurchase" class="lm-header__stat" :class="{ 'is--warn': margin && margin.state !== 'ok' }">
-                            <b>{{ margin ? fmt(margin.margin, 1) + ' %' : '–' }}</b>
-                            {{ $tc('ld-mensura.price.margin') }}
-                        </span>
-                        <span class="lm-header__stat">
-                            <b>{{ material.calculations ? material.calculations.length : 0 }}</b>
-                            {{ $tc('ld-mensura.areas.calculation.title') }}
-                        </span>
-                    </div>
-                </div>
-                {% endblock %}
-
-                {% block lm_material_detail_tabs %}
-                <mt-tabs
-                    v-if="lmDesign === 'a'"
-                    position-identifier="lm-material-detail-tabs"
-                    :items="tabItems"
-                    :default-item="activeTab"
-                    @new-item-active="onTabChange"
-                />
-                <lm-tabs
-                    v-else-if="lmDesign === 'b'"
-                    :items="tabItems"
-                    :active="activeTab"
-                    :aria-label="title"
-                    @select="onTabChange"
-                />
-                {% endblock %}
-
-                <div :class="{ 'lm-split': lmDesign === 'c' }">
-                    <lm-tabs
-                        v-if="lmDesign === 'c'"
-                        vertical
-                        :items="tabItems"
-                        :groups="tabGroups"
-                        :active="activeTab"
-                        :aria-label="title"
-                        @select="onTabChange"
+    <template #default="{ active }">
+        {% block lm_material_detail_base %}
+        <template v-if="active === 'base'">
+            <mt-card position-identifier="lm-material-base" :title="$tc('ld-mensura.material.detail.cardBase')">
+                <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0 30px">
+                    <mt-text-field
+                        v-model="material.name"
+                        :label="$tc('ld-mensura.material.detail.labelName')"
+                        :help-text="$tc('ld-mensura.material.detail.helpName')"
+                        :error="materialNameError"
+                        :disabled="!canEdit || undefined"
+                        required
                     />
+                    <mt-text-field
+                        v-model="material.technicalName"
+                        :label="$tc('ld-mensura.general.labelTechnicalName')"
+                        :help-text="$tc('ld-mensura.material.detail.helpTechnicalName')"
+                        :error="materialTechnicalNameError"
+                        :disabled="!canEdit || undefined"
+                        required
+                    />
+                    <mt-text-field
+                        v-model="material.code"
+                        :label="$tc('ld-mensura.material.detail.labelCode')"
+                        :help-text="$tc('ld-mensura.material.detail.helpCode')"
+                        :disabled="!canEdit || undefined"
+                    />
+                    <mt-number-field
+                        v-model="material.position"
+                        number-type="int"
+                        :label="$tc('ld-mensura.general.labelPosition')"
+                        :help-text="$tc('ld-mensura.general.helpPosition')"
+                        :disabled="!canEdit || undefined"
+                    />
+                </sw-container>
+                <mt-textarea
+                    v-model="material.description"
+                    :label="$tc('ld-mensura.material.detail.labelDescription')"
+                    :help-text="$tc('ld-mensura.material.detail.helpDescription')"
+                    :disabled="!canEdit || undefined"
+                />
+                <sw-multi-tag-select
+                    :value="material.badges || []"
+                    :label="$tc('ld-mensura.material.detail.labelBadges')"
+                    :help-text="$tc('ld-mensura.material.detail.helpBadges')"
+                    :placeholder="$tc('ld-mensura.material.detail.placeholderBadges')"
+                    :disabled="!canEdit || undefined"
+                    @update:value="material.badges = $event.length ? $event : null"
+                />
+                <mt-switch
+                    v-model="material.active"
+                    :label="$tc('ld-mensura.general.labelActive')"
+                    :help-text="$tc('ld-mensura.material.detail.helpActive')"
+                    :disabled="!canEdit || undefined"
+                    bordered
+                />
+            </mt-card>
 
-                    <div class="lm-detail__panels">
-                        {% block lm_material_detail_base %}
-                        <template v-if="activeTab === 'base'">
-                            <mt-card position-identifier="lm-material-base" :title="$tc('ld-mensura.material.detail.cardBase')">
-                                <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0 30px">
-                                    <mt-text-field
-                                        v-model="material.name"
-                                        :label="$tc('ld-mensura.material.detail.labelName')"
-                                        :help-text="$tc('ld-mensura.material.detail.helpName')"
-                                        :error="materialNameError"
-                                        :disabled="!canEdit || undefined"
-                                        required
-                                    />
-                                    <mt-text-field
-                                        v-model="material.technicalName"
-                                        :label="$tc('ld-mensura.general.labelTechnicalName')"
-                                        :help-text="$tc('ld-mensura.material.detail.helpTechnicalName')"
-                                        :error="materialTechnicalNameError"
-                                        :disabled="!canEdit || undefined"
-                                        required
-                                    />
-                                    <mt-text-field
-                                        v-model="material.code"
-                                        :label="$tc('ld-mensura.material.detail.labelCode')"
-                                        :help-text="$tc('ld-mensura.material.detail.helpCode')"
-                                        :disabled="!canEdit || undefined"
-                                    />
-                                    <mt-number-field
-                                        v-model="material.position"
-                                        number-type="int"
-                                        :label="$tc('ld-mensura.general.labelPosition')"
-                                        :help-text="$tc('ld-mensura.general.helpPosition')"
-                                        :disabled="!canEdit || undefined"
-                                    />
-                                </sw-container>
-                                <mt-textarea
-                                    v-model="material.description"
-                                    :label="$tc('ld-mensura.material.detail.labelDescription')"
-                                    :help-text="$tc('ld-mensura.material.detail.helpDescription')"
-                                    :disabled="!canEdit || undefined"
-                                />
-                                <sw-multi-tag-select
-                                    :value="material.badges || []"
-                                    :label="$tc('ld-mensura.material.detail.labelBadges')"
-                                    :help-text="$tc('ld-mensura.material.detail.helpBadges')"
-                                    :placeholder="$tc('ld-mensura.material.detail.placeholderBadges')"
-                                    :disabled="!canEdit || undefined"
-                                    @update:value="material.badges = $event.length ? $event : null"
-                                />
-                                <mt-switch
-                                    v-model="material.active"
-                                    :label="$tc('ld-mensura.general.labelActive')"
-                                    :help-text="$tc('ld-mensura.material.detail.helpActive')"
-                                    :disabled="!canEdit || undefined"
-                                    bordered
-                                />
-                            </mt-card>
+            <mt-card position-identifier="lm-material-assignment" :title="$tc('ld-mensura.material.detail.cardAssignment')">
+                <sw-entity-multi-select
+                    v-model:entity-collection="material.calculations"
+                    :label="$tc('ld-mensura.areas.calculation.title')"
+                    :help-text="$tc('ld-mensura.material.detail.helpCalculations')"
+                    label-property="name"
+                    :disabled="!canEdit || undefined"
+                />
+                <sw-entity-single-select
+                    v-model:value="material.optionSetId"
+                    entity="ld_mensura_option_set"
+                    label-property="name"
+                    :label="$tc('ld-mensura.material.detail.labelOptionSet')"
+                    :help-text="$tc('ld-mensura.material.detail.helpOptionSet')"
+                    :disabled="!canEdit || undefined"
+                />
+                <sw-media-field
+                    v-model:value="material.mediaId"
+                    :label="$tc('ld-mensura.general.labelImage')"
+                    :disabled="!canEdit || undefined"
+                />
+            </mt-card>
+        </template>
+        {% endblock %}
 
-                            <mt-card position-identifier="lm-material-assignment" :title="$tc('ld-mensura.material.detail.cardAssignment')">
-                                <sw-entity-multi-select
-                                    v-model:entity-collection="material.calculations"
-                                    :label="$tc('ld-mensura.areas.calculation.title')"
-                                    :help-text="$tc('ld-mensura.material.detail.helpCalculations')"
-                                    label-property="name"
-                                    :disabled="!canEdit || undefined"
-                                />
-                                <sw-entity-single-select
-                                    v-model:value="material.optionSetId"
-                                    entity="ld_mensura_option_set"
-                                    label-property="name"
-                                    :label="$tc('ld-mensura.material.detail.labelOptionSet')"
-                                    :help-text="$tc('ld-mensura.material.detail.helpOptionSet')"
-                                    :disabled="!canEdit || undefined"
-                                />
-                                <sw-media-field
-                                    v-model:value="material.mediaId"
-                                    :label="$tc('ld-mensura.general.labelImage')"
-                                    :disabled="!canEdit || undefined"
-                                />
-                            </mt-card>
-                        </template>
-                        {% endblock %}
+        {% block lm_material_detail_prices %}
+        <template v-if="active === 'prices'">
+            <mt-card position-identifier="lm-material-price" :title="$tc('ld-mensura.material.detail.cardPrice')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.material.detail.introPrice', { rule: ruleLabel }) }}</p>
+                <lm-price-pair
+                    v-model:purchase="material.pricePurchase"
+                    v-model:sale="material.priceSale"
+                    :label="$tc('ld-mensura.material.detail.labelPrice')"
+                    :help-purchase="$tc('ld-mensura.material.detail.helpPricePurchase')"
+                    :help-sale="$tc('ld-mensura.material.detail.helpPriceSale')"
+                    unit="€/m²"
+                    :rule="rule"
+                    :show-purchase="showPurchase"
+                    :disabled="!canEdit"
+                />
+                <lm-price-pair
+                    v-model:purchase="material.minimumPricePurchase"
+                    v-model:sale="material.minimumPriceSale"
+                    :label="$tc('ld-mensura.material.detail.labelMinimumPrice')"
+                    :help-purchase="$tc('ld-mensura.material.detail.helpMinimumPrice')"
+                    :help-sale="$tc('ld-mensura.material.detail.helpMinimumPrice')"
+                    unit="€"
+                    :rule="rule"
+                    :show-purchase="showPurchase"
+                    :disabled="!canEdit"
+                />
+                <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0 30px">
+                    <mt-number-field
+                        v-model="material.minArea"
+                        :digits="4"
+                        :label="$tc('ld-mensura.material.detail.labelMinArea')"
+                        :help-text="$tc('ld-mensura.material.detail.helpMinArea')"
+                        :disabled="!canEdit || undefined"
+                    />
+                    <mt-number-field
+                        v-model="material.areaRounding"
+                        :digits="4"
+                        :label="$tc('ld-mensura.material.detail.labelAreaRounding')"
+                        :help-text="$tc('ld-mensura.material.detail.helpAreaRounding')"
+                        :disabled="!canEdit || undefined"
+                    />
+                </sw-container>
+            </mt-card>
 
-                        {% block lm_material_detail_prices %}
-                        <template v-if="activeTab === 'prices'">
-                            <mt-card position-identifier="lm-material-price" :title="$tc('ld-mensura.material.detail.cardPrice')">
-                                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.material.detail.introPrice', { rule: ruleLabel }) }}</p>
-                                <lm-price-pair
-                                    v-model:purchase="material.pricePurchase"
-                                    v-model:sale="material.priceSale"
-                                    :label="$tc('ld-mensura.material.detail.labelPrice')"
-                                    :help-purchase="$tc('ld-mensura.material.detail.helpPricePurchase')"
-                                    :help-sale="$tc('ld-mensura.material.detail.helpPriceSale')"
-                                    unit="€/m²"
-                                    :rule="rule"
-                                    :show-purchase="showPurchase"
-                                    :disabled="!canEdit"
-                                />
-                                <lm-price-pair
-                                    v-model:purchase="material.minimumPricePurchase"
-                                    v-model:sale="material.minimumPriceSale"
-                                    :label="$tc('ld-mensura.material.detail.labelMinimumPrice')"
-                                    :help-purchase="$tc('ld-mensura.material.detail.helpMinimumPrice')"
-                                    :help-sale="$tc('ld-mensura.material.detail.helpMinimumPrice')"
-                                    unit="€"
-                                    :rule="rule"
-                                    :show-purchase="showPurchase"
-                                    :disabled="!canEdit"
-                                />
-                                <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0 30px">
-                                    <mt-number-field
-                                        v-model="material.minArea"
-                                        :digits="4"
-                                        :label="$tc('ld-mensura.material.detail.labelMinArea')"
-                                        :help-text="$tc('ld-mensura.material.detail.helpMinArea')"
-                                        :disabled="!canEdit || undefined"
-                                    />
-                                    <mt-number-field
-                                        v-model="material.areaRounding"
-                                        :digits="4"
-                                        :label="$tc('ld-mensura.material.detail.labelAreaRounding')"
-                                        :help-text="$tc('ld-mensura.material.detail.helpAreaRounding')"
-                                        :disabled="!canEdit || undefined"
-                                    />
-                                </sw-container>
-                            </mt-card>
+            <mt-card position-identifier="lm-material-components" :title="$tc('ld-mensura.material.detail.cardComponents')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.material.detail.introComponents') }}</p>
+                <lm-price-components
+                    v-model:value="material.priceComponents"
+                    :show-purchase="showPurchase"
+                    :disabled="!canEdit"
+                />
+            </mt-card>
 
-                            <mt-card position-identifier="lm-material-components" :title="$tc('ld-mensura.material.detail.cardComponents')">
-                                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.material.detail.introComponents') }}</p>
-                                <lm-price-components
-                                    v-model:value="material.priceComponents"
-                                    :show-purchase="showPurchase"
-                                    :disabled="!canEdit"
-                                />
-                            </mt-card>
+            <mt-card position-identifier="lm-material-tiers" :title="$tc('ld-mensura.material.detail.cardTiers')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.material.detail.introTiers') }}</p>
+                <lm-tier-editor
+                    v-model:value="material.tiers"
+                    :legacy-basis="material.tierBasis"
+                    :show-purchase="showPurchase"
+                    :disabled="!canEdit"
+                />
+            </mt-card>
+        </template>
+        {% endblock %}
 
-                            <mt-card position-identifier="lm-material-tiers" :title="$tc('ld-mensura.material.detail.cardTiers')">
-                                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.material.detail.introTiers') }}</p>
-                                <lm-tier-editor
-                                    v-model:value="material.tiers"
-                                    :legacy-basis="material.tierBasis"
-                                    :show-purchase="showPurchase"
-                                    :disabled="!canEdit"
-                                />
-                            </mt-card>
-                        </template>
-                        {% endblock %}
+        {% block lm_material_detail_format %}
+        <template v-if="active === 'format'">
+            <mt-card position-identifier="lm-material-format" :title="$tc('ld-mensura.material.detail.cardFormat')">
+                <sw-container columns="repeat(auto-fit, minmax(200px, 1fr))" gap="0 30px">
+                    <mt-number-field v-model="material.widthMax" number-type="int" :label="$tc('ld-mensura.material.detail.labelWidthMax')" :help-text="$tc('ld-mensura.material.detail.helpWidthMax')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="material.heightMax" number-type="int" :label="$tc('ld-mensura.material.detail.labelHeightMax')" :help-text="$tc('ld-mensura.material.detail.helpHeightMax')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="material.sheetWidth" number-type="int" :label="$tc('ld-mensura.material.detail.labelSheetWidth')" :help-text="$tc('ld-mensura.material.detail.helpSheet')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="material.sheetHeight" number-type="int" :label="$tc('ld-mensura.material.detail.labelSheetHeight')" :help-text="$tc('ld-mensura.material.detail.helpSheet')" :disabled="!canEdit || undefined" />
+                    <mt-number-field v-model="material.weightPerSqm" :digits="3" :label="$tc('ld-mensura.material.detail.labelWeight')" :help-text="$tc('ld-mensura.material.detail.helpWeight')" :disabled="!canEdit || undefined" />
+                </sw-container>
+            </mt-card>
+        </template>
+        {% endblock %}
 
-                        {% block lm_material_detail_format %}
-                        <template v-if="activeTab === 'format'">
-                            <mt-card position-identifier="lm-material-format" :title="$tc('ld-mensura.material.detail.cardFormat')">
-                                <sw-container columns="repeat(auto-fit, minmax(200px, 1fr))" gap="0 30px">
-                                    <mt-number-field v-model="material.widthMax" number-type="int" :label="$tc('ld-mensura.material.detail.labelWidthMax')" :help-text="$tc('ld-mensura.material.detail.helpWidthMax')" :disabled="!canEdit || undefined" />
-                                    <mt-number-field v-model="material.heightMax" number-type="int" :label="$tc('ld-mensura.material.detail.labelHeightMax')" :help-text="$tc('ld-mensura.material.detail.helpHeightMax')" :disabled="!canEdit || undefined" />
-                                    <mt-number-field v-model="material.sheetWidth" number-type="int" :label="$tc('ld-mensura.material.detail.labelSheetWidth')" :help-text="$tc('ld-mensura.material.detail.helpSheet')" :disabled="!canEdit || undefined" />
-                                    <mt-number-field v-model="material.sheetHeight" number-type="int" :label="$tc('ld-mensura.material.detail.labelSheetHeight')" :help-text="$tc('ld-mensura.material.detail.helpSheet')" :disabled="!canEdit || undefined" />
-                                    <mt-number-field v-model="material.weightPerSqm" :digits="3" :label="$tc('ld-mensura.material.detail.labelWeight')" :help-text="$tc('ld-mensura.material.detail.helpWeight')" :disabled="!canEdit || undefined" />
-                                </sw-container>
-                            </mt-card>
-                        </template>
-                        {% endblock %}
-
-                        {% block lm_material_detail_supplier %}
-                        <template v-if="activeTab === 'supplier'">
-                            <mt-card position-identifier="lm-material-supplier" :title="$tc('ld-mensura.material.detail.cardSupplier')">
-                                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.material.detail.introSupplier') }}</p>
-                                <sw-entity-single-select
-                                    v-if="hasLieferLotse"
-                                    v-model:value="material.supplierId"
-                                    entity="ld_supplier"
-                                    label-property="name"
-                                    :label="$tc('ld-mensura.general.labelSupplier')"
-                                    :help-text="$tc('ld-mensura.material.detail.helpSupplier')"
-                                    :disabled="!canEdit || undefined"
-                                />
-                                <mt-text-field
-                                    v-else
-                                    v-model="material.supplierId"
-                                    :label="$tc('ld-mensura.general.labelSupplierId')"
-                                    :help-text="$tc('ld-mensura.general.helpSupplierId')"
-                                    :disabled="!canEdit || undefined"
-                                />
-                                <lm-supplier-codes
-                                    v-model:value="material.supplierCodes"
-                                    :has-lieferlotse="hasLieferLotse"
-                                    :disabled="!canEdit"
-                                />
-                            </mt-card>
-                        </template>
-                        {% endblock %}
-                    </div>
-                </div>
-            </template>
-        </sw-card-view>
+        {% block lm_material_detail_supplier %}
+        <template v-if="active === 'supplier'">
+            <mt-card position-identifier="lm-material-supplier" :title="$tc('ld-mensura.material.detail.cardSupplier')">
+                <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.material.detail.introSupplier') }}</p>
+                <sw-entity-single-select
+                    v-if="hasLieferLotse"
+                    v-model:value="material.supplierId"
+                    entity="ld_supplier"
+                    label-property="name"
+                    :label="$tc('ld-mensura.general.labelSupplier')"
+                    :help-text="$tc('ld-mensura.material.detail.helpSupplier')"
+                    :disabled="!canEdit || undefined"
+                />
+                <mt-text-field
+                    v-else
+                    v-model="material.supplierId"
+                    :label="$tc('ld-mensura.general.labelSupplierId')"
+                    :help-text="$tc('ld-mensura.general.helpSupplierId')"
+                    :disabled="!canEdit || undefined"
+                />
+                <lm-supplier-codes
+                    v-model:value="material.supplierCodes"
+                    :has-lieferlotse="hasLieferLotse"
+                    :disabled="!canEdit"
+                />
+            </mt-card>
+        </template>
+        {% endblock %}
     </template>
-</sw-page>
+</lm-detail-page>
 {% endblock %}

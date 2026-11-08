@@ -29,8 +29,8 @@ export default {
     </template>
 
     <div class="lm-list">
-        <lm-info-card :name="area" :title="$tc(snippet + '.info.title')">
-            {{ $tc(snippet + '.info.text') }}
+        <lm-info-card :name="area" :title="$tc(infoSnippetPrefix + '.title')">
+            {{ $tc(infoSnippetPrefix + '.text') }}
         </lm-info-card>
 
         <div v-if="lmDesign === 'c'" class="lm-kpis">
@@ -171,6 +171,8 @@ export default {
         title: { type: String, required: true },
         icon: { type: String, required: true },
         snippet: { type: String, required: true },
+        /** Snippet-Präfix der Erklärkarte (title, text), Standard `<snippet>.info` */
+        infoSnippet: { type: String, required: false, default: null },
         detailRoute: { type: String, required: true },
         createRoute: { type: String, required: true },
         /** (design) => Spaltenliste für sw-entity-listing; erste Spalte technicalName */
@@ -203,6 +205,10 @@ export default {
     computed: {
         repository() {
             return this.repositoryFactory.create(this.entity);
+        },
+
+        infoSnippetPrefix() {
+            return this.infoSnippet || `${this.snippet}.info`;
         },
 
         columnList() {

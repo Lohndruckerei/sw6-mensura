@@ -3,8 +3,6 @@
         "general": {
             "mainMenuItem": "Mensura",
             "description": "Product configurator and area/price calculation",
-            "statusSetup": "In setup",
-            "comingSoon": "Coming next",
             "showExplanation": "Show explanation",
             "viewTiles": "Tiles",
             "viewList": "List",
