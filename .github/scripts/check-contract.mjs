@@ -15,6 +15,11 @@ for (const file of walk(root).filter((f) => /\.(json|ya?ml)$/.test(f))) {
   if (forbidden.test(text)) fail(file, 'enthält ein Einkaufspreis-/Margenfeld');
 }
 
+// 1b. Kein Logistikanteil im Vertrag (KONZEPT 3d.4): er ist für den Kunden unsichtbar, nur der Gesamtpreis zählt
+for (const file of walk(root).filter((f) => /\.(json|ya?ml|md)$/.test(f))) {
+  if (/logisti/i.test(readFileSync(file, 'utf8')) || /logisti/i.test(file)) fail(file, 'erwähnt den Logistikanteil (darf nie in den Vertrag)');
+}
+
 // 2. Beispielfälle: Paare vollständig, Sollpreise in sich stimmig
 const calcDir = join(root, 'fixtures', 'calculate');
 const files = readdirSync(calcDir);
