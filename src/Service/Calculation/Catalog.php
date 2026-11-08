@@ -23,6 +23,9 @@ namespace Lohndruckerei\Mensura\Service\Calculation;
  *                     exclusions[], availability{})
  *  sets[id]           Optionsset {technicalName, name, groups[] {optionGroupId, position, required}}
  *  customerGroupRules[] {calculationId|null, customerGroupId, surchargePercent, priceRounding}
+ *  logisticsRules[]   Logistikanteil (KONZEPT 3d) {id, calculationId|null, materialId|null, optionValueId|null, costType,
+ *                     form, value, rampFrom, rampTo, thresholdBasis, thresholdFrom, thresholdTo, minimumAmount,
+ *                     minimumScope, validFrom (YYYY-MM-DD|null), active}
  */
 final class Catalog
 {
@@ -229,6 +232,17 @@ final class Catalog
         }
 
         return $general;
+    }
+
+    /**
+     * Logistikregeln (KONZEPT 3d), alle Ziele und Gültigkeiten; die Auswahl trifft `Logistics::effectiveRules()`.
+     * Nur intern: nie in Konfigurator-Daten oder Store-API.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function logisticsRules(): array
+    {
+        return $this->data['logisticsRules'] ?? [];
     }
 
     /**

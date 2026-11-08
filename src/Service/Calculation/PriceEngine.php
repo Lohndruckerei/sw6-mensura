@@ -20,7 +20,8 @@ namespace Lohndruckerei\Mensura\Service\Calculation;
  *   Stückpreis    = Satz/m² × Fläche (bzw. Preistabelle) + Σ per_piece + Umfang × Σ per_perimeter
  *   Zwischensumme = Stückpreis × Menge + Motive × Σ per_motif + Einrichtepauschale + Σ per_order
  *                   × (1 − Staffelrabatt) × (1 + Σ percent) × (1 + Aufschlag Produktprofil)    [Aufschlag nur VK]
- *   Gesamt        = max(Mindestpreis, Zwischensumme) × (1 + Kundengruppen-Aufschlag) → gerundet  [Kundengruppe nur VK]
+ *   Logistik      = Σ Logistikanteile der wirksamen Regeln (KONZEPT 3d, nur VK, unsichtbar)
+ *   Gesamt        = max(Mindestpreis, Zwischensumme + Logistik) × (1 + Kundengruppen-Aufschlag) → gerundet  [Kundengruppe nur VK]
  */
 final class PriceEngine
 {
@@ -689,6 +690,36 @@ final class PriceEngine
             $subtotal *= 1 + $surcharge / 100;
         }
 
+        // Logistikanteil (KONZEPT 3d): nur VK, nach Profil-Aufschlag, vor Mindestpreis; unsichtbar für den Kunden
+        $logisticsLines = [];
+        $logisticsAmount = 0.0;
+        if ($side === 'sale') {
+            $rules = Logistics::effectiveRules($catalog, (string) $config->calculationId, (string) $config->materialId, $valueIds, $context->now);
+            if ($rules !== []) {
+                $goodsPurchase = 0.0;
+                foreach ($rules as $rule) {
+                    if (($rule['form'] ?? null) === 'percent') {
+                        // Basis = Waren-EK der Position (Entscheidung 3d.8 Nr. 1); ohne EK wirkt die Regel nicht
+                        $goodsPurchase = (float) ($this->price($config, $catalog, $context, 'purchase', $perMotif, $deliveryValueId)['subtotal'] ?? 0);
+                        break;
+                    }
+                }
+                $measures = [
+                    'longestSide' => (float) max($width, $height),
+                    'billedArea' => $billedArea,
+                    'quantity' => (float) $quantity,
+                    'goodsPurchase' => $goodsPurchase,
+                ];
+                foreach ($rules as $rule) {
+                    $line = Logistics::line($rule, $measures);
+                    $logisticsLines[] = $line;
+                    $logisticsAmount += $line['amount'];
+                }
+            }
+        }
+        $goodsSubtotal = $subtotal;
+        $subtotal += $logisticsAmount;
+
         if ($side === 'sale') {
             $minimum = max((float) ($material['minimumPriceSale'] ?? $calculation['minimumPriceSale'] ?? 0), (float) ($profile['minimumPriceSale'] ?? 0));
         } else {
@@ -696,6 +727,8 @@ final class PriceEngine
         }
         $minimumApplied = $minimum > $subtotal + 1e-9;
         $total = max($minimum, $subtotal);
+        // greift der Mindestpreis, steckt der Logistikanteil anteilig darin
+        $logisticsInTotal = $subtotal > 0 ? $total * $logisticsAmount / $subtotal : 0.0;
 
         $customerGroupPercent = 0.0;
         $rounding = null;
@@ -705,8 +738,16 @@ final class PriceEngine
             $rounding = $rule['priceRounding'] ?? (isset($calculation['priceRounding']) ? (float) $calculation['priceRounding'] : null);
             $total *= 1 + $customerGroupPercent / 100;
             $minimum *= 1 + $customerGroupPercent / 100;
+            $logisticsInTotal *= 1 + $customerGroupPercent / 100;
         }
         $total = self::roundPrice($total, $rounding);
+        $logistics = $logisticsLines === [] ? null : [
+            'amount' => round($logisticsAmount, 6),
+            'goodsSubtotal' => round($goodsSubtotal, 6),
+            'sale' => round($logisticsInTotal, 2),
+            'sharePercent' => $total > 0 ? round($logisticsInTotal / $total * 100, 2) : 0.0,
+            'lines' => $logisticsLines,
+        ];
 
         return [
             'side' => $side,
@@ -732,6 +773,10 @@ final class PriceEngine
             'height' => $height,
             'minimumApplied' => $minimumApplied,
             'minimumDisplayed' => round($minimum, 2),
+            // Zwischensumme vor Mindestpreis (VK inkl. Logistik); EK-Seite = Waren-EK für Logistik `percent`
+            'subtotal' => round($subtotal, 6),
+            // nur intern (Admin-Rechenweg, Logistik-Schnappschuss) – CalculationResult gibt es nie nach außen
+            'logistics' => $logistics,
             'lines' => array_merge($lines, [
                 ['key' => 'components', 'items' => $components],
                 ['key' => 'piece', 'amount' => round($piece, 6)],

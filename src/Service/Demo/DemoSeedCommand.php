@@ -126,6 +126,12 @@ class DemoSeedCommand extends Command
             $this->upsert('ld_mensura_product_profile', [$profile], $context);
         }
 
+        // Logistikanteil (KONZEPT 3d), gleiche Regeln wie im Vertragstest
+        $this->upsert('ld_mensura_logistics_rule', array_map(
+            static fn (array $rule) => array_filter($rule, static fn ($v) => $v !== null),
+            DemoCatalog::logisticsRuleDefinitions(),
+        ), $context);
+
         $this->seedAdvisor($context);
 
         $io->success('Mensura-Demo angelegt (Aluverbund ' . DemoCatalog::PRODUCT_ID . ', Folie ' . DemoCatalog::PRODUCT_FOLIE . '). Store-API: GET /store-api/ld-mensura/product/{id}/configurator');

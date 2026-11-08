@@ -40,6 +40,11 @@ class CatalogLoader
         'maxQuantity', 'minimumPriceSale', 'surchargePercent', 'priceComponents', 'quantitySteps', 'steps', 'defaults', 'display',
     ];
 
+    private const LOGISTICS_FIELDS = [
+        'id', 'calculationId', 'materialId', 'optionValueId', 'costType', 'form', 'value', 'rampFrom', 'rampTo',
+        'thresholdBasis', 'thresholdFrom', 'thresholdTo', 'minimumAmount', 'minimumScope', 'validFrom', 'active',
+    ];
+
     public function __construct(private readonly DefinitionInstanceRegistry $registry)
     {
     }
@@ -134,6 +139,23 @@ class CatalogLoader
             $rules[] = $this->fields($rule, ['calculationId', 'customerGroupId', 'surchargePercent', 'priceRounding']);
         }
 
+        // Logistikregeln (KONZEPT 3d) der beteiligten Kalkulationen, Materialien und aller Optionswerte; Auswahl
+        // nach Gültigkeit und Vorrang trifft die Engine. Immer im Systembereich gelesen: Der Preis muss für jeden gleich
+        // sein, auch wenn ein Admin-Benutzer ohne `ld_mensura.logistics` neu rechnet; nach außen geht nur der Gesamtpreis.
+        $logisticsRules = [];
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
+        $found = $context->scope(Context::SYSTEM_SCOPE, fn (Context $system) => $this->registry->getRepository('ld_mensura_logistics_rule')->search($criteria, $system)->getEntities());
+        foreach ($found as $rule) {
+            $data = $this->fields($rule, self::LOGISTICS_FIELDS);
+            $data['validFrom'] = $data['validFrom'] instanceof \DateTimeInterface ? $data['validFrom']->format('Y-m-d') : null;
+            $relevant = ($data['optionValueId'] !== null && ($data['calculationId'] === null || isset($calculations[$data['calculationId']])))
+                || ($data['materialId'] !== null && isset($materials[$data['materialId']]))
+                || ($data['optionValueId'] === null && $data['materialId'] === null && isset($calculations[$data['calculationId']]));
+            if ($relevant) {
+                $logisticsRules[] = $data;
+            }
+        }
+
         // Steuer des Produkts (auch geerbt bei Varianten) für den Bruttopreis in der Store-API
         $product = $context->enableInheritance(fn (Context $inherited) => $this->registry->getRepository('product')->search(new Criteria([$productId]), $inherited)->first());
         $taxId = $product instanceof Entity && $product->has('taxId') ? $product->get('taxId') : null;
@@ -147,6 +169,7 @@ class CatalogLoader
             'values' => $values,
             'sets' => $sets,
             'customerGroupRules' => $rules,
+            'logisticsRules' => $logisticsRules,
         ]);
     }
 

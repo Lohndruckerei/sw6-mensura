@@ -480,6 +480,38 @@ final class DemoCatalog
             'values' => $values,
             'sets' => $sets,
             'customerGroupRules' => [],
+            'logisticsRules' => self::logisticsRuleDefinitions(),
+        ];
+    }
+
+    /**
+     * Logistikanteil (KONZEPT 3d), Werte aus LOGISTIKPAUSCHALE 3.3 b): Acryl 1.200–2.449 mm Sperrgut 17,77 €/m²,
+     * gleitend über die längste Seite 1.000 → 1.400 mm. Kleine Formate (alle bisherigen Beispielfälle) bleiben unverändert.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function logisticsRuleDefinitions(): array
+    {
+        return [
+            [
+                'id' => self::id('logistics.acryl.bulky'),
+                'calculationId' => null,
+                'materialId' => self::MATERIAL_ACRYL,
+                'optionValueId' => null,
+                'costType' => 'bulky',
+                'form' => 'per_sqm',
+                'value' => 17.77,
+                'rampFrom' => 1000,
+                'rampTo' => 1400,
+                'thresholdBasis' => null,
+                'thresholdFrom' => null,
+                'thresholdTo' => null,
+                'minimumAmount' => null,
+                'minimumScope' => null,
+                'validFrom' => null,
+                'active' => true,
+                'note' => 'Demo: Comdatek Sperrgut Acryl ab 1.200 mm (Auswertung 03–10/2026)',
+            ],
         ];
     }
 }

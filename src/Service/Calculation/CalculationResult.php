@@ -71,6 +71,31 @@ final class CalculationResult
     }
 
     /**
+     * Logistikanteil der Position (KONZEPT 3d) – nur intern: Admin-Rechenweg mit Recht `ld_mensura.logistics`
+     * und Logistik-Schnappschuss. Null, wenn keine Regel wirkt.
+     *
+     * @return array{amount: float, goodsSubtotal: float, sale: float, sharePercent: float, lines: list<array<string, mixed>>}|null
+     */
+    public function getLogistics(): ?array
+    {
+        return $this->sale['logistics'] ?? null;
+    }
+
+    /**
+     * @param array<string, mixed>|null $side
+     *
+     * @return array<string, mixed>|null
+     */
+    private static function withoutLogistics(?array $side): ?array
+    {
+        if ($side !== null) {
+            unset($side['logistics']);
+        }
+
+        return $side;
+    }
+
+    /**
      * Gewicht der Position in kg (Material: Gewicht je m² × Fläche), null wenn am Material nicht gepflegt.
      *
      * @return array{perSqm: float, piece: float, total: float}|null
@@ -174,7 +199,8 @@ final class CalculationResult
             'supplierId' => $material['supplierId'] ?? $calculation['supplierId'] ?? null,
             'customerGroupId' => $this->context->customerGroupId,
             'configuration' => json_decode((string) json_encode($this->configuration->toArray($this->catalog)), true),
-            'breakdown' => ['sale' => $this->sale, 'purchase' => $this->purchase],
+            // Logistikanteil nicht im allgemeinen Rechenweg (KONZEPT 3d.4 Nr. 4): Zwischensumme enthält ihn bereits
+            'breakdown' => ['sale' => self::withoutLogistics($this->sale), 'purchase' => self::withoutLogistics($this->purchase)],
             'saleTotal' => $sale,
             'purchaseTotal' => $purchase,
             'contributionMargin' => $sale !== null && $purchase !== null ? round($sale - $purchase, 2) : null,
