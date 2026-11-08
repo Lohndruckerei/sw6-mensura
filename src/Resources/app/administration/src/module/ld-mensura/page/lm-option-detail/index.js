@@ -104,6 +104,7 @@ export default {
                 :target="{ optionValueId: logisticsValue.id }"
                 :sample="logisticsSample"
                 :option-info="{ groupType: group.type, showPriceHint: group.showPriceHint !== false }"
+                :keys="{ valueKey: logisticsValue.technicalName }"
             />
         </template>
 

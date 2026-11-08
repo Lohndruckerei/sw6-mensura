@@ -643,7 +643,13 @@ Gestaltung nach `ld-admin-design` (Präfix `lm-`, Tokens, Bausteine `lm-chip`, `
 | 7 | `backend/logistikanteil` | Admin-Route `preview` + Karte `lm-logistics-card` (Liste, Modal, Hilfetexte, Vorschau, Warnungen, Einstellung `logisticsWarnPercent`), eingebunden in Kalkulation/Material/Optionswert | im Admin in Design A/B/C, mit/ohne Recht, schmales Fenster |
 | 8 | `backend/vectura-vorschlaege` (nach Vectura-Schritt 4) | Karte „Vorschlag aus Vectura übernehmen“ gegen das Antwortformat aus INTEGRATION.md 7; bis dahin mit Beispiel-JSON | ohne Vectura unsichtbar; mit Vectura legt „Übernehmen“ eine neue Regel mit gültig-ab an |
 
-**Stand 08.11.2026:** Schritte 1–7 umgesetzt (Schritt 7: Reiter „Logistik“ an Kalkulation, Material und Optionsgruppe
+**Stand 08.11.2026:** Schritte 1–8 umgesetzt. Schritt 8 (auf `backend/logistikanteil` statt eigenem Branch, gegen das
+Beispiel-JSON, weil Vectura die Route noch nicht liefert): Bereich „Vorschläge aus Vectura“ in der Karte, Zuordnung über
+die Schlüssel (`service/vectura-suggestions.js`, Node-Test `tests/Backend/vectura-suggestions.test.mjs`), „Übernehmen ab
+…“ öffnet den Dialog vorbelegt (Standard: nächster Montag), gespeichert mit `source = vectura` und `sourceReference`.
+Nicht stabile Vorschläge nur zur Information; Schrittgrenze prüft Mensura zusätzlich. Ohne Vectura unsichtbar;
+Beispieldaten im Browser mit `localStorage["ld-mensura.vectura-demo"] = "1"`.
+Davor: Schritte 1–7 umgesetzt (Schritt 7: Reiter „Logistik“ an Kalkulation, Material und Optionsgruppe
 (Wert wählen) mit `lm-logistics-card`; Karte speichert eigenständig, Änderung einer gültigen Regel legt eine neue Zeile
 mit „gültig ab“ an; Vorschau über `POST /api/_action/ld-mensura/logistics/preview` (Entwurf + gespeicherte Regeln,
 `LogisticsPreview`); Plugin-Einstellung `logisticsWarnPercent`; Testrechner zeigt „davon Logistikanteil“ nur mit Recht.

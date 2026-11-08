@@ -81,6 +81,24 @@
             "saved": "Logistics share saved.",
             "errorSave": "The logistics share could not be saved. Check the fields and your permissions.",
             "errorLoad": "Logistics shares could not be loaded.",
+            "vectura": {
+                "title": "Suggestions from Vectura",
+                "demo": "Sample data – Vectura is not installed. For trying out only (browser setting “ld-mensura.vectura-demo”).",
+                "forbidden": "No permission for Vectura suggestions. Everything else here stays usable.",
+                "error": "Vectura suggestions could not be loaded. Manual maintenance continues.",
+                "none": "There is currently no suggestion for this target.",
+                "coverage": "Coverage {before} → {target} · {cases} orders · {from} – {to}",
+                "current": "in effect today: {value}",
+                "adopt": "Adopt from {date} …",
+                "adoptHint": "Suggestion from Vectura. Check the preview and the date – it is only saved with “Save logistics share”. The previous value stays in effect until then.",
+                "notStable": "Not stable yet (corridor left in one period only) – for information only.",
+                "warnings": {
+                    "few_cases": "Little data (fewer than 10 orders) – keep an eye on the value.",
+                    "step_limit_exceeded": "Change larger than ±1 €/m² or ±2 percentage points – better adjust in steps.",
+                    "outliers_capped": "Outliers capped – special cases better by quote.",
+                    "unmapped_key": "Key unknown in Mensura – check the technical name."
+                }
+            },
             "deleteTitle": "Delete logistics share?",
             "deleteText": "The entry will be deleted. If it is currently in effect, the previous value of this cost type applies afterwards (if any). Items already ordered do not change."
         },

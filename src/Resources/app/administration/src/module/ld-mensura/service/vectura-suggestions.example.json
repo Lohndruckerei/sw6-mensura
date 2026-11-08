@@ -1,0 +1,65 @@
+{
+  "apiVersion": 1,
+  "period": { "from": "2026-08-01", "to": "2026-10-31" },
+  "generatedAt": "2026-11-07T08:00:00+01:00",
+  "targetMargin": 25,
+  "_note": "Beispiel nach INTEGRATION.md 7.2 (Werte aus LOGISTIKPAUSCHALE 3.3), passend zu den Mensura-Demo-Daten. Nur für Entwicklung und Tests, solange Vectura die Route noch nicht liefert.",
+  "suggestions": [
+    {
+      "id": "acryl-bulky-1200-2449",
+      "cause": { "materialKeys": ["acryl-5mm"], "calculationKey": null, "deliveryKey": null, "lengthFrom": 1200, "lengthTo": 2449, "thresholdBasis": null, "thresholdFrom": null },
+      "costType": "bulky",
+      "costs": 183.0,
+      "revenue": 191.0,
+      "coverage": 1.05,
+      "targetCoverage": 1.25,
+      "cases": 5,
+      "proposal": { "form": "per_sqm", "value": 18.5, "rampFrom": 1000, "rampTo": 1400, "thresholdBasis": null, "thresholdFrom": null, "thresholdTo": null, "minimumAmount": null, "minimumScope": null },
+      "current": { "form": "per_sqm", "value": 17.77 },
+      "stable": true,
+      "warnings": ["few_cases"]
+    },
+    {
+      "id": "acryl-base",
+      "cause": { "materialKeys": ["acryl-5mm"], "calculationKey": null, "deliveryKey": null, "lengthFrom": null, "lengthTo": null, "thresholdBasis": null, "thresholdFrom": null },
+      "costType": "base",
+      "costs": 412.0,
+      "revenue": 0.0,
+      "coverage": 0.0,
+      "targetCoverage": 1.25,
+      "cases": 41,
+      "proposal": { "form": "percent", "value": 7.24, "rampFrom": null, "rampTo": null, "thresholdBasis": null, "thresholdFrom": null, "thresholdTo": null, "minimumAmount": null, "minimumScope": null },
+      "current": null,
+      "stable": false,
+      "warnings": []
+    },
+    {
+      "id": "alu-base",
+      "cause": { "materialKeys": ["alu-3mm"], "calculationKey": "aluverbund", "deliveryKey": null, "lengthFrom": null, "lengthTo": null, "thresholdBasis": null, "thresholdFrom": null },
+      "costType": "base",
+      "costs": 330.0,
+      "revenue": 0.0,
+      "coverage": 0.0,
+      "targetCoverage": 1.25,
+      "cases": 245,
+      "proposal": { "form": "per_sqm", "value": 0.16, "rampFrom": null, "rampTo": null, "thresholdBasis": null, "thresholdFrom": null, "thresholdTo": null, "minimumAmount": null, "minimumScope": null },
+      "current": null,
+      "stable": true,
+      "warnings": []
+    },
+    {
+      "id": "express-24h",
+      "cause": { "materialKeys": [], "calculationKey": null, "deliveryKey": "express", "lengthFrom": null, "lengthTo": null, "thresholdBasis": null, "thresholdFrom": null },
+      "costType": "express",
+      "costs": 249.7,
+      "revenue": 0.0,
+      "coverage": 0.0,
+      "targetCoverage": 1.25,
+      "cases": 11,
+      "proposal": { "form": "per_sqm", "value": 4.18, "rampFrom": null, "rampTo": null, "thresholdBasis": null, "thresholdFrom": null, "thresholdTo": null, "minimumAmount": 25.0, "minimumScope": "order" },
+      "current": null,
+      "stable": true,
+      "warnings": ["outliers_capped"]
+    }
+  ]
+}

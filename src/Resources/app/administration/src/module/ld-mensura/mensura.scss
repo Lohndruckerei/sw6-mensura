@@ -580,6 +580,44 @@ $lm-sunken: var(--color-background-tertiary-default, #f0f2f5);
         margin: 0 0 0 auto;
     }
 
+    .lm-logistics__suggestions {
+        margin-top: 24px;
+
+        h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+    }
+
+    .lm-logistics__suggestion {
+        padding: 12px 16px;
+        margin-bottom: 12px;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: 8px;
+    }
+
+    .lm-logistics__suggestion-main {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+
+    .lm-logistics__suggestion-warnings {
+        list-style: none;
+        margin: 6px 0 0;
+        padding: 0;
+        color: var(--lm-warn);
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .lm-logistics__suggestion-actions {
+        margin-top: 8px;
+    }
+
     .lm-logistics__warn {
         display: flex;
         align-items: center;

@@ -253,6 +253,11 @@ Erwartetes Antwortformat (Vorschlag von Mensura, wird mit der Vectura-Entwicklun
   eine Regel an, oder eine Regel an der Kalkulation, wenn alle Materialien der Kalkulation betroffen sind (Auswahl im Dialog).
   Vectura bekommt keinen Rückruf. Die Wirkung sieht es an den folgenden Schnappschüssen.
 
+Umgesetzt in Mensura (Schritt 8): Beispielantwort `src/Resources/app/administration/src/module/ld-mensura/service/
+vectura-suggestions.example.json` (passend zu den Demo-Daten) – Vectura kann sie als Sollformat nehmen. Zuordnung:
+Material über `cause.materialKeys`, Kalkulation über `cause.calculationKey` (nur ohne Materialliste), Optionswert über
+`cause.deliveryKey` bzw. `cause.optionKey`. Zeitraum standardmäßig rollierend 3 Monate (`from`/`to` als Query).
+
 Mensura schreibt nie in Vectura-Tabellen und Vectura nie in Mensura-Tabellen.
 
 **Stabilitätsregel:** Payload `ldMensura` und Schnappschuss tragen `schema`. Felder werden nur ergänzt, nie

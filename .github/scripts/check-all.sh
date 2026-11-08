@@ -29,6 +29,8 @@ bash .github/scripts/phpunit.sh
 echo "== Backend gegen Vertrag: Antworten der Engine passen zu den Schemas ($MENSURA_BUILD)"
 $AJV validate $OPTS -s $S/calculation-result.schema.json -r $S/configuration.schema.json -d "$MENSURA_BUILD/calculate/*.json"
 $AJV validate $OPTS -s $S/configurator.schema.json -r $S/configuration.schema.json -d "$MENSURA_BUILD/configurator/*.json"
+echo "== Backend: Admin-Logik ohne Shop (Node)"
+node --test tests/Backend/*.test.mjs
 echo "== Frontend gegen Vertrag: Konfigurator-JS mit fixtures (Node, ohne Shop)"
 node --test tests/Frontend/*.test.mjs
 echo "✓ Alle Prüfungen bestanden."

@@ -1,4 +1,10 @@
 import { formatMoney, formatNumber } from '../../service/margin';
+import {
+    defaultPeriod, loadSuggestions, matchSuggestions, nextMonday, proposalToDraft, stepExceeded,
+} from '../../service/vectura-suggestions';
+
+/** Beispieldaten statt Vectura (nur Entwicklung): im Browser localStorage „ld-mensura.vectura-demo“ = „1“ setzen. */
+const DEMO_KEY = 'ld-mensura.vectura-demo';
 
 const { Criteria } = Shopware.Data;
 
@@ -80,7 +86,49 @@ export default {
             <mt-button v-if="canEdit" variant="primary" @click="openCreate">{{ $tc('ld-mensura.logistics.buttonAdd') }}</mt-button>
         </template>
     </sw-empty-state>
-    <p v-if="!hasVectura" class="lm-muted lm-logistics__vectura">{{ $tc('ld-mensura.logistics.noVectura') }}</p>
+    <p v-if="!hasVectura && !suggestionDemo" class="lm-muted lm-logistics__vectura">{{ $tc('ld-mensura.logistics.noVectura') }}</p>
+
+    <div v-if="showSuggestions" class="lm-logistics__suggestions">
+        <h4>{{ $tc('ld-mensura.logistics.vectura.title') }}</h4>
+        <mt-banner v-if="suggestionDemo" variant="attention">{{ $tc('ld-mensura.logistics.vectura.demo') }}</mt-banner>
+        <mt-banner v-if="suggestionStatus === 'forbidden'" variant="info">{{ $tc('ld-mensura.logistics.vectura.forbidden') }}</mt-banner>
+        <mt-banner v-else-if="suggestionStatus === 'error'" variant="attention">{{ $tc('ld-mensura.logistics.vectura.error') }}</mt-banner>
+        <p v-else-if="matchedSuggestions.length === 0" class="lm-muted">{{ $tc('ld-mensura.logistics.vectura.none') }}</p>
+        <div v-for="suggestion in matchedSuggestions" :key="suggestion.id" class="lm-logistics__suggestion">
+            <div class="lm-logistics__suggestion-main">
+                <lm-chip :label="$tc('ld-mensura.logistics.costTypes.' + suggestion.costType)" :color="costColor(suggestion.costType)" icon="regular-truck" />
+                <b>{{ valueText(suggestion.proposal) }}</b>
+                <span class="lm-muted">{{ ruleDetail(suggestion.proposal) }}</span>
+            </div>
+            <div class="lm-muted">
+                {{ $tc('ld-mensura.logistics.vectura.coverage', {
+                    before: num(suggestion.coverage, 2),
+                    target: num(suggestion.targetCoverage, 2),
+                    cases: suggestion.cases,
+                    from: date(suggestionMeta.period?.from),
+                    to: date(suggestionMeta.period?.to),
+                }) }}
+                <template v-if="currentFor(suggestion.costType)"> · {{ $tc('ld-mensura.logistics.vectura.current', { value: valueText(currentFor(suggestion.costType)) }) }}</template>
+            </div>
+            <ul v-if="suggestionWarnings(suggestion).length" class="lm-logistics__suggestion-warnings">
+                <li v-for="code in suggestionWarnings(suggestion)" :key="code">
+                    <mt-icon name="regular-exclamation-triangle" size="12px" />
+                    {{ $tc('ld-mensura.logistics.vectura.warnings.' + code) }}
+                </li>
+            </ul>
+            <div class="lm-logistics__suggestion-actions">
+                <mt-button
+                    v-if="canEdit && suggestion.stable !== false"
+                    size="small"
+                    variant="secondary"
+                    @click="adoptSuggestion(suggestion)"
+                >
+                    {{ $tc('ld-mensura.logistics.vectura.adopt', { date: date(adoptDate) }) }}
+                </mt-button>
+                <span v-else-if="suggestion.stable === false" class="lm-muted">{{ $tc('ld-mensura.logistics.vectura.notStable') }}</span>
+            </div>
+        </div>
+    </div>
 
     <div class="lm-logistics__preview">
         <h4>{{ $tc('ld-mensura.logistics.previewTitle') }}</h4>
@@ -143,6 +191,7 @@ export default {
         @modal-close="draft = null"
     >
         <mt-banner v-if="draft.isNewVersion" variant="info">{{ $tc('ld-mensura.logistics.newVersionHint') }}</mt-banner>
+        <mt-banner v-if="draft.source === 'vectura'" variant="info">{{ $tc('ld-mensura.logistics.vectura.adoptHint') }}</mt-banner>
         <sw-container columns="repeat(auto-fit, minmax(220px, 1fr))" gap="0 24px">
             <sw-single-select v-model:value="draft.costType" :options="costTypeOptions" :label="$tc('ld-mensura.logistics.labelCostType')" :help-text="$tc('ld-mensura.logistics.helpCostType')" @update:value="schedulePreview" />
             <sw-single-select v-model:value="draft.form" :options="formOptions" :label="$tc('ld-mensura.logistics.labelForm')" :help-text="$tc('ld-mensura.logistics.helpForm')" @update:value="schedulePreview" />
@@ -208,6 +257,8 @@ export default {
         calculationId: { type: String, required: false, default: null },
         sample: { type: Object, required: false, default: () => ({}) },
         optionInfo: { type: Object, required: false, default: null },
+        // gemeinsame Schlüssel mit Vectura (keine Fremdschlüssel): calculationKey | materialKey | valueKey
+        keys: { type: Object, required: false, default: () => ({}) },
     },
 
     data() {
@@ -222,6 +273,11 @@ export default {
             warnPercent: 15,
             previewCalculationId: this.calculationId,
             previewTimer: null,
+            suggestionStatus: 'missing',
+            suggestionMeta: {},
+            suggestionList: [],
+            suggestionDemo: false,
+            adoptDate: nextMonday(),
         };
     },
 
@@ -240,6 +296,15 @@ export default {
 
         hasVectura() {
             return (Shopware.Context.app.config.bundles ?? {}).LdVectura !== undefined;
+        },
+
+        /** Vorschlagsbereich nur, wenn Vectura (oder die Beispieldaten) antwortet; ohne Vectura bleibt er unsichtbar. */
+        showSuggestions() {
+            return this.suggestionStatus !== 'missing';
+        },
+
+        matchedSuggestions() {
+            return matchSuggestions(this.suggestionList, this.keys);
         },
 
         needsCalculationChoice() {
@@ -387,6 +452,7 @@ export default {
 
     created() {
         this.load();
+        this.loadVectura();
     },
 
     beforeUnmount() {
@@ -423,6 +489,58 @@ export default {
             } finally {
                 this.isLoading = false;
             }
+            this.schedulePreview();
+        },
+
+        /** Vorschläge aus Vectura – nur wenn installiert (lose Kopplung, INTEGRATION.md 7.2). */
+        async loadVectura() {
+            let demo = false;
+            try {
+                demo = !this.hasVectura && window.localStorage.getItem(DEMO_KEY) === '1';
+            } catch {
+                demo = false;
+            }
+            if (demo) {
+                const example = await import('../../service/vectura-suggestions.example.json');
+                this.applySuggestions({ status: 'ok', data: example.default ?? example }, true);
+                return;
+            }
+            const result = await loadSuggestions(
+                Shopware.Application.getContainer('init').httpClient,
+                { Authorization: `Bearer ${Shopware.Context.api.authToken.access}` },
+                this.hasVectura,
+                defaultPeriod(),
+            );
+            this.applySuggestions(result, false);
+        },
+
+        applySuggestions(result, demo) {
+            this.suggestionDemo = demo;
+            this.suggestionStatus = result.status;
+            this.suggestionMeta = { period: result.data?.period ?? null, generatedAt: result.data?.generatedAt ?? null };
+            this.suggestionList = result.data?.suggestions ?? [];
+        },
+
+        /** gültige Regel einer Kostenart für dieses Ziel (ohne Beschränkung auf eine Kalkulation) */
+        currentFor(costType) {
+            return this.rules.find((rule) => this.currentIds.has(rule.id) && rule.costType === costType && !rule.calculationId) ?? null;
+        },
+
+        suggestionWarnings(suggestion) {
+            const codes = [...(suggestion.warnings ?? [])];
+            if (!codes.includes('step_limit_exceeded') && stepExceeded(suggestion, this.currentFor(suggestion.costType))) {
+                codes.push('step_limit_exceeded');
+            }
+
+            return codes;
+        },
+
+        /** Öffnet den Dialog mit dem Vorschlag – übernommen wird erst beim Speichern, mit gültig-ab (Standard: nächster Montag). */
+        adoptSuggestion(suggestion) {
+            this.draft = {
+                ...this.emptyDraft(),
+                ...proposalToDraft(suggestion, this.suggestionMeta, this.adoptDate),
+            };
             this.schedulePreview();
         },
 
@@ -532,6 +650,14 @@ export default {
             this.schedulePreview();
         },
 
+        /** Gespeicherte Regel als einfache Daten (für die Vorschau-Route). */
+        ruleData(rule) {
+            const fields = ['id', 'calculationId', 'materialId', 'optionValueId', 'costType', 'form', 'value', 'rampFrom', 'rampTo',
+                'thresholdBasis', 'thresholdFrom', 'thresholdTo', 'minimumAmount', 'minimumScope', 'validFrom', 'active'];
+
+            return Object.fromEntries(fields.map((field) => [field, rule[field] ?? null]));
+        },
+
         /** Entwurf als Regel-Daten (gleiches Format wie die Entity). */
         draftPayload() {
             const draft = this.draft;
@@ -568,7 +694,19 @@ export default {
                 const entity = this.draft.id && !this.draft.isNewVersion
                     ? this.rules.find((rule) => rule.id === this.draft.id)
                     : this.repository.create(Shopware.Context.api);
-                Object.assign(entity, payload, entity.isNew?.() ? { source: 'manual' } : {});
+                if (entity.isNew?.()) {
+                    Object.assign(entity, this.draft.source === 'vectura'
+                        ? {
+                            source: 'vectura',
+                            sourceReference: {
+                                ...this.draft.sourceReference,
+                                adoptedAt: new Date().toISOString(),
+                                adoptedBy: Shopware.Store.get('session').currentUser?.username ?? null,
+                            },
+                        }
+                        : { source: 'manual' });
+                }
+                Object.assign(entity, payload);
                 await this.repository.save(entity, Shopware.Context.api);
                 this.draft = null;
                 warnings.forEach((message) => this.createNotificationWarning({ message }));
@@ -602,12 +740,16 @@ export default {
                 this.previewRows = [];
                 return;
             }
-            const draftRules = this.draft && this.draftValid
-                ? [{ ...this.draftPayload(), id: this.draft.isNewVersion ? null : this.draft.id, validFrom: null }]
-                : [];
-            // neue Version ersetzt in der Vorschau die gültige Regel, damit „ab Datum“ schon heute sichtbar ist
-            if (this.draft?.isNewVersion && draftRules.length) {
-                draftRules.push({ ...this.rules.find((rule) => rule.id === this.draft.id), active: false });
+            const draftRules = [];
+            if (this.draft && this.draftValid) {
+                const payload = this.draftPayload();
+                const editsInPlace = this.draft.id && !this.draft.isNewVersion;
+                // Vorschau „als gälte der Entwurf schon heute“: Regeln derselben Kostenart dieses Ziels ausblenden
+                this.rules
+                    .filter((rule) => rule.costType === payload.costType && (rule.calculationId ?? null) === (payload.calculationId ?? null)
+                        && !(editsInPlace && rule.id === this.draft.id))
+                    .forEach((rule) => draftRules.push({ ...this.ruleData(rule), active: false }));
+                draftRules.push({ ...payload, id: editsInPlace ? this.draft.id : null, validFrom: null });
             }
             try {
                 const { data } = await Shopware.Application.getContainer('init').httpClient.post('/_action/ld-mensura/logistics/preview', {
@@ -636,7 +778,7 @@ export default {
         },
 
         date(value) {
-            return Shopware.Utils.format.date(value, { hour: undefined, minute: undefined });
+            return value ? Shopware.Utils.format.date(value, { hour: undefined, minute: undefined }) : '–';
         },
     },
 };

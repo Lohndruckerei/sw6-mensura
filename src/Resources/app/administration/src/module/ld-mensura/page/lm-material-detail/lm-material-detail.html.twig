@@ -238,6 +238,7 @@
                 :target="{ materialId }"
                 :calculation-id="material.calculations?.first?.()?.id ?? null"
                 :sample="{ materialId }"
+                :keys="{ materialKey: material.technicalName }"
             />
         </template>
         {% endblock %}

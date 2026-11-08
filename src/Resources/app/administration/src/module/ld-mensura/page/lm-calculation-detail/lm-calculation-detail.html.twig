@@ -281,7 +281,7 @@
 
         {% block lm_calculation_detail_logistics %}
         <template v-if="active === 'logistics' && showLogistics">
-            <lm-logistics-card :target="{ calculationId }" :calculation-id="calculationId" />
+            <lm-logistics-card :target="{ calculationId }" :calculation-id="calculationId" :keys="{ calculationKey: calculation.technicalName }" />
         </template>
         {% endblock %}
 

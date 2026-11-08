@@ -50,6 +50,8 @@ jobs:
         run: node .github/scripts/check-snippets.mjs
       - name: Preis-Engine gegen Vertrag (alle fixtures/calculate + fixtures/configurator, PHPUnit)
         run: bash .github/scripts/phpunit.sh
+      - name: Admin-Logik ohne Shop (Node)
+        run: node --test tests/Backend/*.test.mjs
       - name: Antworten der Engine passen zu den Schemas
         run: |
           S=docs/contract/schema

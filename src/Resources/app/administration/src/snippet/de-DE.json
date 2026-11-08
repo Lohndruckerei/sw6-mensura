@@ -81,6 +81,24 @@
             "saved": "Logistikanteil gespeichert.",
             "errorSave": "Logistikanteil konnte nicht gespeichert werden. Prüfe die Felder und deine Rechte.",
             "errorLoad": "Logistikanteile konnten nicht geladen werden.",
+            "vectura": {
+                "title": "Vorschläge aus Vectura",
+                "demo": "Beispieldaten – Vectura ist nicht installiert. Nur zum Ausprobieren (Browser-Einstellung „ld-mensura.vectura-demo“).",
+                "forbidden": "Keine Berechtigung für Vectura-Vorschläge. Alles andere hier bleibt bedienbar.",
+                "error": "Vectura-Vorschläge konnten nicht geladen werden. Die Pflege von Hand geht weiter.",
+                "none": "Für dieses Ziel gibt es gerade keinen Vorschlag.",
+                "coverage": "Deckung {before} → {target} · {cases} Aufträge · {from} – {to}",
+                "current": "gilt heute: {value}",
+                "adopt": "Übernehmen ab {date} …",
+                "adoptHint": "Vorschlag aus Vectura. Prüfe die Vorschau und das Datum – gespeichert wird erst mit „Logistikanteil speichern“. Der bisherige Wert bleibt bis dahin gültig.",
+                "notStable": "Noch nicht stabil (Korridor erst in einem Zeitraum verlassen) – nur zur Information.",
+                "warnings": {
+                    "few_cases": "Wenig Daten (unter 10 Aufträge) – Wert beobachten.",
+                    "step_limit_exceeded": "Änderung größer als ±1 €/m² bzw. ±2 Prozentpunkte – besser in Schritten anpassen.",
+                    "outliers_capped": "Ausreißer gekappt – Sonderfälle besser per Angebot.",
+                    "unmapped_key": "Schlüssel in Mensura unbekannt – technischen Namen prüfen."
+                }
+            },
             "deleteTitle": "Logistikanteil löschen?",
             "deleteText": "Der Eintrag wird gelöscht. Gilt er gerade, gilt danach der vorherige Wert dieser Kostenart (falls vorhanden). Bereits bestellte Positionen ändern sich nicht."
         },
