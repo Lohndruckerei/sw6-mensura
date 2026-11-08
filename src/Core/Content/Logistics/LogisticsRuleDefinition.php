@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -77,10 +76,8 @@ class LogisticsRuleDefinition extends EntityDefinition
             new StringField('source', 'source', 16),
             new JsonField('source_reference', 'sourceReference'),
             new LongTextField('note', 'note'),
-
-            new ManyToOneAssociationField('calculation', 'calculation_id', CalculationDefinition::class, 'id', false),
-            new ManyToOneAssociationField('material', 'material_id', MaterialDefinition::class, 'id', false),
-            new ManyToOneAssociationField('optionValue', 'option_value_id', OptionValueDefinition::class, 'id', false),
+            // bewusst ohne Assoziationen: sonst verlangt dal:validate Rück-Assoziationen an Kalkulation/Material/Wert,
+            // und die Regel könnte über diese mitgeladen werden (KONZEPT 3d.5)
         ]);
     }
 

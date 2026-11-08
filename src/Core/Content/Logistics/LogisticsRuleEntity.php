@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Lohndruckerei\Mensura\Core\Content\Logistics;
 
-use Lohndruckerei\Mensura\Core\Content\Calculation\CalculationEntity;
-use Lohndruckerei\Mensura\Core\Content\Material\MaterialEntity;
-use Lohndruckerei\Mensura\Core\Content\Option\OptionValueEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
@@ -32,9 +29,6 @@ class LogisticsRuleEntity extends Entity
     protected ?string $source = null;
     protected ?array $sourceReference = null;
     protected ?string $note = null;
-    protected ?CalculationEntity $calculation = null;
-    protected ?MaterialEntity $material = null;
-    protected ?OptionValueEntity $optionValue = null;
 
     public function getCalculationId(): ?string
     {
@@ -214,35 +208,5 @@ class LogisticsRuleEntity extends Entity
     public function setNote(?string $note): void
     {
         $this->note = $note;
-    }
-
-    public function getCalculation(): ?CalculationEntity
-    {
-        return $this->calculation;
-    }
-
-    public function setCalculation(?CalculationEntity $calculation): void
-    {
-        $this->calculation = $calculation;
-    }
-
-    public function getMaterial(): ?MaterialEntity
-    {
-        return $this->material;
-    }
-
-    public function setMaterial(?MaterialEntity $material): void
-    {
-        $this->material = $material;
-    }
-
-    public function getOptionValue(): ?OptionValueEntity
-    {
-        return $this->optionValue;
-    }
-
-    public function setOptionValue(?OptionValueEntity $optionValue): void
-    {
-        $this->optionValue = $optionValue;
     }
 }
