@@ -86,7 +86,8 @@
       "steps": {
         "material": "Material",
         "format": "Format & Stückzahl",
-        "delivery": "Lieferzeit"
+        "delivery": "Lieferzeit",
+        "finish": "Bestellen"
       },
       "guided": {
         "stepsLabel": "Schritte",
@@ -103,7 +104,8 @@
         "next": "Weiter",
         "back": "Zurück",
         "deliveryTitle": "Wann brauchen Sie die Ware?",
-        "matrixCompare": "Staffelpreise vergleichen (Menge × Lieferzeit)"
+        "matrixCompare": "Staffelpreise vergleichen (Menge × Lieferzeit)",
+        "finishTitle": "Alles richtig? Dann ab in den Warenkorb."
       },
       "price": {
         "title": "Ihr Preis",

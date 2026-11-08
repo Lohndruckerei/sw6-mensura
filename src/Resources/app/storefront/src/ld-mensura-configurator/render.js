@@ -297,7 +297,8 @@ export function renderGuided(ctx, state) {
     const steps = guidedSteps(data, state);
     const step = currentStep(data, state);
     const idx = Math.max(0, steps.findIndex((s) => s.key === step.key));
-    const stepLabel = (s) => s.label || ctx.t(`steps.${s.kind}`);
+    // ohne Lieferzeit-Gruppe ist der letzte Schritt nur noch „Bestellen“ (Vergleich, Referenz, Warenkorb)
+    const stepLabel = (s) => s.label || ctx.t(s.kind === 'delivery' && !deliveryGroup(data) ? 'steps.finish' : `steps.${s.kind}`);
     const nav = `<nav class="lm-steps" aria-label="${esc(ctx.t('guided.stepsLabel'))}"><ol class="nav nav-tabs">${steps.map((s, i) => `<li class="nav-item"><button type="button" data-lm-action="step" data-lm-value="${esc(s.key)}" class="nav-link${i === idx ? ' active' : ''}${i < idx ? ' is-done' : ''}" ${i === idx ? 'aria-current="step"' : ''}><span class="lm-steps__n" aria-hidden="true">${i < idx ? '✓' : i + 1}</span>${esc(stepLabel(s))}</button></li>`).join('')}</ol></nav>`;
     let body = '';
     if (step.kind === 'material') {
@@ -327,7 +328,10 @@ export function renderGuided(ctx, state) {
         })).join('')}</div>${messageList(ctx, state, errorsFor(state, `options.${g.technicalName}`), 'lm-msgs--error')}`;
     } else {
         // Lieferzeit: Kacheln mit Termin; Staffelpreise (Menge × Lieferzeit) nur noch zum Vergleichen, Klick übernimmt beides
-        body = `<h3 class="lm-g-title">${esc(ctx.t('guided.deliveryTitle'))} ${help(ctx, deliveryGroup(data)?.helpText || ctx.t('help.delivery'), fieldId(ctx, 'gd-h'))}</h3>
+        const dgroup = deliveryGroup(data);
+        body = `<h3 class="lm-g-title">${dgroup
+            ? `${esc(ctx.t('guided.deliveryTitle'))} ${help(ctx, dgroup.helpText || ctx.t('help.delivery'), fieldId(ctx, 'gd-h'))}`
+            : esc(ctx.t('guided.finishTitle'))}</h3>
           ${deliveryTiles(ctx, state)}
           <details class="lm-more"><summary>${esc(ctx.t('guided.matrixCompare'))}</summary><div class="lm-g-group">
             <p class="lm-muted">${esc(ctx.t('guided.matrixHelp', { mode: ctx.t(state.gross ? 'price.grossShort' : 'price.netShort') }))}</p>

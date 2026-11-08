@@ -10,7 +10,7 @@ const en = flattenSnippets(loadSnippets('en-GB'), 'ldMensura.configurator');
 const TWIG_ONLY = (k) => k.startsWith('buybox.');
 
 function usedKeys() {
-    const keys = new Set(['steps.material', 'steps.format', 'steps.delivery']); // dynamisch: steps.${kind}
+    const keys = new Set(['steps.material', 'steps.format', 'steps.delivery', 'steps.finish']); // dynamisch: steps.${kind}
     for (const file of ['render.js', 'mount.js']) {
         const src = readSource(`src/Resources/app/storefront/src/ld-mensura-configurator/${file}`);
         for (const m of src.matchAll(/\bt(?:\.html)?\(\s*'([a-zA-Z.]+)'/g)) keys.add(m[1]);

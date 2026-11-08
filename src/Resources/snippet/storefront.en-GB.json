@@ -86,7 +86,8 @@
       "steps": {
         "material": "Material",
         "format": "Size & quantity",
-        "delivery": "Delivery time"
+        "delivery": "Delivery time",
+        "finish": "Order"
       },
       "guided": {
         "stepsLabel": "Steps",
@@ -103,7 +104,8 @@
         "next": "Next",
         "back": "Back",
         "deliveryTitle": "When do you need it?",
-        "matrixCompare": "Compare quantity prices (quantity × delivery time)"
+        "matrixCompare": "Compare quantity prices (quantity × delivery time)",
+        "finishTitle": "All correct? Then add it to the cart."
       },
       "price": {
         "title": "Your price",

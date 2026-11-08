@@ -345,6 +345,18 @@ test('Storefront-Client: Routen im Sitzungskontext, bei 404 Ausweichen auf die S
     await assert.rejects(() => sf2.addToCart(byName['alu-mindestpreis'].request), /cart 404/);
 });
 
+test('geführt ohne Lieferzeit-Gruppe: letzter Schritt heißt „Bestellen“, keine leere Lieferzeit-Frage', () => {
+    const data = structuredClone(alu);
+    data.groups = data.groups.filter((g) => g.type !== 'delivery');
+    const s = S.createState(data, { layout: 'guided', step: 'delivery' });
+    const html = R.renderGuided(ctx, s);
+    const text = textOf(html);
+    assert.ok(text.includes('Bestellen'), 'Schritt-Name');
+    assert.ok(text.includes('Alles richtig? Dann ab in den Warenkorb.'));
+    assert.ok(!text.includes('Wann brauchen Sie die Ware?'));
+    assert.match(html, /data-lm-action="cart"/);
+});
+
 test('Twig gibt nie den Kontext-Token aus (Shopware 6.7 wirft sonst HTTP 500)', async () => {
     const { readdirSync, statSync, readFileSync } = await import('node:fs');
     const { ROOT } = await import('./helpers.mjs');
