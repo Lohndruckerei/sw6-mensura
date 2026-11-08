@@ -1,12 +1,13 @@
 # Projekt: sw6-mensura (Shopware 6 Plugin „Mensura“ der Lohndruckerei)
 
 ## Umgebung
-- Shopware 6.7 läuft lokal im Docker-Container "shopware" (Dockware-Image, gesichert als `shopware-backup:2026-11-07`)
+- Shopware 6.7 läuft lokal im gemeinsamen Docker-Container "shopware" (Compose, siehe ../CLAUDE.md)
 - Dieser Ordner wird im Container eingebunden unter:
   /var/www/html/custom/plugins/LdMensura
 - Shopware-Befehle im Container ausführen, z. B.:
   docker exec shopware bash -c "cd /var/www/html && bin/console plugin:refresh"
-- Administration bauen: docker exec shopware bash -c "cd /var/www/html && bin/build-administration.sh"
+- Administration bauen (nur Plugins, siehe ../CLAUDE.md):
+  docker exec shopware bash -c "cd /var/www/html && SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS=1 bin/build-administration.sh"
 - Shop: http://localhost, Administration: http://localhost/admin
 
 ## Plugin
@@ -22,7 +23,7 @@
 - PHP 8.2+, strict_types, Shopware-Coding-Standards
 - Texte und Snippets auf Deutsch (de-DE) und Englisch (en-GB)
 - Keine Fremdplugins als Abhängigkeit; Composer-Bibliotheken sind erlaubt
-- Unabhängig vom LieferLotse lauffähig. Admin-Design kommt aus ~/projekte/ld-admin-design – dort ändern,
+- Unabhängig vom LieferLotse lauffähig. Admin-Design kommt aus ~/projekte/sw6-entwicklung-lohndruckerei/ld-admin-design – dort ändern,
   nicht lokal: `src/Resources/app/administration/src/ld-admin-design/` ist generiert (`./sync.sh mensura`
   im Design-Projekt, Präfix `lm-`, Store `lmDesign`, Mixin `lm-design`); Regeln in dessen DESIGN.md.
   Mensura-eigene Seitenstile liegen in `module/ld-mensura/mensura.scss`.

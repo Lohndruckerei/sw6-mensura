@@ -1,4 +1,4 @@
-// Admin-Design: generiert aus ~/projekte/ld-admin-design (dort ändern, nicht hier)
+// Admin-Design: generiert aus ~/projekte/sw6-entwicklung-lohndruckerei/ld-admin-design (dort ändern, nicht hier)
 import './ld-admin-design';
 import './module/ld-mensura';
 
