@@ -70,6 +70,15 @@ final class CalculationResult
         return $this->purchase['total'] ?? null;
     }
 
+    /** Lieferantenvorschlag (Material vor Kalkulation), ID aus dem LieferLotse ohne Fremdschlüssel. */
+    public function getSupplierId(): ?string
+    {
+        $material = $this->catalog->material($this->configuration->materialId) ?? [];
+        $calculation = $this->catalog->calculation($this->configuration->calculationId) ?? [];
+
+        return $material['supplierId'] ?? $calculation['supplierId'] ?? null;
+    }
+
     /**
      * Logistikanteil der Position (KONZEPT 3d) – nur intern: Admin-Rechenweg mit Recht `ld_mensura.logistics`
      * und Logistik-Schnappschuss. Null, wenn keine Regel wirkt.

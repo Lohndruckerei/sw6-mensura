@@ -7,6 +7,7 @@ namespace Lohndruckerei\Mensura\Service\Cart;
 use Lohndruckerei\Mensura\Service\Calculation\Catalog;
 use Lohndruckerei\Mensura\Service\Calculation\CatalogLoader;
 use Lohndruckerei\Mensura\Service\Calculation\ContextFactory;
+use Lohndruckerei\Mensura\Service\Calculation\OrderMinimum;
 use Lohndruckerei\Mensura\Service\Calculation\PriceEngine;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -42,6 +43,7 @@ class MensuraCartProcessor implements CartProcessorInterface
     {
         $catalogs = [];
         $calculationContext = null;
+        $positions = [];
         foreach ($toCalculate->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE) as $lineItem) {
             $payload = $lineItem->getPayloadValue(LineItemFactory::PAYLOAD_KEY);
             if (!\is_array($payload) || !\is_array($payload['configuration'] ?? null)) {
@@ -62,7 +64,17 @@ class MensuraCartProcessor implements CartProcessorInterface
                 $toCalculate->addErrors(new MensuraCartError($lineItem->getId(), (string) $lineItem->getLabel(), $reason));
                 continue;
             }
+            $positions[$lineItem->getId()] = ['lineItem' => $lineItem, 'catalog' => $catalog, 'configuration' => $configuration, 'result' => $result];
+        }
 
+        // Mindestbetrag je Bestellung (KONZEPT 3d.3): auf alle Positionen mit derselben Option verteilen, dann neu rechnen
+        $overrides = OrderMinimum::overrides(array_map(static fn (array $p) => $p['result'], $positions));
+        foreach ($overrides as $id => $ruleAmounts) {
+            $position = $positions[$id];
+            $positions[$id]['result'] = $this->engine->calculate($position['configuration'], $position['catalog'], $calculationContext, false, $ruleAmounts);
+        }
+
+        foreach ($positions as ['lineItem' => $lineItem, 'catalog' => $catalog, 'result' => $result]) {
             LineItemFactory::applyResult($lineItem, $result, $catalog);
             // Lieferinformation je Stück: Gewicht (kg) und Format (mm) der Konfiguration statt der Produkt-Stammdaten,
             // damit Versandregeln (Warenkorbgewicht) und Versand-Plugins mit den echten Werten rechnen

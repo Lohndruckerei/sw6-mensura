@@ -27,7 +27,23 @@ final class PriceEngine
 {
     private const MAX_SET_DEPTH = 20;
 
-    public function calculate(array $input, Catalog $catalog, CalculationContext $context, bool $matrix = false): CalculationResult
+    /** @var array<string, float> Logistikregel-ID → verteilter Betrag (Mindestbetrag je Bestellung, nur im Warenkorb) */
+    private array $logisticsOverrides = [];
+
+    /**
+     * @param array<string, float> $logisticsOverrides nur Warenkorb/Bestellung: verteilte Anteile aus `OrderMinimum`
+     */
+    public function calculate(array $input, Catalog $catalog, CalculationContext $context, bool $matrix = false, array $logisticsOverrides = []): CalculationResult
+    {
+        $this->logisticsOverrides = $logisticsOverrides;
+        try {
+            return $this->doCalculate($input, $catalog, $context, $matrix);
+        } finally {
+            $this->logisticsOverrides = [];
+        }
+    }
+
+    private function doCalculate(array $input, Catalog $catalog, CalculationContext $context, bool $matrix): CalculationResult
     {
         $messages = new Messages($context->language);
         $config = $this->normalize($input, $catalog, $messages, $context);
@@ -743,7 +759,12 @@ final class PriceEngine
                     'goodsPurchase' => $goodsPurchase,
                 ];
                 foreach ($rules as $rule) {
-                    $line = Logistics::line($rule, $measures);
+                    $override = ($rule['minimumScope'] ?? null) === 'order' ? ($this->logisticsOverrides[(string) ($rule['id'] ?? '')] ?? null) : null;
+                    $line = Logistics::line($rule, $measures, $override);
+                    if (($rule['optionValueId'] ?? null) !== null) {
+                        $group = $catalog->group($catalog->value($rule['optionValueId'])['optionGroupId'] ?? null);
+                        $line['groupScope'] = (string) ($group['scope'] ?? 'position');
+                    }
                     $logisticsLines[] = $line;
                     $logisticsAmount += $line['amount'];
                 }

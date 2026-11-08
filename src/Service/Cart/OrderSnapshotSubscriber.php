@@ -6,6 +6,7 @@ namespace Lohndruckerei\Mensura\Service\Cart;
 
 use Lohndruckerei\Mensura\Service\Calculation\CatalogLoader;
 use Lohndruckerei\Mensura\Service\Calculation\ContextFactory;
+use Lohndruckerei\Mensura\Service\Calculation\OrderMinimum;
 use Lohndruckerei\Mensura\Service\Calculation\PriceEngine;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\CartConvertedEvent;
@@ -46,6 +47,7 @@ class OrderSnapshotSubscriber implements EventSubscriberInterface
         $calculationContext = null;
         $catalogs = [];
         $changed = false;
+        $positions = [];
 
         foreach ($converted['lineItems'] ?? [] as $index => $orderLineItem) {
             $payload = $orderLineItem['payload'][LineItemFactory::PAYLOAD_KEY] ?? null;
@@ -65,6 +67,17 @@ class OrderSnapshotSubscriber implements EventSubscriberInterface
             if (!$result->isValid()) {
                 continue;
             }
+            $positions[$index] = ['catalog' => $catalog, 'configuration' => $configuration, 'result' => $result];
+        }
+
+        // gleiche Verteilung des Mindestbetrags je Bestellung wie im Warenkorb (MensuraCartProcessor)
+        foreach (OrderMinimum::overrides(array_map(static fn (array $p) => $p['result'], $positions)) as $index => $ruleAmounts) {
+            $position = $positions[$index];
+            $positions[$index]['result'] = $this->engine->calculate($position['configuration'], $position['catalog'], $calculationContext, false, $ruleAmounts);
+        }
+
+        foreach ($positions as $index => ['configuration' => $configuration, 'result' => $result]) {
+            $orderLineItem = $converted['lineItems'][$index];
             $snapshot = $result->toSnapshot();
 
             // Abgleich mit dem Preis, den der Kunde bestätigt hat (Bestellposition), netto

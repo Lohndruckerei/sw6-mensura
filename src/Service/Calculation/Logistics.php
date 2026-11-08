@@ -84,7 +84,7 @@ final class Logistics
      *
      * @return array<string, mixed>
      */
-    public static function line(array $rule, array $measures): array
+    public static function line(array $rule, array $measures, ?float $override = null): array
     {
         $fRamp = 1.0;
         if (isset($rule['rampFrom'], $rule['rampTo']) && $rule['rampTo'] > $rule['rampFrom']) {
@@ -101,12 +101,18 @@ final class Logistics
             'per_piece' => $measures['quantity'],
             default => 1.0,
         };
-        $amount = (float) ($rule['value'] ?? 0) * $basis * $fRamp * $fThreshold;
+        $linear = (float) ($rule['value'] ?? 0) * $basis * $fRamp * $fThreshold;
+        $amount = $linear;
         $minimumApplied = false;
         $minimum = isset($rule['minimumAmount']) ? (float) $rule['minimumAmount'] : null;
         if ($minimum !== null && $fRamp * $fThreshold > 0 && $amount < $minimum) {
             $amount = $minimum;
             $minimumApplied = true;
+        }
+        // Mindestbetrag je Bestellung: im Warenkorb auf alle Positionen verteilter Anteil (OrderMinimum)
+        $distributed = $override !== null;
+        if ($distributed) {
+            $amount = $override;
         }
 
         return [
@@ -122,8 +128,11 @@ final class Logistics
             'longestSide' => $measures['longestSide'],
             'fRamp' => round($fRamp, 6),
             'fThreshold' => round($fThreshold, 6),
+            'minimumAmount' => $minimum,
             'minimumScope' => $minimum !== null ? ($rule['minimumScope'] ?? 'position') : null,
             'minimumApplied' => $minimumApplied,
+            'linearAmount' => round($linear, 6),
+            'distributed' => $distributed,
             'amount' => round($amount, 6),
         ];
     }
