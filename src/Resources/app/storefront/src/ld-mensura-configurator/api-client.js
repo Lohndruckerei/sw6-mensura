@@ -197,6 +197,7 @@ export class FixtureClient {
         const dg = deliveryGroup(data);
         if (dg && !findValue(dg, config.deliveryValue)) config.deliveryValue = defaultValue(data, dg.technicalName, material) || dg.values[0]?.technicalName;
         const errors = localErrors(data, config).map((e) => {
+            if (e.code === 'option.choose') return { code: e.code, message: `Bitte ${getGroup(data, e.group)?.name || e.group} wählen`, field: e.field };
             const dim = e.field === 'format.width' ? 'Breite' : e.field === 'format.height' ? 'Höhe' : 'Menge';
             const word = e.code.endsWith('_min') ? 'mindestens' : 'höchstens';
             return { code: e.code, message: `${material.name}: ${dim} ${word} ${e.limit.toLocaleString('de-DE')}${e.field.startsWith('format') ? ' mm' : ''}`, field: e.field, fix: e.fix };

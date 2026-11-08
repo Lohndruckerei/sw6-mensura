@@ -34,6 +34,10 @@ function errorText(ctx, state, err) {
         'format.height_min': 'error.heightMin', 'format.height_max': 'error.heightMax',
         'quantity.motifs_max': 'error.motifsMax', 'quantity.max': 'error.quantityMax',
     };
+    if (err.code === 'option.choose') {
+        const name = err.group || String(err.field || '').replace(/^options\./, '');
+        return ctx.t('error.choose', { group: getGroup(state.data, name)?.name || name });
+    }
     const key = map[err.code];
     if (key) return ctx.t(key, { material: material?.name || '', limit: ctx.fmt.int(err.limit) });
     return err.message || err.code;
@@ -98,7 +102,9 @@ export function renderNotice(ctx, state) {
         if (c.backend) return esc(c.message);
         switch (c.code) {
             case 'option.removed': return ctx.t.html('notice.removed', { group: `<b>${esc(gName(c.group))}</b>`, material: esc(mName), value: esc(vName(c.group, c.from)) });
-            case 'option.reset': return ctx.t.html('notice.reset', { group: `<b>${esc(gName(c.group))}</b>`, material: esc(mName), from: esc(vName(c.group, c.from)), to: esc(vName(c.group, c.to)) });
+            case 'option.reset':
+                if (!c.to) return ctx.t.html('notice.resetChoose', { group: `<b>${esc(gName(c.group))}</b>`, material: esc(mName), from: esc(vName(c.group, c.from)) });
+                return ctx.t.html('notice.reset', { group: `<b>${esc(gName(c.group))}</b>`, material: esc(mName), from: esc(vName(c.group, c.from)), to: esc(vName(c.group, c.to)) });
             case 'option.added': return ctx.t.html('notice.added', { group: `<b>${esc(gName(c.group))}</b>`, material: esc(mName) });
             case 'option.restored': return ctx.t.html('notice.restored', { group: `<b>${esc(gName(c.group))}</b>`, value: esc(vName(c.group, c.to)) });
             case 'format.check': return `<b>${esc(ctx.t('notice.formatTitle'))}</b> ${esc(errorText(ctx, state, c.error))} ${fixButton(ctx, c.error)}`;
@@ -234,7 +240,10 @@ export function renderCompact(ctx, state) {
     const options = groups.map((g) => {
         const id = fieldId(ctx, `g-${g.technicalName}`);
         const values = allowedValues(g, material);
-        const empty = !g.required ? `<option value="" ${!config.options[g.technicalName] ? 'selected' : ''}>${esc(ctx.t('option.none'))}</option>` : '';
+        // freiwillig: „keine“; Pflicht ohne Vorauswahl: Platzhalter „Bitte wählen“, bis der Kunde wählt
+        const empty = !g.required
+            ? `<option value="" ${!config.options[g.technicalName] ? 'selected' : ''}>${esc(ctx.t('option.none'))}</option>`
+            : (!config.options[g.technicalName] ? `<option value="" selected disabled>${esc(ctx.t('option.choose'))}</option>` : '');
         const ctrl = g.mode === 'fixed'
             ? `<div class="lm-fixed" id="${id}">${esc(findValue(g, config.options[g.technicalName])?.name || '')}</div>`
             : `<select class="form-select" id="${id}" data-lm-field="option" data-lm-group="${esc(g.technicalName)}">${empty}${values.map((v) => `<option value="${esc(v.technicalName)}" ${config.options[g.technicalName] === v.technicalName ? 'selected' : ''}>${esc(valueLabel(v, priceHintOf(state, g, v)))}</option>`).join('')}</select>`;
@@ -339,7 +348,8 @@ export function renderGuided(ctx, state) {
           ${referenceField(ctx, state)}`;
     }
     const last = idx === steps.length - 1;
-    const formatBlocked = step.kind === 'format' && errorsFor(state, 'format').length > 0;
+    const formatBlocked = (step.kind === 'format' && errorsFor(state, 'format').length > 0)
+        || (step.kind === 'group' && errorsFor(state, `options.${step.group}`).length > 0);
     const navBtns = `<div class="lm-g-nav">
         <button type="button" class="btn btn-outline-secondary" data-lm-action="back" ${idx === 0 ? 'disabled' : ''}>${esc(ctx.t('guided.back'))}</button>
         ${last
@@ -412,7 +422,7 @@ export function renderSummary(ctx, state) {
     const rows = [
         [ctx.t('summary.material'), material?.name || '', link('material', 'material')],
         [ctx.t('summary.format'), `${ctx.fmt.int(config.format.width)} × ${ctx.fmt.int(config.format.height)} mm`, link('format', 'width')],
-        ...optionGroups(data, state).map((g) => [g.name, findValue(g, config.options[g.technicalName])?.name || ctx.t('option.none'), link(`group:${g.technicalName}`, `g-${g.technicalName}`)]),
+        ...optionGroups(data, state).map((g) => [g.name, findValue(g, config.options[g.technicalName])?.name || ctx.t(g.required ? 'option.choose' : 'option.none'), link(`group:${g.technicalName}`, `g-${g.technicalName}`)]),
         [ctx.t('summary.quantity'), `${qty} ${ctx.t('summary.pieces')}`, link('format', 'motifs')],
     ];
     if (dv) rows.push([ctx.t('summary.delivery'), dv.name, link('delivery', 'delivery')]);

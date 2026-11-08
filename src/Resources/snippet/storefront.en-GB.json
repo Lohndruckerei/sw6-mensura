@@ -49,7 +49,8 @@
         "totalSplit": "%count% pieces, split into %motifs% designs"
       },
       "option": {
-        "none": "none"
+        "none": "none",
+        "choose": "Please choose"
       },
       "delivery": {
         "title": "Delivery",
@@ -66,7 +67,8 @@
         "heightMin": "%material%: height at least %limit% mm",
         "heightMax": "%material%: height at most %limit% mm",
         "motifsMax": "At most %limit% designs per item",
-        "quantityMax": "At most %limit% pieces per item – we will gladly quote for larger quantities."
+        "quantityMax": "At most %limit% pieces per item – we will gladly quote for larger quantities.",
+        "choose": "Please choose %group%."
       },
       "fix": {
         "format": "Set to %value% mm",
@@ -81,7 +83,8 @@
         "reset": "%group%: “%from%” is not available for %material% – now “%to%”.",
         "added": "New for %material%: %group%.",
         "restored": "%group%: your earlier choice “%value%” has been restored.",
-        "formatTitle": "Check size:"
+        "formatTitle": "Check size:",
+        "resetChoose": "%group%: “%from%” is not available for %material% – please choose again."
       },
       "steps": {
         "material": "Material",

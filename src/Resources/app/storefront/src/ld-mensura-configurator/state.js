@@ -36,10 +36,12 @@ export function findValue(group, technicalName) {
  * Standardwert einer Gruppe – Regel: immer den günstigsten Fall vorauswählen. Welcher Wert am günstigsten ist, weiß nur
  * das Backend (priceHint ist reine Anzeige), daher: Vorbelegung des Materials (`materials[].defaults`), sonst die
  * allgemeine Vorbelegung (`defaults.options`), sonst der erste erlaubte Wert. Nicht verpflichtende Gruppen ohne
- * Vorbelegung bleiben leer (ohne Option ist am günstigsten).
+ * Vorbelegung bleiben leer (ohne Option ist am günstigsten). Gruppen mit `preselect: false` werden nie vorbelegt:
+ * Der Kunde muss selbst wählen (Fehler `option.choose`, bis dahin kein Preis).
  */
 export function defaultValue(data, groupName, material) {
     const group = getGroup(data, groupName);
+    if (group?.preselect === false) return null;
     const allowed = allowedValues(group, material);
     const isAllowed = (value) => value && allowed.some((v) => v.technicalName === value);
     const perMaterial = material?.defaults?.[groupName];
@@ -148,6 +150,11 @@ export function localErrors(data, config) {
     if (l.maxQuantity != null && config.motifs * config.perMotif > l.maxQuantity) {
         errors.push({ code: 'quantity.max', field: 'perMotif', fix: { perMotif: Math.max(1, Math.floor(l.maxQuantity / config.motifs)) }, limit: l.maxQuantity, local: true });
     }
+    // Pflichtgruppe ohne Wert (Gruppe ohne Vorauswahl): der Kunde muss wählen – wie Backend-Fehler option.choose
+    for (const name of activeGroupNames(data, config)) {
+        const group = getGroup(data, name);
+        if (group?.required && group.mode !== 'hidden' && !config.options?.[name]) errors.push({ code: 'option.choose', field: `options.${name}`, group: name, local: true });
+    }
     return errors;
 }
 
@@ -204,6 +211,11 @@ const clampInt = (v, min = 1) => {
     return Number.isFinite(n) && n >= min ? n : min;
 };
 
+/** Vorbelegungen ohne Gruppen mit preselect: false */
+function presetsOnly(data, presets) {
+    return Object.fromEntries(Object.entries(presets || {}).filter(([name]) => getGroup(data, name)?.preselect !== false));
+}
+
 function initialConfig(data, partial) {
     const d = data.defaults;
     const materialId = partial?.materialId && materialById(data, partial.materialId) ? partial.materialId : d.materialId;
@@ -212,8 +224,9 @@ function initialConfig(data, partial) {
         format: { width: clampInt(partial?.format?.width ?? d.format.width), height: clampInt(partial?.format?.height ?? d.format.height) },
         motifs: clampInt(partial?.motifs ?? d.motifs),
         perMotif: clampInt(partial?.perMotif ?? d.perMotif),
-        // allgemeine Vorbelegung → günstigste Werte des Materials → eigene Auswahl (Link, Wiederbestellen)
-        options: { ...d.options, ...(materialById(data, materialId)?.defaults || {}), ...(partial?.options || {}) },
+        // allgemeine Vorbelegung → günstigste Werte des Materials → eigene Auswahl (Link, Wiederbestellen);
+        // Gruppen ohne Vorauswahl (preselect false) nie aus Vorbelegungen füllen
+        options: { ...presetsOnly(data, d.options), ...presetsOnly(data, materialById(data, materialId)?.defaults), ...(partial?.options || {}) },
         deliveryValue: partial?.deliveryValue ?? d.deliveryValue ?? null,
         reference: partial?.reference ?? '',
     };

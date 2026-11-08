@@ -357,6 +357,45 @@ test('geführt ohne Lieferzeit-Gruppe: letzter Schritt heißt „Bestellen“, k
     assert.match(html, /data-lm-action="cart"/);
 });
 
+test('Gruppe ohne Vorauswahl (preselect false): „Bitte wählen“, Fehler option.choose am Feld, kein Preis/Warenkorb/Weiter', async () => {
+    const data = structuredClone(alu);
+    const ver = data.groups.find((g) => g.technicalName === 'veredelung');
+    ver.preselect = false;
+    // laut Vertrag fehlt die Gruppe dann in allen Vorbelegungen
+    delete data.defaults.options.veredelung;
+    for (const m of data.materials) if (m.defaults) delete m.defaults.veredelung;
+    const c = new MensuraController({ data, client: new FixtureClient({ configurators: [data], cases, now: () => NOW }), debounceMs: 0 });
+    await c.calculateNow();
+    assert.equal(c.state.config.options.veredelung, undefined, 'nichts vorausgewählt');
+    // robust: auch wenn eine Vorbelegung die Gruppe doch nennt, wird sie bei preselect false nicht übernommen
+    const leaky = structuredClone(data);
+    leaky.defaults.options.veredelung = 'lam-matt';
+    for (const m of leaky.materials) m.defaults = { ...(m.defaults || {}), veredelung: 'lam-matt' };
+    assert.equal(S.createState(leaky).config.options.veredelung, undefined);
+    const err = S.currentErrors(c.state).find((e) => e.code === 'option.choose');
+    assert.equal(err?.field, 'options.veredelung');
+    assert.equal(S.canOrder(c.state), false);
+    const html = R.renderConfigurator(ctx, c.state);
+    assert.match(html, /<option value="" selected disabled>Bitte wählen<\/option>/);
+    assert.ok(textOf(html).includes('Bitte Veredelung wählen'), 'Fehler am Feld');
+    assert.match(html, /data-lm-action="cart" disabled/);
+    assert.ok(!html.includes('lm-total__value'), 'kein Preis');
+    const guided = R.renderGuided(ctx, S.apply(S.apply(c.state, { type: 'layout', value: 'guided' }), { type: 'step', key: 'group:veredelung' }));
+    assert.match(guided, /data-lm-action="next" disabled/);
+    assert.ok(!/data-lm-group="veredelung" data-lm-value="[^"]+" aria-pressed="true"/.test(guided), 'keine Kachel gewählt');
+    // Wahl treffen → Fehler weg
+    c.dispatch({ type: 'option', group: 'veredelung', value: 'keine' });
+    await c.idle();
+    assert.ok(!S.currentErrors(c.state).some((e) => e.code === 'option.choose'));
+    // Materialwechsel mit nicht erlaubtem Wert in einer Gruppe ohne Vorauswahl: Hinweis „bitte neu wählen“
+    const far = data.groups.find((g) => g.technicalName === 'farbigkeit');
+    far.preselect = false;
+    let s = S.createState(data, { initial: { ...byName['alu-comdatek-353'].request } });
+    s = S.apply(s, { type: 'material', id: ACRYL });
+    assert.equal(s.config.options.farbigkeit, undefined);
+    assert.ok(textOf(R.renderNotice(ctx, s)).includes('„4/4 beidseitig bedruckt“ gibt es bei Acrylglas nicht – bitte neu wählen.'));
+});
+
 test('Twig gibt nie den Kontext-Token aus (Shopware 6.7 wirft sonst HTTP 500)', async () => {
     const { readdirSync, statSync, readFileSync } = await import('node:fs');
     const { ROOT } = await import('./helpers.mjs');

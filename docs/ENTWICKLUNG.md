@@ -91,6 +91,9 @@ Im laufenden Shop: `bin/console mensura:demo:seed` legt das Demo-Produkt aus den
   `price.areas.billed`/`minArea` (Vertrag contract/area-values) erscheinen beim Format und im Preis, wenn die abgerechnete
   Fläche größer ist als die echte. Die Schalter kommen aus den Plugin-Einstellungen (Karte „Anzeige im Shop“), je Produktprofil
   (`display`) und je Optionsgruppe (`showPriceHint`) überschreibbar.
+- **Vorauswahl:** immer der günstigste Wert (`materials[].defaults`, sonst `defaults.options`). Gruppen mit `preselect: false`
+  werden nie vorbelegt: Pflichtgruppe zeigt „Bitte wählen“, Fehler `option.choose` am Feld (lokal sofort, sonst vom Backend),
+  kein Preis, kein Warenkorb, geführt kein „Weiter“; wird ein Wert beim Materialwechsel ungültig: „bitte neu wählen“.
 - **Festformat:** Hat ein Wert der Format-Gruppe eine `id`, sendet das Frontend `format.formatValueId` (Vertrag `contract/format-value-id`).
 - **Gestaltung = Shopware-Theme:** Bootstrap-Klassen (btn, form-select, alert, nav-tabs, table, badge, card) und `--bs-*`-Variablen,
   `scss/base.scss` nur für Layout. Das Admin-Designsystem gilt im Storefront nicht. Breite per Container-Query: in der Kaufbox
