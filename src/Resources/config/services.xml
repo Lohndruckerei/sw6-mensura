@@ -106,6 +106,8 @@
         <service id="Lohndruckerei\Mensura\Service\Storefront\ProductPageSubscriber"/>
         <!-- Bestellung: Rechenweg-Schnappschuss mit EK/VK (ld_mensura_order_line_item) -->
         <service id="Lohndruckerei\Mensura\Service\Cart\OrderSnapshotSubscriber"/>
+        <!-- LieferLotse (optional): attributes und Lieferanten-Artikelnummer in Lieferantenbestellungen -->
+        <service id="Lohndruckerei\Mensura\Service\Integration\SupplierOrderSubscriber"/>
         <service id="Lohndruckerei\Mensura\Controller\StoreApi\MensuraStoreApiController" public="true">
             <tag name="controller.service_arguments"/>
         </service>

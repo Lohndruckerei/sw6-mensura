@@ -22,17 +22,18 @@ class CatalogLoader
         'id', 'technicalName', 'name', 'active', 'unit', 'formatMode', 'widthMin', 'widthMax', 'heightMin', 'heightMax',
         'allowRotation', 'minArea', 'areaRounding', 'areaScope', 'maxMotifs', 'maxQuantity', 'optionSetId', 'motifMode', 'tierScope',
         'bestPriceMode', 'priceComponents', 'minimumPricePurchase', 'minimumPriceSale', 'tierBasis', 'tiers',
-        'priceRounding', 'setupPricePurchase', 'setupPriceSale', 'quantitySteps', 'supplierId', 'preselect',
+        'priceRounding', 'setupPricePurchase', 'setupPriceSale', 'quantitySteps', 'supplierId', 'preselect', 'supplierCodes',
     ];
     private const MATERIAL_FIELDS = [
         'id', 'technicalName', 'code', 'active', 'position', 'pricePurchase', 'priceSale', 'minimumPricePurchase',
         'minimumPriceSale', 'minArea', 'areaRounding', 'tierBasis', 'tiers', 'priceComponents', 'optionSetId', 'widthMax', 'heightMax',
-        'name', 'description', 'badges', 'supplierId', 'weightPerSqm',
+        'name', 'description', 'badges', 'supplierId', 'weightPerSqm', 'supplierCodes',
     ];
     private const GROUP_FIELDS = ['id', 'technicalName', 'name', 'helpText', 'type', 'scope', 'displayType', 'required', 'showPriceHint', 'position'];
     private const VALUE_FIELDS = [
         'id', 'optionGroupId', 'technicalName', 'name', 'description', 'badges', 'position', 'widthAdd', 'heightAdd',
         'widthFactor', 'heightFactor', 'deliveryDays', 'width', 'height', 'optionSetId', 'exclusions', 'availability',
+        'supplierCodes',
     ];
     private const ASSIGNMENT_FIELDS = ['id', 'optionValueId', 'materialId', 'active', 'isDefault', 'position', 'priceComponents', 'tiers', 'conditions'];
     private const PROFILE_FIELDS = [

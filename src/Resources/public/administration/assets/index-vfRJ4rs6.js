@@ -8,6 +8,7 @@ const l=["per_area","per_piece","per_motif","per_order","per_perimeter","percent
             :value="row.type"
             :options="typeOptions"
             :label="index === 0 ? $tc('ld-mensura.components.type') : undefined"
+            :help-text="index === 0 ? $tc('ld-mensura.rowHelp.componentType') : undefined"
             :disabled="disabled || undefined"
             @update:value="update(index, 'type', $event)"
         />
@@ -15,6 +16,7 @@ const l=["per_area","per_piece","per_motif","per_order","per_perimeter","percent
             v-if="showPurchase"
             :model-value="row.purchase"
             :label="index === 0 ? $tc('ld-mensura.price.purchase') : undefined"
+            :help-text="index === 0 ? $tc('ld-mensura.rowHelp.purchase') : undefined"
             :digits="4"
             :disabled="disabled || undefined"
             @update:model-value="update(index, 'purchase', $event)"
@@ -22,6 +24,7 @@ const l=["per_area","per_piece","per_motif","per_order","per_perimeter","percent
         <mt-number-field
             :model-value="row.sale"
             :label="index === 0 ? $tc('ld-mensura.price.sale') : undefined"
+            :help-text="index === 0 ? $tc('ld-mensura.rowHelp.sale') : undefined"
             :digits="4"
             :disabled="disabled || undefined"
             @update:model-value="update(index, 'sale', $event)"
@@ -43,4 +46,4 @@ const l=["per_area","per_piece","per_motif","per_order","per_perimeter","percent
         {{ $tc('ld-mensura.components.add') }}
     </mt-button>
     <p class="lm-muted lm-components__hint">{{ $tc('ld-mensura.components.hint') }}</p>
-</div>`,emits:["update:value"],props:{value:{type:Array,required:!1,default:null},showPurchase:{type:Boolean,required:!1,default:!0},disabled:{type:Boolean,required:!1,default:!1},emptyText:{type:String,required:!1,default:""}},computed:{rows(){return Array.isArray(this.value)?this.value:[]},typeOptions(){return l.map(e=>({value:e,label:this.$tc(`ld-mensura.components.types.${e}`)}))}},methods:{emit(e){this.$emit("update:value",e.length?e:null)},update(e,s,t){const a=this.rows.map(d=>({...d}));a[e][s]=t,this.emit(a)},add(){this.emit([...this.rows.map(e=>({...e})),{type:"per_piece",purchase:null,sale:null}])},remove(e){this.emit(this.rows.filter((s,t)=>t!==e))}}};export{l as COMPONENT_TYPES,n as default};
+</div>`,emits:["update:value"],props:{value:{type:Array,required:!1,default:null},showPurchase:{type:Boolean,required:!1,default:!0},disabled:{type:Boolean,required:!1,default:!1},emptyText:{type:String,required:!1,default:""}},computed:{rows(){return Array.isArray(this.value)?this.value:[]},typeOptions(){return l.map(e=>({value:e,label:this.$tc(`ld-mensura.components.types.${e}`)}))}},methods:{emit(e){this.$emit("update:value",e.length?e:null)},update(e,d,t){const s=this.rows.map(a=>({...a}));s[e][d]=t,this.emit(s)},add(){this.emit([...this.rows.map(e=>({...e})),{type:"per_piece",purchase:null,sale:null}])},remove(e){this.emit(this.rows.filter((d,t)=>t!==e))}}};export{l as COMPONENT_TYPES,n as default};

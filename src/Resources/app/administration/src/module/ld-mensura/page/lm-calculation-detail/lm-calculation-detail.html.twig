@@ -25,7 +25,7 @@
             <b>{{ calculation.materials ? calculation.materials.length : 0 }}</b>{{ $tc('ld-mensura.areas.material.title') }}
         </span>
         <span class="lm-header__stat"><b>{{ offeredCount }}</b>{{ $tc('ld-mensura.calculation.detail.statValues') }}</span>
-        <span class="lm-header__stat"><b>{{ calculation.minimumPriceSale === null ? '–' : fmt(calculation.minimumPriceSale) + ' €' }}</b>{{ $tc('ld-mensura.calculation.detail.statMinimum') }}</span>
+        <span class="lm-header__stat"><b>{{ calculation.minimumPriceSale === null ? '–' : fmt(calculation.minimumPriceSale) + ' ' + $tc('ld-mensura.price.unitCurrency') }}</b>{{ $tc('ld-mensura.calculation.detail.statMinimum') }}</span>
     </template>
 
     <template #default="{ active }">
@@ -169,7 +169,7 @@
                     <tbody>
                         <tr v-for="material in calculation.materials" :key="material.id">
                             <td><router-link :to="{ name: 'ld.mensura.materialDetail', params: { id: material.id } }">{{ material.translated?.name || material.technicalName }}</router-link></td>
-                            <td class="lm-num">{{ material.priceSale === null ? '–' : fmt(material.priceSale) + ' €/m²' }}</td>
+                            <td class="lm-num">{{ material.priceSale === null ? '–' : fmt(material.priceSale) + ' ' + $tc('ld-mensura.price.unitPerSqm') }}</td>
                             <td v-if="showPurchase">
                                 <lm-status v-if="materialMargin(material)" :state="materialMargin(material).state" :label="fmt(materialMargin(material).margin, 1) + ' %'" />
                             </td>

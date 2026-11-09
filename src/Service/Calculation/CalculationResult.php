@@ -165,13 +165,18 @@ final class CalculationResult
         $material = $this->catalog->material($this->configuration->materialId) ?? [];
         $sale = $this->sale['total'] ?? null;
         $purchase = $this->purchase['total'] ?? null;
+        $supplierId = $material['supplierId'] ?? $calculation['supplierId'] ?? null;
+        $numbers = $this->supplierProductNumbers();
 
         return [
             'schema' => 1,
             'calculationId' => $this->configuration->calculationId,
             'calculationTechnicalName' => $calculation['technicalName'] ?? null,
             'materialId' => $this->configuration->materialId,
-            'supplierId' => $material['supplierId'] ?? $calculation['supplierId'] ?? null,
+            'supplierId' => $supplierId,
+            'supplierProductNumber' => $supplierId !== null ? ($numbers[$supplierId] ?? null) : null,
+            // je Lieferant (LieferLotse wählt beim Bestellen den passenden): supplierId => „124-29.1-57-3“
+            'supplierProductNumbers' => $numbers,
             'customerGroupId' => $this->context->customerGroupId,
             'configuration' => json_decode((string) json_encode($this->configuration->toArray($this->catalog)), true),
             'breakdown' => ['sale' => $this->sale, 'purchase' => $this->purchase],
@@ -179,5 +184,49 @@ final class CalculationResult
             'purchaseTotal' => $purchase,
             'contributionMargin' => $sale !== null && $purchase !== null ? round($sale - $purchase, 2) : null,
         ];
+    }
+
+    /**
+     * Lieferanten-Artikelnummer je Lieferant aus den Lieferantencodes (INTEGRATION.md 3):
+     * Kalkulation-Material-Optionswerte (in Reihenfolge der Gruppen), z. B. „124-29.1-57-3-134“.
+     * Nur für Lieferanten, für die die Kalkulation einen Code hat; fehlende Teile werden ausgelassen.
+     *
+     * @return array<string, string>
+     */
+    public function supplierProductNumbers(): array
+    {
+        $codes = static function (?array $entity): array {
+            $map = [];
+            foreach (\is_array($entity['supplierCodes'] ?? null) ? $entity['supplierCodes'] : [] as $row) {
+                $supplier = \is_array($row) ? (string) ($row['supplierId'] ?? '') : '';
+                $code = \is_array($row) ? trim((string) ($row['code'] ?? '')) : '';
+                if ($supplier !== '' && $code !== '') {
+                    $map[$supplier] = $code;
+                }
+            }
+
+            return $map;
+        };
+
+        $calculationCodes = $codes($this->catalog->calculation($this->configuration->calculationId));
+        $materialCodes = $codes($this->catalog->material($this->configuration->materialId));
+        $valueIds = array_values(array_filter([...array_values($this->configuration->options), $this->configuration->deliveryValueId]));
+        $valueCodes = array_map(fn (string $id) => $codes($this->catalog->value($id)), $valueIds);
+
+        $numbers = [];
+        foreach ($calculationCodes as $supplierId => $calculationCode) {
+            $parts = [$calculationCode];
+            if (isset($materialCodes[$supplierId])) {
+                $parts[] = $materialCodes[$supplierId];
+            }
+            foreach ($valueCodes as $map) {
+                if (isset($map[$supplierId])) {
+                    $parts[] = $map[$supplierId];
+                }
+            }
+            $numbers[$supplierId] = implode('-', $parts);
+        }
+
+        return $numbers;
     }
 }

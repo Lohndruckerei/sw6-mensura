@@ -28,7 +28,7 @@
     </template>
     <template #header-stats>
         <span class="lm-header__stat" :class="{ 'is--warn': material.priceSale === null }">
-            <b>{{ material.priceSale === null ? '–' : fmt(material.priceSale) + ' €' }}</b>
+            <b>{{ material.priceSale === null ? '–' : fmt(material.priceSale) + ' ' + $tc('ld-mensura.price.unitCurrency') }}</b>
             {{ $tc('ld-mensura.material.detail.statPrice') }}
         </span>
         <span v-if="showPurchase" class="lm-header__stat" :class="{ 'is--warn': margin && margin.state !== 'ok' }">
@@ -118,6 +118,7 @@
                 <sw-media-field
                     v-model:value="material.mediaId"
                     :label="$tc('ld-mensura.general.labelImage')"
+                    :help-text="$tc('ld-mensura.rowHelp.image')"
                     :disabled="!canEdit || undefined"
                 />
             </mt-card>

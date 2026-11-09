@@ -38,6 +38,8 @@ final class CalculationContext
         public readonly array $display = self::DISPLAY_DEFAULTS,
         /** Steuersatz in % für `price.totalGross` (null = unbekannt, dann ohne Bruttopreis) */
         public readonly ?float $taxRate = null,
+        /** Umrechnungsfaktor Basiswährung (EUR, in der alle Preise gepflegt sind) → `currency` */
+        public readonly float $currencyFactor = 1.0,
     ) {
     }
 

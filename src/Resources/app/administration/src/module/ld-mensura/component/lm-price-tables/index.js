@@ -44,9 +44,10 @@ export default {
 
         <div class="lm-table-rows">
             <div class="lm-table-rows__head" :class="{ 'is--single': !showPurchase }">
-                <span>{{ $tc('ld-mensura.calculation.tables.quantity') }}</span>
-                <span v-if="showPurchase">{{ $tc('ld-mensura.price.purchase') }}</span>
-                <span>{{ $tc('ld-mensura.price.sale') }}</span>
+                <!-- Hilfetexte der Zeilen als Hilfe-Symbol im Spaltenkopf (DESIGN 7.9) -->
+                <span>{{ $tc('ld-mensura.calculation.tables.quantity') }} <sw-help-text :text="$tc('ld-mensura.rowHelp.tableQuantity')" /></span>
+                <span v-if="showPurchase">{{ $tc('ld-mensura.price.purchase') }} <sw-help-text :text="$tc('ld-mensura.rowHelp.purchase')" /></span>
+                <span>{{ $tc('ld-mensura.price.sale') }} <sw-help-text :text="$tc('ld-mensura.rowHelp.sale')" /></span>
                 <span />
             </div>
             <div v-for="row in sortedRows(table)" :key="row.id" class="lm-table-rows__row" :class="{ 'is--single': !showPurchase }">

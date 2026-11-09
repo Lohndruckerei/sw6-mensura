@@ -71,6 +71,8 @@ class ContextFactory
             layoutTestShare: (int) ($get('layoutTestShare') ?? 0),
             display: $display,
             taxRate: $taxId !== null ? (float) array_sum($context->buildTaxRules($taxId)->map(static fn ($rule) => $rule->getTaxRate())) : null,
+            // Preise sind in der Basiswährung gepflegt; Endbeträge werden mit dem Faktor des Kanals umgerechnet
+            currencyFactor: $context->getCurrency()->getFactor() > 0 ? $context->getCurrency()->getFactor() : 1.0,
         );
     }
 }

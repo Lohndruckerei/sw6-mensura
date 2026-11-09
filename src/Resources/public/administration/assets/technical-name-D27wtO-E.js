@@ -1,1 +1,0 @@
-function r(e){return String(e??"").toLowerCase().replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,64)}function l(e){var a;if(e&&!e.technicalName){const c=r(((a=e.translated)==null?void 0:a.name)||e.name);c&&(e.technicalName=c)}}export{l as e};

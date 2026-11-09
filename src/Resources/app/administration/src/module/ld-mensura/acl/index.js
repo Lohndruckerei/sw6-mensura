@@ -110,10 +110,12 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             privileges: privileges(['ld_mensura_customer_group_rule'], 'create', 'update', 'delete'),
             dependencies: ['ld_mensura.viewer'],
         },
+        // bewusst ohne ld_mensura.viewer: Rechenweg in der Bestellung (z. B. Buchhaltung) ohne Zugriff auf den Katalog
         orders: {
             privileges: ['ld_mensura_order_line_item:read', 'order:read', 'order_line_item:read'],
             dependencies: [],
         },
+        // wirkt über die Rechte an der Plugin-Konfiguration (system_config), kein eigener Bildschirm
         settings: {
             privileges: ['system_config:read', 'system_config:create', 'system_config:update'],
             dependencies: ['ld_mensura.viewer'],

@@ -1,5 +1,25 @@
 {
     "ld-mensura": {
+        "rowHelp": {
+            "componentType": "Worauf sich der Betrag bezieht, z. B. „je m²“ für Konturschnitt 2,00 €/m² oder „Prozent“ für Express +30.",
+            "purchase": "Einkaufspreis (EK) netto in Euro, nur mit EK-Recht sichtbar. Beispiel: 1,50",
+            "sale": "Verkaufspreis (VK) netto in Euro für Wiederverkäufer. Beispiel: 2,00",
+            "tierFrom": "Ab diesem Wert (einschließlich) gilt die Zeile. Beispiel: ab 10 Stück bzw. ab 5 m²",
+            "tierMode": "Rabatt in Prozent auf den Gesamtpreis oder fester Preis je Einheit ab dieser Stufe.",
+            "tierValue": "Beispiel: 10 (= 10 % Rabatt) oder 24,50 (€ je m² ab dieser Stufe)",
+            "supplier": "Lieferant, für den der Code gilt (aus LieferLotse).",
+            "supplierId": "ID des Lieferanten, ohne LieferLotse als Text. Beispiel: 0194e1a0…",
+            "supplierCode": "Teil der Lieferanten-Artikelnummer, wird mit „-“ verbunden. Beispiel: 29.1 für Alu 3 mm",
+            "tableName": "Name der Preistabelle im Admin. Beispiel: „A4 4/0“",
+            "tableQuantity": "Auflage, ab der die Zeile gilt; Zwischenmengen nutzen die Zeile darunter. Beispiel: 250",
+            "testField": "Testwert für den Rechner, wird nicht gespeichert. Beispiel: 1000 × 500 mm, 10 Stück",
+            "image": "Bild im Konfigurator (Materialauswahl), quadratisch, z. B. 400 × 400 px.",
+            "setRequired": "Ob der Kunde in dieser Gruppe wählen muss; „wie Gruppe“ übernimmt die Einstellung der Optionsgruppe.",
+            "ruleMode": "Wie das Profil die Gruppe einschränkt: erben, nur bestimmte Werte, fest oder ausblenden. Beispiel: Laminat fest „matt“.",
+            "ruleValues": "Nur diese Werte stehen im Shop zur Wahl. Beispiel: nur „4/0“ und „4/4“.",
+            "ruleDefault": "Vorauswahl beim Öffnen des Konfigurators. Beispiel: „ohne Bohrung“.",
+            "rulePreselect": "Woher die Vorauswahl kommt: Standardwert, günstigster Wert oder keine Vorauswahl."
+        },
         "general": {
             "mainMenuItem": "Mensura",
             "description": "Produkt-Konfigurator und Flächen-/Preiskalkulation",
@@ -27,7 +47,8 @@
             "yes": "Ja",
             "no": "Nein",
             "copySuffix": "Kopie",
-            "errorDuplicateTechnicalName": "Dieser technische Name ist schon vergeben – bitte einen anderen wählen."
+            "errorDuplicateTechnicalName": "Dieser technische Name ist schon vergeben – bitte einen anderen wählen.",
+            "errorForbidden": "Keine Berechtigung für diese Änderung. Bitte die Rechte der Rolle prüfen (Einstellungen → Benutzer & Rechte)."
         },
         "groups": {
             "start": "Start",
@@ -162,6 +183,7 @@
                 "columnDetail": "Angaben",
                 "emptyValuesTitle": "Noch keine Werte",
                 "emptyValuesSubline": "Eine Gruppe braucht mindestens einen Wert, z. B. „4/0 einseitig bedruckt“.",
+                "confirmDeleteValue": "Wert „{name}“ entfernen? Preise und Zuordnungen dieses Werts in den Kalkulationen entfallen beim Speichern.",
                 "buttonAddValue": "Wert hinzufügen",
                 "days": "1 Werktag | {days} Werktage"
             },
@@ -479,6 +501,8 @@
             }
         },
         "price": {
+            "unitCurrency": "€",
+            "unitPerSqm": "€/m²",
             "purchase": "EK",
             "sale": "VK",
             "margin": "Marge",

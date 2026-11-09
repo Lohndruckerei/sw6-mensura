@@ -164,6 +164,7 @@
                             :value="rule.mode"
                             :options="modeOptions"
                             :label="$tc('ld-mensura.profile.options.labelMode')"
+                            :help-text="$tc('ld-mensura.rowHelp.ruleMode')"
                             :disabled="!canEdit || undefined"
                             @update:value="setMode(entry.group.id, $event, rule.materialId)"
                         />
@@ -172,6 +173,7 @@
                             :value="rule.valueIds || []"
                             :options="entry.values"
                             :label="$tc('ld-mensura.profile.options.labelValues')"
+                            :help-text="$tc('ld-mensura.rowHelp.ruleValues')"
                             :disabled="!canEdit || undefined"
                             @update:value="setValueIds(entry.group.id, $event, rule.materialId)"
                         />
@@ -179,6 +181,7 @@
                             :value="rule.defaultValueId"
                             :options="defaultChoices(entry, rule.materialId)"
                             :label="$tc('ld-mensura.profile.options.labelDefault')"
+                            :help-text="$tc('ld-mensura.rowHelp.ruleDefault')"
                             :disabled="!canEdit || undefined"
                             @update:value="setDefault(entry.group.id, $event, rule.materialId)"
                         />
@@ -187,6 +190,7 @@
                             :value="preselectOf(entry.group.id, rule.materialId)"
                             :options="preselectOptions"
                             :label="$tc('ld-mensura.profile.options.labelPreselect')"
+                            :help-text="$tc('ld-mensura.rowHelp.rulePreselect')"
                             :disabled="!canEdit || undefined"
                             @update:value="setPreselect(entry.group.id, $event, rule.materialId)"
                         />

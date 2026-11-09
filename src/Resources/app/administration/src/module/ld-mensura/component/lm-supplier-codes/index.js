@@ -14,6 +14,7 @@ export default {
             entity="ld_supplier"
             label-property="name"
             :label="index === 0 ? $tc('ld-mensura.general.labelSupplier') : undefined"
+            :help-text="index === 0 ? $tc('ld-mensura.rowHelp.supplier') : undefined"
             :disabled="disabled || undefined"
             @update:value="update(index, 'supplierId', $event)"
         />
@@ -21,12 +22,14 @@ export default {
             v-else
             :model-value="row.supplierId"
             :label="index === 0 ? $tc('ld-mensura.general.labelSupplierId') : undefined"
+            :help-text="index === 0 ? $tc('ld-mensura.rowHelp.supplierId') : undefined"
             :disabled="disabled || undefined"
             @update:model-value="update(index, 'supplierId', $event)"
         />
         <mt-text-field
             :model-value="row.code"
             :label="index === 0 ? $tc('ld-mensura.supplierCodes.code') : undefined"
+            :help-text="index === 0 ? $tc('ld-mensura.rowHelp.supplierCode') : undefined"
             :placeholder="$tc('ld-mensura.supplierCodes.placeholder')"
             :disabled="disabled || undefined"
             @update:model-value="update(index, 'code', $event)"

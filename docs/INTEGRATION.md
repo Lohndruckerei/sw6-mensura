@@ -41,6 +41,12 @@ Kunde ─► Mensura-Konfigurator ─► Warenkorb (Produktposition + Konfigurat
   `configuration` (normalisierte Konfiguration laut `docs/contract/schema/configuration.schema.json`, daraus rechnet der
   `MensuraCartProcessor` bei jeder Warenkorbberechnung neu). Menge der Position = Gesamtmenge der Konfiguration; das
   Shopware-Produkt braucht eine ausreichende Höchstbestellmenge (`maxPurchase`), sonst kürzt Shopware vorher.
+- **Rundung (Entscheidung 09.11.2026):** Der Gesamtpreis der Position ist exakt der Engine-Preis; der Stückpreis
+  ist nur gerundete Anzeige (12,50 € ÷ 3 → 4,17 €, „3 × 4,17“ ≠ 12,50 ist gewollt). Grund: Bei großen Auflagen mit
+  kleinen Stückpreisen würde „Stückpreis auf Cent × Menge“ spürbar verteuern (300 Flyer 35,00 € → 36,00 €). Die
+  `priceDefinition` trägt deshalb den Gesamtpreis mit Menge 1.
+- **Währung:** Preise sind in der Basiswährung (EUR) gepflegt; Endbeträge (VK und EK, Mindestpreis) werden mit dem
+  Währungsfaktor des Verkaufskanals umgerechnet, danach gerundet. Eine Endpreis-Rundung führt nie unter den Mindestpreis.
 - **Nur konfiguriert käuflich:** Positionen eines Produkts mit aktivem Mensura-Profil **ohne** `configuration` (Kauf-Button
   im Listing, `/checkout/line-item/add`, Store-API) entfernt der `MensuraCartProcessor` mit Hinweis
   (`cart.configuration_required`) – sonst ginge das Produkt zum Shopware-Stammpreis weg.
@@ -80,17 +86,21 @@ geprüft: Preisänderung am Material nach der Bestellung ändert weder Bestellpo
 - **Lieferantencodes:** Kalkulation, Material und Optionswert haben `supplierCodes`
   (`[{ "supplierId": "…", "code": "124" }]`). Daraus setzt Mensura die Lieferanten-Artikelnummer der Position
   zusammen, z. B. Comdatek `124-29.1-57-3-134` (Produkt-Material.Optionen). Das Muster je Lieferant wird später an der Kalkulation
-  gepflegt.
+  gepflegt. Umgesetzt (`CalculationResult::supplierProductNumbers()`): Kalkulationscode, dann Materialcode, dann die
+  Codes der gewählten Werte in Gruppenreihenfolge (inkl. Lieferzeit), mit „-“ verbunden; nur für Lieferanten mit
+  Kalkulationscode. Der Schnappschuss speichert die Nummer des vorgeschlagenen Lieferanten (`supplierProductNumber`)
+  und alle Nummern je Lieferant (`breakdown.supplierProductNumbers`).
 
 ## 4. Andocken an den LieferLotse
 
-Mensura registriert sich, wenn LieferLotse installiert ist, für `SupplierOrderBuiltEvent` und ergänzt je Position:
+Mensura abonniert `SupplierOrderBuiltEvent` (`Service/Integration/SupplierOrderSubscriber`, nur über den Klassennamen –
+ohne LieferLotse wird das Ereignis nie ausgelöst) und ergänzt je Position aus dem Bestell-Schnappschuss:
 
 | Feld der Lieferantenposition | Inhalt |
 |---|---|
 | `options[]` (Text, schon vorhanden) | „Material: Aluverbundplatte 3 mm“, „Format: 1000 × 500 mm“, „Motive: 2 × 5 Stk“, „Farbigkeit: 4/4 …“ |
 | `supplierProductNumber` | aus den Lieferantencodes zusammengesetzt, falls vorhanden; sonst bleibt die Zuordnung aus dem LieferLotse |
-| **`attributes`** (neu im LieferLotse) | strukturierte Konfiguration (Payload `ldMensura` ohne Preise) für XML/JSON/API, z. B. `<Attributes><Width>1000</Width>…` |
+| **`attributes`** | `{ "mensura": <normalisierte Konfiguration ohne Preise> }` für XML/JSON/CSV (CSV z. B. `attr.mensura.format.width`) |
 
 **Nötige Erweiterung im LieferLotse** (kleiner, eigener Schritt dort): `SupplierOrderItem` bekommt ein
 neutrales Feld `attributes` (Schlüssel/Wert, verschachtelt erlaubt), `toArray()` gibt es aus, und

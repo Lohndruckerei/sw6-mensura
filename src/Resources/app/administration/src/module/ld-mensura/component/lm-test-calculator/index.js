@@ -15,11 +15,11 @@ export default {
         <p class="lm-muted lm-card-intro">{{ $tc('ld-mensura.calculation.test.intro') }}</p>
         <mt-banner v-if="loadError" variant="attention">{{ $tc('ld-mensura.calculation.test.notReady') }}</mt-banner>
         <sw-container columns="repeat(auto-fit, minmax(180px, 1fr))" gap="0 24px">
-            <sw-single-select v-model:value="input.materialId" :options="materialOptions" :label="$tc('ld-mensura.areas.material.title')" />
-            <mt-number-field v-model="input.width" number-type="int" :label="$tc('ld-mensura.calculation.test.width')" />
-            <mt-number-field v-model="input.height" number-type="int" :label="$tc('ld-mensura.calculation.test.height')" />
-            <mt-number-field v-model="input.motifs" number-type="int" :min="1" :label="$tc('ld-mensura.calculation.test.motifs')" />
-            <mt-number-field v-model="input.perMotif" number-type="int" :min="1" :label="$tc('ld-mensura.calculation.test.perMotif')" />
+            <sw-single-select v-model:value="input.materialId" :options="materialOptions" :label="$tc('ld-mensura.areas.material.title')" :help-text="$tc('ld-mensura.rowHelp.testField')" />
+            <mt-number-field v-model="input.width" number-type="int" :label="$tc('ld-mensura.calculation.test.width')" :help-text="$tc('ld-mensura.rowHelp.testField')" />
+            <mt-number-field v-model="input.height" number-type="int" :label="$tc('ld-mensura.calculation.test.height')" :help-text="$tc('ld-mensura.rowHelp.testField')" />
+            <mt-number-field v-model="input.motifs" number-type="int" :min="1" :label="$tc('ld-mensura.calculation.test.motifs')" :help-text="$tc('ld-mensura.rowHelp.testField')" />
+            <mt-number-field v-model="input.perMotif" number-type="int" :min="1" :label="$tc('ld-mensura.calculation.test.perMotif')" :help-text="$tc('ld-mensura.rowHelp.testField')" />
             <sw-entity-single-select v-model:value="input.customerGroupId" entity="customer_group" label-property="name" :label="$tc('ld-mensura.calculation.test.customerGroup')" :help-text="$tc('ld-mensura.calculation.test.helpCustomerGroup')" />
         </sw-container>
         <sw-container columns="repeat(auto-fit, minmax(180px, 1fr))" gap="0 24px">
@@ -29,6 +29,7 @@ export default {
                 :value="(group.type === 'delivery' ? input.deliveryValue : input.options[group.technicalName]) ?? null"
                 :options="group.options"
                 :label="group.label"
+                :help-text="$tc('ld-mensura.rowHelp.testField')"
                 @update:value="setOption(group, $event)"
             />
         </sw-container>
@@ -172,12 +173,12 @@ export default {
             const sale = this.response?.sale ?? {};
             const purchase = this.response?.purchase ?? {};
             const line = (side, key) => (side.lines ?? []).find((entry) => entry.key === key);
-            const value = (side, key, digits = 2, suffix = ' €') => {
+            const value = (side, key, digits = 2, suffix = ` ${this.$tc('ld-mensura.price.unitCurrency')}`) => {
                 const entry = line(side, key);
                 return entry && entry.amount !== undefined ? `${this.num(entry.amount, digits)}${suffix}` : '–';
             };
             const rows = [
-                { key: 'material', label: this.$tc('ld-mensura.calculation.test.lineMaterial'), sale: value(sale, 'material', 4, ' €/m²'), purchase: value(purchase, 'material', 4, ' €/m²') },
+                { key: 'material', label: this.$tc('ld-mensura.calculation.test.lineMaterial'), sale: value(sale, 'material', 4, ` ${this.$tc('ld-mensura.price.unitPerSqm')}`), purchase: value(purchase, 'material', 4, ` ${this.$tc('ld-mensura.price.unitPerSqm')}`) },
             ];
             const saleComponents = line(sale, 'components')?.items ?? [];
             const purchaseComponents = line(purchase, 'components')?.items ?? [];

@@ -1,4 +1,5 @@
 import { ensureTechnicalName } from '../../service/technical-name';
+import saveErrorMessage from '../../service/save-error';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -78,7 +79,7 @@ export default {
                     </template>
                     <template #actions="{ item }">
                         <sw-context-menu-item @click="editValue = item">{{ $tc('global.default.edit') }}</sw-context-menu-item>
-                        <sw-context-menu-item variant="danger" :disabled="!canEdit || undefined" @click="removeValue(item)">{{ $tc('global.default.delete') }}</sw-context-menu-item>
+                        <sw-context-menu-item variant="danger" :disabled="!canEdit || undefined" @click="deleteValue = item">{{ $tc('global.default.delete') }}</sw-context-menu-item>
                     </template>
                 </sw-data-grid>
                 <sw-empty-state v-else :title="$tc('ld-mensura.option.detail.emptyValuesTitle')" :subline="$tc('ld-mensura.option.detail.emptyValuesSubline')" icon="regular-sliders-v" :absolute="false" />
@@ -90,6 +91,14 @@ export default {
         </template>
 
         <lm-value-modal v-if="editValue" :value="editValue" :group-type="group.type" :disabled="!canEdit" @close="editValue = null" />
+
+        <sw-modal v-if="deleteValue" :title="$tc('global.default.warning')" variant="small" @modal-close="deleteValue = null">
+            <p>{{ $tc('ld-mensura.option.detail.confirmDeleteValue', { name: deleteValue.translated?.name || deleteValue.name || deleteValue.technicalName }) }}</p>
+            <template #modal-footer>
+                <mt-button size="small" variant="secondary" @click="deleteValue = null">{{ $tc('global.default.cancel') }}</mt-button>
+                <mt-button size="small" variant="critical" @click="removeValue(deleteValue); deleteValue = null">{{ $tc('global.default.delete') }}</mt-button>
+            </template>
+        </sw-modal>
     </template>
 </lm-detail-page>`,
 
@@ -104,7 +113,7 @@ export default {
     },
 
     data() {
-        return { group: null, isLoading: false, isSaveSuccessful: false, activeTab: 'base', editValue: null, sets: [] };
+        return { group: null, isLoading: false, isSaveSuccessful: false, activeTab: 'base', editValue: null, deleteValue: null, sets: [] };
     },
 
     metaInfo() {
@@ -278,12 +287,7 @@ export default {
                 }
                 await this.load();
             } catch (exception) {
-                const detail = JSON.stringify(exception?.response?.data?.errors ?? []);
-                this.createNotificationError({
-                    message: detail.includes('technical_name')
-                        ? this.$tc('ld-mensura.general.errorDuplicateTechnicalName')
-                        : this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
-                });
+                this.createNotificationError({ message: saveErrorMessage(this, exception) });
             } finally {
                 this.isLoading = false;
             }

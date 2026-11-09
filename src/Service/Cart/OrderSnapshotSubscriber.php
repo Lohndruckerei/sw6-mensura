@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lohndruckerei\Mensura\Service\Cart;
 
+use Doctrine\DBAL\Connection;
 use Lohndruckerei\Mensura\Service\Calculation\CatalogLoader;
 use Lohndruckerei\Mensura\Service\Calculation\ContextFactory;
 use Lohndruckerei\Mensura\Service\Calculation\PriceEngine;
@@ -30,6 +31,7 @@ class OrderSnapshotSubscriber implements EventSubscriberInterface
         private readonly CatalogLoader $loader,
         private readonly PriceEngine $engine,
         private readonly ContextFactory $contextFactory,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -50,6 +52,12 @@ class OrderSnapshotSubscriber implements EventSubscriberInterface
         foreach ($converted['lineItems'] ?? [] as $index => $orderLineItem) {
             $payload = $orderLineItem['payload'][LineItemFactory::PAYLOAD_KEY] ?? null;
             if (($orderLineItem['type'] ?? null) !== LineItem::PRODUCT_LINE_ITEM_TYPE || !\is_array($payload['configuration'] ?? null)) {
+                continue;
+            }
+            $orderLineItemId = (string) ($orderLineItem['id'] ?? '');
+            // Neuberechnen einer bestehenden Bestellung (Admin) wandelt erneut um: den Schnappschuss vom Bestellzeitpunkt
+            // behalten (nicht mit heutigen Stammdaten überschreiben, keine zweite Zeile → UNIQUE-Fehler)
+            if ($orderLineItemId !== '' && $this->hasSnapshot($orderLineItemId)) {
                 continue;
             }
             $productId = (string) ($orderLineItem['referencedId'] ?? $orderLineItem['productId'] ?? '');
@@ -75,17 +83,19 @@ class OrderSnapshotSubscriber implements EventSubscriberInterface
             }
 
             $converted['lineItems'][$index]['ldMensura'] = [
-                'id' => Uuid::randomHex(),
+                // fest aus der Positions-ID abgeleitet: dieselbe Position ergibt nie einen zweiten Schnappschuss
+                'id' => $orderLineItemId !== '' ? Uuid::fromStringToHex('ld-mensura-snapshot.' . $orderLineItemId) : Uuid::randomHex(),
                 'schemaVersion' => 1,
                 'calculationId' => $snapshot['calculationId'],
                 'calculationTechnicalName' => $snapshot['calculationTechnicalName'],
                 'materialId' => $snapshot['materialId'],
                 'supplierId' => $snapshot['supplierId'],
-                'supplierProductNumber' => null,
+                'supplierProductNumber' => $snapshot['supplierProductNumber'],
                 'customerGroupId' => $snapshot['customerGroupId'],
                 'configuration' => $snapshot['configuration'],
                 'breakdown' => $snapshot['breakdown'] + [
                     'contributionMargin' => $snapshot['contributionMargin'],
+                    'supplierProductNumbers' => $snapshot['supplierProductNumbers'],
                     'orderedNetTotal' => $orderedTotal !== null ? round($orderedTotal, 2) : null,
                     'calculatedAt' => $calculationContext->now->format(\DATE_ATOM),
                 ],
@@ -99,5 +109,17 @@ class OrderSnapshotSubscriber implements EventSubscriberInterface
         if ($changed) {
             $event->setConvertedCart($converted);
         }
+    }
+
+    private function hasSnapshot(string $orderLineItemId): bool
+    {
+        if (!Uuid::isValid($orderLineItemId)) {
+            return false;
+        }
+
+        return $this->connection->fetchOne(
+            'SELECT 1 FROM `ld_mensura_order_line_item` WHERE `order_line_item_id` = :id LIMIT 1',
+            ['id' => Uuid::fromHexToBytes($orderLineItemId)],
+        ) !== false;
     }
 }

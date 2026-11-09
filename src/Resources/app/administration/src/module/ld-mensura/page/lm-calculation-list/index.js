@@ -31,7 +31,7 @@ export default {
         <span v-if="!item.materials || item.materials.length === 0" class="lm-muted">–</span>
     </template>
     <template #column-minimumPriceSale="{ item }">
-        <span class="lm-num">{{ item.minimumPriceSale === null ? '–' : fmt(item.minimumPriceSale) + ' €' }}</span>
+        <span class="lm-num">{{ item.minimumPriceSale === null ? '–' : fmt(item.minimumPriceSale) + ' ' + $tc('ld-mensura.price.unitCurrency') }}</span>
     </template>
     <template #column-saleRule="{ item }">
         {{ $tc('ld-mensura.saleRule.' + item.saleRule) }} {{ item.saleRule === 'free' ? '' : fmt(item.saleRuleValue, 1) }}

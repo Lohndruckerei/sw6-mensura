@@ -15,6 +15,7 @@ export default {
             :value="row.type"
             :options="typeOptions"
             :label="index === 0 ? $tc('ld-mensura.components.type') : undefined"
+            :help-text="index === 0 ? $tc('ld-mensura.rowHelp.componentType') : undefined"
             :disabled="disabled || undefined"
             @update:value="update(index, 'type', $event)"
         />
@@ -22,6 +23,7 @@ export default {
             v-if="showPurchase"
             :model-value="row.purchase"
             :label="index === 0 ? $tc('ld-mensura.price.purchase') : undefined"
+            :help-text="index === 0 ? $tc('ld-mensura.rowHelp.purchase') : undefined"
             :digits="4"
             :disabled="disabled || undefined"
             @update:model-value="update(index, 'purchase', $event)"
@@ -29,6 +31,7 @@ export default {
         <mt-number-field
             :model-value="row.sale"
             :label="index === 0 ? $tc('ld-mensura.price.sale') : undefined"
+            :help-text="index === 0 ? $tc('ld-mensura.rowHelp.sale') : undefined"
             :digits="4"
             :disabled="disabled || undefined"
             @update:model-value="update(index, 'sale', $event)"

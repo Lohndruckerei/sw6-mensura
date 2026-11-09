@@ -131,11 +131,24 @@ final class PriceEngine
         // eine über der festen Grenze, damit die Prüfung unten greift (kein Überlauf bei Riesenzahlen)
         $config->motifs = self::count($input['motifs'] ?? $defaults['motifs'] ?? 1, self::HARD_MAX_MOTIFS + 1);
         $config->perMotif = self::count($input['perMotif'] ?? $defaults['perMotif'] ?? 1, self::HARD_MAX_QUANTITY + 1);
+        // keine stille Korrektur: ungültige Mengen (0, negativ, Text, Nachkommastellen) als Hinweis melden
+        foreach (['motifs', 'perMotif'] as $field) {
+            if (!\array_key_exists($field, $input)) {
+                continue;
+            }
+            $raw = $input[$field];
+            $wholeNumber = (\is_int($raw) || \is_float($raw) || (\is_string($raw) && is_numeric($raw)))
+                && (float) $raw >= 1 && floor((float) $raw) === (float) $raw;
+            if (!$wholeNumber) {
+                $otherHints[] = $messages->message('quantity.reset', ['old' => \is_scalar($raw) ? (string) $raw : '?', 'new' => $messages->number($config->{$field})], $field);
+            }
+        }
         if (isset($input['reference']) && \is_string($input['reference'])) {
             $config->reference = mb_substr($input['reference'], 0, 255);
         }
         if (isset($input['artwork']) && \is_array($input['artwork'])) {
-            $config->artwork = array_values($input['artwork']);
+            // bis zum Druckdaten-Plugin nur eine kleine Liste einfacher Einträge übernehmen (kein unbegrenzter Payload)
+            $config->artwork = self::limitArtwork($input['artwork']);
         }
 
         // Optionen: Start-Set → Set des Materials → Sets der gewählten Werte (rekursiv)
@@ -269,6 +282,34 @@ final class PriceEngine
         $config->hints = array_merge($otherHints, $removedHints, $optionHints);
 
         return $config;
+    }
+
+    /**
+     * Druckdaten-Verweise aus dem Client: höchstens 20 Einträge, je Eintrag nur Skalare mit kurzen Schlüsseln/Werten.
+     *
+     * @param array<mixed> $artwork
+     *
+     * @return list<array<string, scalar|null>>
+     */
+    private static function limitArtwork(array $artwork): array
+    {
+        $result = [];
+        foreach (\array_slice(array_values($artwork), 0, 20) as $entry) {
+            if (!\is_array($entry)) {
+                continue;
+            }
+            $clean = [];
+            foreach (\array_slice($entry, 0, 10, true) as $key => $value) {
+                if (\is_string($key) && \strlen($key) <= 64 && (\is_scalar($value) || $value === null)) {
+                    $clean[$key] = \is_string($value) ? mb_substr($value, 0, 500) : $value;
+                }
+            }
+            if ($clean !== []) {
+                $result[] = $clean;
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -675,7 +716,9 @@ final class PriceEngine
             }
         }
         $sum = static fn (string $type) => array_sum(array_map(static fn (array $c) => $c['amount'], array_filter($components, static fn (array $c) => $c['type'] === $type)));
-        $factor = array_product(array_map(static fn (array $c) => $c['amount'], array_filter($components, static fn (array $c) => $c['type'] === 'factor'))) ?: 1.0;
+        // leere Liste → 1; ein gepflegter Faktor 0 bleibt 0 (nicht still zu 1)
+        $factors = array_map(static fn (array $c) => (float) $c['amount'], array_values(array_filter($components, static fn (array $c) => $c['type'] === 'factor')));
+        $factor = $factors === [] ? 1.0 : array_product($factors);
 
         // Staffel der Kalkulation (Preis ersetzt Materialpreis, Rabatt auf Zwischensumme)
         $calculationTier = Tiers::forSide($calculation['tiers'] ?? null, $calculation['tierBasis'] ?? null, $side);
@@ -757,7 +800,17 @@ final class PriceEngine
             $total *= 1 + $customerGroupPercent / 100;
             $minimum *= 1 + $customerGroupPercent / 100;
         }
+        // Basiswährung → Währung des Verkaufskanals (beide Seiten, damit Deckungsbeitrag in einer Währung bleibt)
+        $total *= $context->currencyFactor;
+        $minimum *= $context->currencyFactor;
         $total = self::roundPrice($total, $rounding);
+        if ($minimumApplied && $rounding !== null && $rounding > 0 && $total + 0.005 < round($minimum, 2)) {
+            // Endpreis-Rundung (z. B. auf ganze Euro) darf nicht unter den Mindestpreis führen: auf den nächsten
+            // Rundungsschritt aufrunden (die normale Cent-Rundung des Mindestpreises selbst bleibt)
+            $total = round(ceil(round($minimum, 2) / $rounding - 1e-9) * $rounding, 2);
+        }
+        // Gesamtpreis bleibt exakt (Entscheidung 09.11.2026): kein „Stückpreis auf Cent × Menge“, weil das große Auflagen
+        // mit kleinen Stückpreisen spürbar verteuert (300 Flyer 35,00 € → 36,00 €); der Stückpreis ist nur Anzeige
 
         return [
             'side' => $side,
@@ -1020,9 +1073,14 @@ final class PriceEngine
             $candidates[$perMotif] = true;
         }
         ksort($candidates);
+        $messages = new Messages($context->language);
         foreach (array_keys($candidates) as $perMotif) {
             $quantity = $config->quantity($motifMode, $perMotif);
-            if ($limits['maxQuantity'] !== null && $quantity > $limits['maxQuantity']) {
+            if ($quantity > min($limits['maxQuantity'] ?? self::HARD_MAX_QUANTITY, self::HARD_MAX_QUANTITY)) {
+                continue;
+            }
+            // die größere Menge muss mit der gewählten Lieferzeit lieferbar sein (Verfügbarkeit nach Menge/Fläche)
+            if ($config->deliveryValueId !== null && $this->deliveryReason($config, $catalog, $config->deliveryValueId, $perMotif, $messages) !== null) {
                 continue;
             }
             $price = $this->price($config, $catalog, $context, 'sale', $perMotif);

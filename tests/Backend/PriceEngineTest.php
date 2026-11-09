@@ -214,6 +214,25 @@ final class PriceEngineTest extends TestCase
         self::assertArrayNotHasKey('price', $api);
     }
 
+    public function testCurrencyFactorAndRoundingNeverBelowMinimum(): void
+    {
+        // CHF-Kanal mit Faktor 0,95: 353,00 € → 335,35 CHF (EK ebenso umgerechnet, Deckungsbeitrag in einer Währung)
+        $config = $this->config(['format' => ['width' => 1000, 'height' => 500], 'perMotif' => 10, 'options' => ['farbigkeit' => '4-4', 'veredelung' => 'ag-2', 'bohrung' => 'ja', 'schnitt' => 'kontur']]);
+        $chf = new CalculationContext(currency: 'CHF', currencyFactor: 0.95);
+        $result = (new PriceEngine())->calculate($config, new Catalog(DemoCatalog::catalog()), $chf);
+        self::assertSame(335.35, $result->getSaleTotal());
+        self::assertSame(272.18, $result->getPurchaseTotal()); // 286,50 × 0,95 = 272,175
+        self::assertSame('CHF', self::plain($result->toStoreApi())['price']['currency']);
+
+        // Endpreis-Rundung auf ganze Euro darf den Mindestpreis 13,40 nicht unterschreiten (13,40 → 14, nicht 13)
+        $data = DemoCatalog::catalog();
+        $calcId = DemoCatalog::id('calculation.aluverbund');
+        $data['calculations'][$calcId]['priceRounding'] = 1.0;
+        $data['materials'][self::ALU]['minimumPriceSale'] = 13.40;
+        $minimum = (new PriceEngine())->calculate($this->config([]), new Catalog($data), ContractTest::context());
+        self::assertSame(14.0, $minimum->getSaleTotal());
+    }
+
     public function testHardLimitsWithoutConfiguredLimitsAndNoOverflow(): void
     {
         // Demo-Daten setzen weder maxQuantity noch maxMotifs → feste Obergrenzen greifen

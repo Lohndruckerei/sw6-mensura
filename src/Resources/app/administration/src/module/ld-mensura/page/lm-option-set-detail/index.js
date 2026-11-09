@@ -1,4 +1,5 @@
 import { ensureTechnicalName } from '../../service/technical-name';
+import saveErrorMessage from '../../service/save-error';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -23,7 +24,7 @@ export default {
         <span>{{ set.technicalName }}</span>
     </template>
     <template #header-chips>
-        <lm-chip v-for="row in sortedRows" :key="row.id" color="c1" icon="regular-sliders-v" :label="groupName(row)" />
+        <lm-chip v-for="row in sortedRows" :key="row.id" color="c3" icon="regular-sliders-v" :label="groupName(row)" />
     </template>
     <template #header-stats>
         <span class="lm-header__stat"><b>{{ sortedRows.length }}</b>{{ $tc('ld-mensura.optionSet.detail.statGroups') }}</span>
@@ -53,6 +54,7 @@ export default {
             <sw-single-select
                 :value="requiredValue(row)"
                 :options="requiredOptions"
+                :help-text="index === 0 ? $tc('ld-mensura.rowHelp.setRequired') : undefined"
                 :disabled="!canEdit || undefined"
                 @update:value="setRequired(row, $event)"
             />
@@ -264,12 +266,7 @@ export default {
                 }
                 await this.load();
             } catch (exception) {
-                const detail = JSON.stringify(exception?.response?.data?.errors ?? []);
-                this.createNotificationError({
-                    message: detail.includes('technical_name')
-                        ? this.$tc('ld-mensura.general.errorDuplicateTechnicalName')
-                        : this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
-                });
+                this.createNotificationError({ message: saveErrorMessage(this, exception) });
             } finally {
                 this.isLoading = false;
             }

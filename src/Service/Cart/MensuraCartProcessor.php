@@ -30,7 +30,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Warenkorbberechnung neu – Preise des Frontends werden nie übernommen. Ungültige Positionen werden entfernt.
  *
  * Der Gesamtpreis der Position ist exakt der Engine-Preis (netto; bei Brutto-Anzeige mit Steuer aufgeschlagen);
- * der Stückpreis ist nur abgeleitet (Gesamt ÷ Menge, gerundet).
+ * der Stückpreis ist nur abgeleitet (Gesamt ÷ Menge, gerundet) – „Menge × Einzelpreis“ kann um Cent abweichen
+ * (Entscheidung 09.11.2026, INTEGRATION.md 1).
  */
 class MensuraCartProcessor implements CartProcessorInterface
 {
@@ -99,14 +100,18 @@ class MensuraCartProcessor implements CartProcessorInterface
                     $delivery->setHeight($areas['height']);
                 }
             }
+            // Gesamt exakt (Engine); Stückpreis nur gerundete Anzeige. Die priceDefinition trägt den Gesamtpreis mit
+            // Menge 1, damit ein Neuberechnen daraus (Admin-Bestellbearbeitung, Promotions) nicht „Stückpreis × Menge“
+            // rechnet und um Cent bzw. bei großen Auflagen deutlich abweicht.
             $quantity = $lineItem->getQuantity();
             $taxRules = $lineItem->getPrice()?->getTaxRules() ?? new TaxRuleCollection();
             $total = (float) $result->getSaleTotal();
             if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
                 $total = round($total * (1 + array_sum($taxRules->map(static fn ($rule) => $rule->getTaxRate())) / 100), 2);
             }
-            $position = $this->calculator->calculate(new QuantityPriceDefinition($total, $taxRules, 1), $context);
-            $lineItem->setPriceDefinition(new QuantityPriceDefinition(round($total / max(1, $quantity), 2), $taxRules, $quantity));
+            $definition = new QuantityPriceDefinition($total, $taxRules, 1);
+            $position = $this->calculator->calculate($definition, $context);
+            $lineItem->setPriceDefinition($definition);
             $lineItem->setPrice(new CalculatedPrice(
                 round($position->getTotalPrice() / max(1, $quantity), 2),
                 $position->getTotalPrice(),

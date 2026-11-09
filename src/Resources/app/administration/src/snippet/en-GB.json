@@ -1,5 +1,25 @@
 {
     "ld-mensura": {
+        "rowHelp": {
+            "componentType": "What the amount refers to, e.g. “per m²” for contour cut €2.00/m² or “percent” for express +30.",
+            "purchase": "Purchase price net in euros, only visible with the purchase permission. Example: 1.50",
+            "sale": "Sales price net in euros for resellers. Example: 2.00",
+            "tierFrom": "The row applies from this value (inclusive). Example: from 10 pieces or from 5 m²",
+            "tierMode": "Discount in percent on the total price or a fixed price per unit from this tier.",
+            "tierValue": "Example: 10 (= 10 % discount) or 24.50 (€ per m² from this tier)",
+            "supplier": "Supplier the code applies to (from LieferLotse).",
+            "supplierId": "Supplier ID as text when LieferLotse is not installed. Example: 0194e1a0…",
+            "supplierCode": "Part of the supplier article number, joined with “-”. Example: 29.1 for aluminium 3 mm",
+            "tableName": "Name of the price table in the admin. Example: “A4 4/0”",
+            "tableQuantity": "Run from which the row applies; intermediate quantities use the row below. Example: 250",
+            "testField": "Test value for the calculator, not saved. Example: 1000 × 500 mm, 10 pieces",
+            "image": "Image in the configurator (material selection), square, e.g. 400 × 400 px.",
+            "setRequired": "Whether the customer must choose in this group; “as group” uses the option group's setting.",
+            "ruleMode": "How the profile restricts the group: inherit, only certain values, fixed or hidden. Example: laminate fixed to “matt”.",
+            "ruleValues": "Only these values can be chosen in the shop. Example: only “4/0” and “4/4”.",
+            "ruleDefault": "Preselection when the configurator opens. Example: “no drill holes”.",
+            "rulePreselect": "Where the preselection comes from: default value, cheapest value or none."
+        },
         "general": {
             "mainMenuItem": "Mensura",
             "description": "Product configurator and area/price calculation",
@@ -27,7 +47,8 @@
             "yes": "Yes",
             "no": "No",
             "copySuffix": "copy",
-            "errorDuplicateTechnicalName": "This technical name is already in use – please choose another one."
+            "errorDuplicateTechnicalName": "This technical name is already in use – please choose another one.",
+            "errorForbidden": "You are not allowed to make this change. Please check the role's permissions (Settings → Users & permissions)."
         },
         "groups": {
             "start": "Start",
@@ -162,6 +183,7 @@
                 "columnDetail": "Details",
                 "emptyValuesTitle": "No values yet",
                 "emptyValuesSubline": "A group needs at least one value, e.g. “4/0 printed one side”.",
+                "confirmDeleteValue": "Remove value “{name}”? Its prices and assignments in the calculations are dropped on save.",
                 "buttonAddValue": "Add value",
                 "days": "1 working day | {days} working days"
             },
@@ -479,6 +501,8 @@
             }
         },
         "price": {
+            "unitCurrency": "€",
+            "unitPerSqm": "€/m²",
             "purchase": "Purchase",
             "sale": "Sale",
             "margin": "Margin",

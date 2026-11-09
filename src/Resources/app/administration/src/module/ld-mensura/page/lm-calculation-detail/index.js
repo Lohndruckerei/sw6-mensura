@@ -1,6 +1,7 @@
 import template from './lm-calculation-detail.html.twig';
 import { formatNumber, marginInfo, ruleOf } from '../../service/margin';
 import { ensureTechnicalName } from '../../service/technical-name';
+import saveErrorMessage from '../../service/save-error';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -414,12 +415,7 @@ export default {
                 await this.load();
                 this.testKey += 1;
             } catch (exception) {
-                const detail = JSON.stringify(exception?.response?.data?.errors ?? []);
-                this.createNotificationError({
-                    message: detail.includes('technical_name')
-                        ? this.$tc('ld-mensura.general.errorDuplicateTechnicalName')
-                        : this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
-                });
+                this.createNotificationError({ message: saveErrorMessage(this, exception) });
             } finally {
                 this.isLoading = false;
             }

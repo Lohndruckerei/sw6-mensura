@@ -20,13 +20,13 @@ export default {
     :associations="['groups.optionGroup', 'calculations', 'materials', 'optionValues']"
 >
     <template #column-groups="{ item }">
-        <lm-chip v-for="row in sortedGroups(item)" :key="row.id" color="c1" icon="regular-sliders-v" :label="row.optionGroup?.translated?.name || row.optionGroup?.technicalName || ''" />
+        <lm-chip v-for="row in sortedGroups(item)" :key="row.id" color="c3" icon="regular-sliders-v" :label="row.optionGroup?.translated?.name || row.optionGroup?.technicalName || ''" />
     </template>
     <template #column-usage="{ item }">
         <span class="lm-muted">{{ usage(item) }}</span>
     </template>
     <template #tile="{ item }">
-        <div><lm-chip v-for="row in sortedGroups(item)" :key="row.id" color="c1" icon="regular-sliders-v" :label="row.optionGroup?.translated?.name || row.optionGroup?.technicalName || ''" /></div>
+        <div><lm-chip v-for="row in sortedGroups(item)" :key="row.id" color="c3" icon="regular-sliders-v" :label="row.optionGroup?.translated?.name || row.optionGroup?.technicalName || ''" /></div>
         <div class="lm-tile__meta"><span>{{ usage(item) }}</span></div>
     </template>
 </lm-entity-list>`,

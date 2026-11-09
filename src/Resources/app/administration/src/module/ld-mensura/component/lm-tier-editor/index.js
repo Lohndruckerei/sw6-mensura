@@ -48,6 +48,7 @@ export default {
                 <mt-number-field
                     :model-value="step.from"
                     :label="index === 0 ? $tc('ld-mensura.tiers.from') : undefined"
+                    :help-text="index === 0 ? $tc('ld-mensura.rowHelp.tierFrom') : undefined"
                     :digits="2"
                     :disabled="disabled || undefined"
                     @update:model-value="setStep(side, index, 'from', $event)"
@@ -56,12 +57,14 @@ export default {
                     :value="step.discount !== undefined ? 'discount' : 'price'"
                     :options="modeOptions"
                     :label="index === 0 ? $tc('ld-mensura.tiers.mode') : undefined"
+                    :help-text="index === 0 ? $tc('ld-mensura.rowHelp.tierMode') : undefined"
                     :disabled="disabled || undefined"
                     @update:value="setMode(side, index, $event)"
                 />
                 <mt-number-field
                     :model-value="step.discount !== undefined ? step.discount : step.price"
                     :label="index === 0 ? $tc('ld-mensura.tiers.value') : undefined"
+                    :help-text="index === 0 ? $tc('ld-mensura.rowHelp.tierValue') : undefined"
                     :digits="4"
                     :disabled="disabled || undefined"
                     @update:model-value="setStep(side, index, step.discount !== undefined ? 'discount' : 'price', $event)"

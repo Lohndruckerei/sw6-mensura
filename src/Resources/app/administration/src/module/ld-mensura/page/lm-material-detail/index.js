@@ -1,6 +1,7 @@
 import template from './lm-material-detail.html.twig';
 import { marginInfo, ruleOf, formatNumber } from '../../service/margin';
 import { ensureTechnicalName } from '../../service/technical-name';
+import saveErrorMessage from '../../service/save-error';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -190,12 +191,7 @@ export default {
                 }
                 await this.load();
             } catch (exception) {
-                const detail = JSON.stringify(exception?.response?.data?.errors ?? []);
-                this.createNotificationError({
-                    message: detail.includes('uniq.ld_mensura_material.technical_name')
-                        ? this.$tc('ld-mensura.general.errorDuplicateTechnicalName')
-                        : this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
-                });
+                this.createNotificationError({ message: saveErrorMessage(this, exception, 'uniq.ld_mensura_material.technical_name') });
             } finally {
                 this.isLoading = false;
             }
