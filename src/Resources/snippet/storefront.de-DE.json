@@ -1,5 +1,8 @@
 {
   "ldMensura": {
+    "listing": {
+      "configure": "Konfigurieren"
+    },
     "configurator": {
       "title": "Ihr Produkt konfigurieren",
       "loading": "Konfigurator wird geladen …",
@@ -157,7 +160,8 @@
         "caption": "Endformat mit Schnittmarken, nicht maßstäblich zur Druckdatei."
       },
       "buybox": {
-        "hint": "Der Preis hängt von Material, Format und Ausführung ab."
+        "hint": "Der Preis hängt von Material, Format und Ausführung ab.",
+        "taxHint": "Preise im Konfigurator wahlweise netto oder brutto, zzgl. Versandkosten."
       },
       "area": {
         "summary": "Fläche: %piece% m² je Stück × %count% Stück = %total% m² gesamt",

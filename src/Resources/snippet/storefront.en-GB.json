@@ -1,5 +1,8 @@
 {
   "ldMensura": {
+    "listing": {
+      "configure": "Configure"
+    },
     "configurator": {
       "title": "Configure your product",
       "loading": "Loading configurator …",
@@ -157,7 +160,8 @@
         "caption": "Final size with crop marks, not to scale with the print file."
       },
       "buybox": {
-        "hint": "The price depends on material, size and finish."
+        "hint": "The price depends on material, size and finish.",
+        "taxHint": "Prices in the configurator net or gross as you choose, plus shipping."
       },
       "area": {
         "summary": "Area: %piece% m² per piece × %count% pieces = %total% m² in total",

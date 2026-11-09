@@ -194,7 +194,11 @@ test('Annahmeschluss und Liefertermin im Preisblock', async () => {
     const c = await controller();
     const text = textOf(R.renderPrice(ctx, c.state));
     assert.ok(text.includes('Lieferung Standard: Fr., 13.11.'));
-    assert.ok(text.includes('bei Bestellung und Druckdaten bis 11:30 Uhr · noch 2 Std. 30 Min.'));
+    // NOW ist ein Samstag: kein Countdown und kein „für heute vorbei“, nur die Regel
+    assert.ok(text.includes('bei Bestellung und Druckdaten bis 11:30 Uhr'));
+    assert.ok(!text.includes('noch 2 Std.') && !text.includes('für heute vorbei'));
+    const weekday = { ...ctx, now: () => new Date(2026, 10, 9, 9, 0) };
+    assert.ok(textOf(R.renderPrice(weekday, c.state)).includes('bei Bestellung und Druckdaten bis 11:30 Uhr · noch 2 Std. 30 Min.'));
     const late = { ...ctx, now: () => new Date(2026, 10, 9, 12, 0) };
     assert.ok(textOf(R.renderPrice(late, c.state)).includes('Annahmeschluss 11:30 Uhr ist für heute vorbei'));
 });
