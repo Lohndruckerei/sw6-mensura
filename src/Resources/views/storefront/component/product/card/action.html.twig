@@ -1,0 +1,16 @@
+{% sw_extends '@Storefront/storefront/component/product/card/action.html.twig' %}
+
+{# Mensura: Produkte mit aktivem Profil sind nur konfiguriert käuflich – statt „In den Warenkorb“ führt der Button
+   zum Konfigurator auf der Produktseite (der Warenkorb lehnt unkonfigurierte Positionen ohnehin ab). #}
+{% block component_product_box_action_buttons %}
+    {% if product.extensions.ldMensura.active ?? false %}
+        <div class="d-grid">
+            <a href="{{ seoUrl('frontend.detail.page', {productId: product.id}) }}"
+               class="btn btn-primary btn-detail lm-configure">
+                {{ 'ldMensura.listing.configure'|trans|sw_sanitize }}
+            </a>
+        </div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}

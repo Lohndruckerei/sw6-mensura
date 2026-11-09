@@ -1,16 +1,29 @@
 {% sw_extends '@Storefront/storefront/component/buy-widget/buy-widget.html.twig' %}
 
-{# Mensura: Produkte mit Profil (product.extensions.ldMensura) bekommen den Konfigurator statt Standard-Preis und -Warenkorb #}
+{# Mensura: Produkte mit AKTIVEM Profil (product.extensions.ldMensura.active) bekommen den Konfigurator statt
+   Standard-Preis und -Warenkorb; bei inaktivem Profil bleibt das normale Kaufformular. #}
 {% block buy_widget_price %}
-    {% if product.extensions.ldMensura ?? false %}
+    {% if product.extensions.ldMensura.active ?? false %}
         <p class="lm-buybox-hint">{{ 'ldMensura.configurator.buybox.hint'|trans|sw_sanitize }}</p>
     {% else %}
         {{ parent() }}
     {% endif %}
 {% endblock %}
 
+{# Steuerhinweis zeigt der Konfigurator selbst (netto/brutto umschaltbar) – sonst widerspräche „inkl. MwSt.“
+   der Netto-Anzeige im Konfigurator #}
+{% block buy_widget_tax %}
+    {% if product.extensions.ldMensura.active ?? false %}
+        <div class="product-detail-tax-container">
+            <p class="product-detail-tax">{{ 'ldMensura.configurator.buybox.taxHint'|trans|sw_sanitize }}</p>
+        </div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
 {% block buy_widget_buy_form %}
-    {% if product.extensions.ldMensura ?? false %}
+    {% if product.extensions.ldMensura.active ?? false %}
         {% sw_include '@LdMensura/storefront/component/ld-mensura/configurator.html.twig' with { product: product } %}
     {% else %}
         {{ parent() }}

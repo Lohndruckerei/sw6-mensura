@@ -399,9 +399,13 @@ export function renderPrice(ctx, state) {
     const dg = deliveryGroup(state.data);
     const dv = dg ? findValue(dg, state.config.deliveryValue) : null;
     const dInfo = deliveryInfo(state, state.config.deliveryValue);
-    const cut = cutoffStatus(state.data.orderCutoff, ctx.now());
+    const now = ctx.now();
+    const cut = cutoffStatus(state.data.orderCutoff, now);
+    // am Wochenende gibt es „heute“ keinen Annahmeschluss – dann nur die Regel nennen, nicht „für heute vorbei“
+    const weekend = now.getDay() === 0 || now.getDay() === 6;
     let cutText = '';
-    if (cut) cutText = cut.passed ? ctx.t('delivery.cutoffPassed', { time: cut.time }) : `${ctx.t('delivery.cutoff', { time: cut.time })} · ${ctx.t('delivery.cutoffLeft', { hours: Math.floor(cut.minutesLeft / 60), minutes: cut.minutesLeft % 60 })}`;
+    if (cut && weekend) cutText = ctx.t('delivery.cutoff', { time: cut.time });
+    else if (cut) cutText = cut.passed ? ctx.t('delivery.cutoffPassed', { time: cut.time }) : `${ctx.t('delivery.cutoff', { time: cut.time })} · ${ctx.t('delivery.cutoffLeft', { hours: Math.floor(cut.minutesLeft / 60), minutes: cut.minutesLeft % 60 })}`;
     const delivery = dv ? `<div class="lm-delivery"><span><b>${esc(ctx.t('delivery.title'))} ${esc(dv.name)}:</b> ${dInfo?.date ? `<time datetime="${esc(dInfo.date)}">${esc(ctx.fmt.date(dInfo.date))}</time>` : esc(dv.deliveryDays != null ? ctx.t('delivery.days', { days: dv.deliveryDays }) : '')}</span>${cutText ? `<span class="lm-muted">${esc(cutText)}</span>` : ''}</div>` : '';
     const cart = state.layout === 'compact' ? `<button type="button" class="btn btn-primary btn-buy w-100" data-lm-action="cart" ${canOrder(state) ? '' : 'disabled'}>${esc(ctx.t('cart.add'))}</button>` : '';
     return `<div class="lm-card card card-body lm-price" aria-live="polite"><div class="lm-price__head"><h3>${esc(ctx.t('price.title'))}</h3>${toggle}</div>${body}${delivery}${cart}
