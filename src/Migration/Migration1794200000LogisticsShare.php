@@ -15,11 +15,11 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  * Eigene Tabelle, damit nur Rollen mit `ld_mensura.logistics` sie über die Admin-API lesen können.
  * „Genau ein Ziel“ prüft der LogisticsRuleValidator (MySQL erlaubt kein CHECK auf Spalten mit FK-CASCADE).
  */
-class Migration1794180000LogisticsShare extends MigrationStep
+class Migration1794200000LogisticsShare extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1794180000;
+        return 1794200000;
     }
 
     public function update(Connection $connection): void

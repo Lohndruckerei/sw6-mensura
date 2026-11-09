@@ -12,11 +12,11 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  * Produktionszeit-Aufschlag im Endpreis getrennt, für Vectura. Eigene Tabelle mit eigenem Recht
  * (`ld_mensura.logistics`), damit Rollen mit `ld_mensura.orders` den unsichtbaren Anteil nicht sehen.
  */
-class Migration1794190000OrderLineItemLogistics extends MigrationStep
+class Migration1794200100OrderLineItemLogistics extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1794190000;
+        return 1794200100;
     }
 
     public function update(Connection $connection): void

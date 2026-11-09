@@ -502,7 +502,7 @@ Grundpreis → Optionen → Staffelrabatt/% → Produktprofil-Aufschlag → Logi
 5. **Prüfung im CI:** Ein Negativtest stellt sicher, dass keine Store-API-Antwort in `build/contract/` und kein Fixture ein
    Feld oder einen Text mit `logistic` enthält (wie die Prüfung „kein Einkaufspreis“).
 
-### 3d.5 Datenmodell (Vorschlag, Migration `Migration1794180000LogisticsShare`)
+### 3d.5 Datenmodell (Vorschlag, Migration `Migration1794200000LogisticsShare`)
 
 **Neue Tabelle `ld_mensura_logistics_rule`** (Entity `LogisticsRuleDefinition`, nicht `ApiAware`):
 
