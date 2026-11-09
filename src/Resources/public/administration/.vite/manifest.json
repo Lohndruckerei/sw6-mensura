@@ -8,7 +8,7 @@
     "name": "technical-name"
   },
   "ld-admin-design/component/chip/index.js": {
-    "file": "assets/index-ChL278Kc.js",
+    "file": "assets/index-ShWjBp93.js",
     "name": "index",
     "src": "ld-admin-design/component/chip/index.js",
     "isDynamicEntry": true,
@@ -17,7 +17,7 @@
     ]
   },
   "ld-admin-design/component/design-switch/index.js": {
-    "file": "assets/index-VnN_6LLX.js",
+    "file": "assets/index-zTyYP2L8.js",
     "name": "index",
     "src": "ld-admin-design/component/design-switch/index.js",
     "isDynamicEntry": true,
@@ -26,7 +26,7 @@
     ]
   },
   "ld-admin-design/component/status/index.js": {
-    "file": "assets/index-Ki6EgBUe.js",
+    "file": "assets/index-Dj8TtZCy.js",
     "name": "index",
     "src": "ld-admin-design/component/status/index.js",
     "isDynamicEntry": true,
@@ -41,7 +41,7 @@
     "isDynamicEntry": true
   },
   "ld-admin-design/component/transport-chip/index.js": {
-    "file": "assets/index-w0PWp4I_.js",
+    "file": "assets/index-B1wKoMZS.js",
     "name": "index",
     "src": "ld-admin-design/component/transport-chip/index.js",
     "isDynamicEntry": true,
@@ -50,7 +50,7 @@
     ]
   },
   "main.js": {
-    "file": "assets/ld-mensura-CDsxFh5T.js",
+    "file": "assets/ld-mensura-BMXvwQzn.js",
     "name": "ld-mensura",
     "src": "main.js",
     "isEntry": true,
@@ -72,6 +72,7 @@
       "module/ld-mensura/component/lm-assignment-modal/index.js",
       "module/ld-mensura/component/lm-price-tables/index.js",
       "module/ld-mensura/component/lm-test-calculator/index.js",
+      "module/ld-mensura/component/lm-logistics-card/index.js",
       "module/ld-mensura/page/lm-overview/index.js",
       "module/ld-mensura/page/lm-material-list/index.js",
       "module/ld-mensura/page/lm-material-detail/index.js",
@@ -85,7 +86,7 @@
       "module/ld-mensura/page/lm-product-profile/index.js"
     ],
     "css": [
-      "assets/ld-mensura-CTHHAAhO.css"
+      "assets/ld-mensura-DL0idp1d.css"
     ]
   },
   "module/ld-mensura/component/lm-assignment-modal/index.js": {
@@ -112,8 +113,21 @@
     "src": "module/ld-mensura/component/lm-info-card/index.js",
     "isDynamicEntry": true
   },
+  "module/ld-mensura/component/lm-logistics-card/index.js": {
+    "file": "assets/index-DXx37Gjf.js",
+    "name": "index",
+    "src": "module/ld-mensura/component/lm-logistics-card/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "main.js",
+      "_margin-fIe6izj8.js"
+    ],
+    "dynamicImports": [
+      "module/ld-mensura/service/vectura-suggestions.example.json"
+    ]
+  },
   "module/ld-mensura/component/lm-page/index.js": {
-    "file": "assets/index-BE6rRUDB.js",
+    "file": "assets/index-Cb3RYXuU.js",
     "name": "index",
     "src": "module/ld-mensura/component/lm-page/index.js",
     "isDynamicEntry": true,
@@ -152,7 +166,7 @@
     "isDynamicEntry": true
   },
   "module/ld-mensura/component/lm-test-calculator/index.js": {
-    "file": "assets/index-DCMOjs9m.js",
+    "file": "assets/index-JzJfgnYR.js",
     "name": "index",
     "src": "module/ld-mensura/component/lm-test-calculator/index.js",
     "isDynamicEntry": true,
@@ -173,7 +187,7 @@
     "isDynamicEntry": true
   },
   "module/ld-mensura/page/lm-calculation-detail/index.js": {
-    "file": "assets/index-Bx-CxA3T.js",
+    "file": "assets/index-7VQNJ_JF.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-calculation-detail/index.js",
     "isDynamicEntry": true,
@@ -192,7 +206,7 @@
     ]
   },
   "module/ld-mensura/page/lm-material-detail/index.js": {
-    "file": "assets/index-Bss4g1Tk.js",
+    "file": "assets/index-CG82AAuA.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-material-detail/index.js",
     "isDynamicEntry": true,
@@ -211,7 +225,7 @@
     ]
   },
   "module/ld-mensura/page/lm-option-detail/index.js": {
-    "file": "assets/index-DILZIjEl.js",
+    "file": "assets/index-CyiIOjKQ.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-option-detail/index.js",
     "isDynamicEntry": true,
@@ -241,7 +255,7 @@
     "isDynamicEntry": true
   },
   "module/ld-mensura/page/lm-overview/index.js": {
-    "file": "assets/index-yZrywTe_.js",
+    "file": "assets/index-BvKrGY5N.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-overview/index.js",
     "isDynamicEntry": true,
@@ -251,7 +265,7 @@
     ]
   },
   "module/ld-mensura/page/lm-product-profile/index.js": {
-    "file": "assets/index-IA4AIUmY.js",
+    "file": "assets/index-CjMxXE32.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-product-profile/index.js",
     "isDynamicEntry": true,
@@ -263,6 +277,12 @@
     "file": "assets/index-0iarTg4Z.js",
     "name": "index",
     "src": "module/ld-mensura/page/lm-profile-list/index.js",
+    "isDynamicEntry": true
+  },
+  "module/ld-mensura/service/vectura-suggestions.example.json": {
+    "file": "assets/vectura-suggestions.example-BE7SdbCT.js",
+    "name": "vectura-suggestions.example",
+    "src": "module/ld-mensura/service/vectura-suggestions.example.json",
     "isDynamicEntry": true
   }
 }

@@ -1,4 +1,4 @@
-import{D as s}from"./ld-mensura-CDsxFh5T.js";const n={template:`
+import{D as s}from"./ld-mensura-BMXvwQzn.js";const n={template:`
 <div class="lm-design-switch" role="group" :aria-label="$tc('lm-design.switchLabel')">
     <span class="lm-design-switch__label">{{ $tc('lm-design.switchLabel') }}</span>
     <button
