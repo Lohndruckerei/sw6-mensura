@@ -48,6 +48,7 @@
             "no": "No",
             "copySuffix": "copy",
             "errorDuplicateTechnicalName": "This technical name is already in use – please choose another one.",
+            "view": "View",
             "errorForbidden": "You are not allowed to make this change. Please check the role's permissions (Settings → Users & permissions)."
         },
         "groups": {

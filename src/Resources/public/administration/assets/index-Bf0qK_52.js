@@ -116,8 +116,9 @@ const{Mixin:l}=Shopware,{Criteria:s}=Shopware.Data,r={template:`
                 <slot :name="name" v-bind="scope" />
             </template>
             <template #actions="{ item }">
-                <sw-context-menu-item :disabled="!acl.can('ld_mensura.editor') || undefined" @click="$router.push({ name: detailRoute, params: { id: item.id } })">
-                    {{ $tc('global.default.edit') }}
+                <!-- Nur-Ansehen-Rollen öffnen die Detailseite schreibgeschützt („Ansehen“ statt gesperrtem „Bearbeiten“) -->
+                <sw-context-menu-item @click="$router.push({ name: detailRoute, params: { id: item.id } })">
+                    {{ acl.can('ld_mensura.editor') ? $tc('global.default.edit') : $tc('ld-mensura.general.view') }}
                 </sw-context-menu-item>
                 <sw-context-menu-item v-if="cloneable" :disabled="!acl.can('ld_mensura.creator') || undefined" @click="onDuplicate(item)">
                     {{ $tc('ld-mensura.general.duplicate') }}

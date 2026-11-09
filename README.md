@@ -53,6 +53,14 @@ Beide Befehle sind wiederholbar (feste IDs, keine Doppelungen) und lassen sich i
 Schnittstellen zu LieferLotse und künftigen Plugins: [docs/INTEGRATION.md](docs/INTEGRATION.md).
 Fahrplan und nächste Schritte: siehe Konzept.
 
+## Deinstallation
+
+Ohne „Daten behalten“ löscht Mensura alle `ld_mensura_*`-Tabellen – **auch die Rechenweg-Schnappschüsse der
+Bestellungen** (EK, VK, Deckungsbeitrag je Position). Bestellungen selbst (Preis, Menge, Konfiguration im Payload)
+bleiben in Shopware erhalten. Werden die Schnappschüsse für Buchhaltung oder Auswertungen gebraucht, vorher
+sichern, z. B. `mysqldump shopware ld_mensura_order_line_item > mensura-schnappschuesse.sql`, oder mit
+„Daten behalten“ deinstallieren.
+
 ## Entwicklung
 
 Backend und Frontend werden getrennt entwickelt und über einen Vertrag (`docs/contract/`) automatisch abgeglichen:

@@ -48,6 +48,7 @@
             "no": "Nein",
             "copySuffix": "Kopie",
             "errorDuplicateTechnicalName": "Dieser technische Name ist schon vergeben – bitte einen anderen wählen.",
+            "view": "Ansehen",
             "errorForbidden": "Keine Berechtigung für diese Änderung. Bitte die Rechte der Rolle prüfen (Einstellungen → Benutzer & Rechte)."
         },
         "groups": {
