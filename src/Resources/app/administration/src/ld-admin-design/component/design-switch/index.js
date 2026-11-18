@@ -1,8 +1,9 @@
-/* GENERIERT aus ld-admin-design 1.0.0 (1d3d326) – nicht hier ändern, sondern in ~/projekte/sw6-entwicklung-lohndruckerei/ld-admin-design/vorlage und ./sync.sh ausführen. */
+/* GENERIERT aus ld-admin-design 1.1.0 (3d22274) – nicht hier ändern, sondern in ~/projekte/sw6-entwicklung-lohndruckerei/ld-admin-design/vorlage und ./sync.sh ausführen. */
 import { DESIGNS } from '../../constants';
 
 /**
  * Schalter „Design A | B | C“ für den Praxistest. Speichert die Wahl je Benutzer.
+ * Dahinter „Markieren“: Plugin-Markierung (Testmodus) für alle Lohndruckerei-Plugins, siehe marker.js.
  * Platz: Smart-Bar (#smart-bar-actions), vor „Speichern“.
  */
 export default {
@@ -21,7 +22,24 @@ export default {
     >
         {{ design.key.toUpperCase() }}
     </button>
+    <button
+        v-tooltip.bottom="{ message: $tc('lm-design.marker.toggleTitle'), appearance: 'light' }"
+        type="button"
+        class="lm-design-switch__option lm-design-switch__marker"
+        :class="{ 'is--active': markerActive }"
+        :aria-pressed="markerActive ? 'true' : 'false'"
+        @click="toggleMarker"
+    >
+        {{ $tc('lm-design.marker.toggle') }}
+    </button>
 </div>`,
+
+    data() {
+        return {
+            markerActive: window.ldAdminMarker?.active ?? false,
+            markerOff: null,
+        };
+    },
 
     computed: {
         store() {
@@ -46,9 +64,20 @@ export default {
 
     created() {
         this.store.ensureLoaded();
+        this.markerOff = window.ldAdminMarker?.onChange((active) => {
+            this.markerActive = active;
+        }) ?? null;
+    },
+
+    unmounted() {
+        this.markerOff?.();
     },
 
     methods: {
+        toggleMarker() {
+            window.ldAdminMarker?.toggle();
+        },
+
         async select(design) {
             if (design === this.current) {
                 return;

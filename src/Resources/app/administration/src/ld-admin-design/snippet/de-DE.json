@@ -21,6 +21,16 @@
             "rest_api": "REST-API",
             "soap": "SOAP",
             "webhook": "Webhook"
+        },
+        "marker": {
+            "toggle": "Markieren",
+            "toggleTitle": "Testmodus: Bereiche aller Lohndruckerei-Plugins und Felder ohne Hilfetext markieren (Alt+Umschalt+M)",
+            "title": "Plugin-Markierung",
+            "missing": "Hilfetext fehlt",
+            "missingCount": "Felder ohne Hilfetext",
+            "next": "Nächstes",
+            "off": "Ausschalten",
+            "shortcut": "Alt+Umschalt+M"
         }
     }
 }

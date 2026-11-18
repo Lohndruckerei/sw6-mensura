@@ -21,6 +21,16 @@
             "rest_api": "REST API",
             "soap": "SOAP",
             "webhook": "Webhook"
+        },
+        "marker": {
+            "toggle": "Highlight",
+            "toggleTitle": "Test mode: highlight all Lohndruckerei plugin areas and fields without help text (Alt+Shift+M)",
+            "title": "Plugin highlighting",
+            "missing": "Help text missing",
+            "missingCount": "Fields without help text",
+            "next": "Next",
+            "off": "Turn off",
+            "shortcut": "Alt+Shift+M"
         }
     }
 }

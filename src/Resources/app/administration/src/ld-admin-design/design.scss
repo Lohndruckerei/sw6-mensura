@@ -1,4 +1,4 @@
-// GENERIERT aus ld-admin-design 1.0.0 (1d3d326) – nicht hier ändern, sondern in ~/projekte/sw6-entwicklung-lohndruckerei/ld-admin-design/vorlage und ./sync.sh ausführen.
+// GENERIERT aus ld-admin-design 1.1.0 (3d22274) – nicht hier ändern, sondern in ~/projekte/sw6-entwicklung-lohndruckerei/ld-admin-design/vorlage und ./sync.sh ausführen.
 // Lohndruckerei Admin-Design: A · Hafen, B · Druckbogen, C · Kompass.
 // Alle Regeln hängen an .lm-design / .lm-design--{a|b|c}; Shopware-Klassen werden nur
 // innerhalb dieses Wurzelelements angepasst. Werte und Regeln: DESIGN.md.
@@ -97,6 +97,144 @@ $p-primary: var(--color-interaction-primary-default, #0870ff);
         & + & {
             border-left: 1px solid $p-border;
         }
+    }
+}
+
+.lm-design-switch__marker {
+    padding: 0 10px;
+    font-weight: 500;
+}
+
+// ---------- Plugin-Markierung (Testmodus, DESIGN.md 7.11) ----------
+// Bewusst ohne Präfix: gilt für alle Plugins gleich, nur aktiv mit html[data-ld-marker].
+// Attribute setzt marker.js; jedes Plugin bringt dieselben Regeln mit (Dopplung ist harmlos).
+html[data-ld-marker] {
+    [data-ld-marker-relative] {
+        position: relative;
+    }
+
+    [data-ld-marker-plugin] {
+        outline: 2px solid var(--ld-marker-color);
+        outline-offset: -2px;
+
+        &::after {
+            content: attr(data-ld-marker-plugin);
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 20;
+            padding: 1px 6px;
+            border-bottom-left-radius: 4px;
+            background: var(--ld-marker-color);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 600;
+            line-height: 15px;
+            letter-spacing: .02em;
+            pointer-events: none;
+        }
+    }
+
+    // Menüpunkte und Reiter: nur Rahmen und Farbbalken, kein Schild (zu eng)
+    .sw-admin-menu [data-ld-marker-plugin],
+    .sw-tabs [data-ld-marker-plugin] {
+        box-shadow: inset 4px 0 0 var(--ld-marker-color);
+
+        &::after {
+            content: none;
+        }
+    }
+
+    [data-ld-marker-missing] {
+        outline: 2px dashed #e2262a;
+        outline-offset: 3px;
+        border-radius: 2px;
+    }
+
+    [data-ld-marker-missing-label]::after {
+        content: var(--ld-marker-missing-text, " ⚠");
+        color: #c20017;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    [data-ld-marker-focus] {
+        outline-width: 4px;
+        outline-style: solid;
+    }
+}
+
+[data-ld-marker-legend] {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 210px;
+    padding: 10px 12px;
+    border: 1px solid $p-border;
+    border-radius: 8px;
+    background: $p-surface;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
+    color: $p-text;
+    font-size: 12px;
+
+    [data-ld-marker-legend-title] {
+        margin-bottom: 2px;
+        font-weight: 600;
+    }
+
+    [data-ld-marker-legend-row] {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    [data-ld-marker-legend-idle] {
+        color: $p-text3;
+    }
+
+    [data-ld-marker-legend-dot] {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+    }
+
+    [data-ld-marker-legend-dash] {
+        width: 10px;
+        height: 10px;
+        border: 2px dashed #e2262a;
+        border-radius: 2px;
+    }
+
+    [data-ld-marker-legend-missing] {
+        margin-top: 4px;
+        padding-top: 6px;
+        border-top: 1px solid $p-border;
+
+        button {
+            margin-left: auto;
+        }
+    }
+
+    button {
+        padding: 2px 8px;
+        border: 1px solid $p-border;
+        border-radius: 4px;
+        background: $p-surface;
+        color: $p-text;
+        font-size: 11.5px;
+        cursor: pointer;
+
+        &:hover {
+            background: $p-sunken;
+        }
+    }
+
+    [data-ld-marker-legend-off] {
+        margin-top: 6px;
     }
 }
 
