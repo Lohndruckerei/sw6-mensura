@@ -360,11 +360,16 @@ class ComdatekDemoCommand extends Command
                 'notes' => $supplierProduct === null ? 'Mehrere Comdatek-Produkte – Artikelnummer je Material (Mensura-Lieferantencodes).' : null,
             ];
         }
+        // Korrespondenzsprache Deutsch: Bestellzeilen an Comdatek erscheinen auf Deutsch (falls die Sprache existiert)
+        $german = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(l.`id`)) FROM `language` l JOIN `locale` lo ON lo.`id` = l.`locale_id` WHERE lo.`code` = \'de-DE\' LIMIT 1',
+        );
         $this->upsert('ld_supplier', [[
             'id' => ComdatekCatalog::SUPPLIER_ID,
             'supplierNumber' => ComdatekCatalog::SUPPLIER_NUMBER,
             'name' => 'Comdatek GmbH',
             'active' => true,
+            'languageId' => \is_string($german) && $german !== '' ? $german : null,
             'notes' => "Sitz: Hückelhoven. Druckerei-Lieferant für Platten, Banner und Textil (Mensura-Demo aus der Einkaufspreisliste 2026).\nBestellung manuell im Portal – keine automatische Übertragung.",
             'websites' => [
                 ['id' => ComdatekCatalog::id('supplier.website'), 'type' => 'website', 'label' => 'Website', 'url' => 'https://www.comdatek.de'],

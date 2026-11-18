@@ -140,7 +140,7 @@ final class ComdatekCatalog
 
     /**
      * Kalkulationen je Excel-Gruppe. Optionswert: [Preisanteile EK…, Flags]; Kurzschreibweise
-     * ['area' => €/m², 'piece' => €/Stk, 'perimeter' => €/lfm, 'default' => true, 'only' => [Material…], 'except' => [Material…]].
+     * ['area' => €/m², 'piece' => €/Stk, 'perimeter' => €/lfm, 'areaSale' => €/m² nur VK, 'default' => true, 'only' => [Material…], 'except' => [Material…]].
      * Material: [de, en, EK €/m², Optionen: code, supplierCode, minimum (EK), tiers [basis, [ab => EK]], minArea].
      *
      * @return array<string, array<string, mixed>>
@@ -159,7 +159,7 @@ final class ComdatekCatalog
         $holes = static fn (float $piece) => ['nein' => ['default' => true], 'ja' => ['piece' => $piece]];
         $plates = ['farbigkeit', 'veredelung', 'schnitt', 'bohrung'];
 
-        return [
+        $calculations = [
             'aluverbund' => [
                 'name' => 'Aluverbundplatten', 'size' => [1500, 3000], 'minimum' => 12.50, 'logistics' => 'alu', 'supplierCode' => '124',
                 'sets' => $plates,
@@ -361,6 +361,20 @@ final class ComdatekCatalog
                 ],
             ],
         ];
+
+        // Produktion & Lieferung: Standard (5 Werktage) und Express (3 Werktage). Damit setzt Mensura den Liefertermin
+        // (`ldDeliveryDate`) jeder Position, den der LieferLotse in die Lieferantenbestellung übernimmt.
+        // Express-Aufschlag = heutiger VK von lohndruckerei.eu für 3 AT (Vectura KONZEPT 2.2): Platten +7 €/m², Folie/Banner +5 €/m².
+        // Kein EK-Anteil: Express-Kosten des Lieferanten deckt die Logistikpauschale (Vectura Modell D).
+        foreach ($calculations as $key => $calculation) {
+            $express = \in_array($key, ['banner', 'textilbanner'], true) ? 5.0 : 7.0;
+            $calculations[$key]['options']['lieferzeit'] = [
+                'standard' => ['default' => true],
+                'express' => ['areaSale' => $express],
+            ];
+        }
+
+        return $calculations;
     }
 
     /**
@@ -453,6 +467,10 @@ final class ComdatekCatalog
             if (isset($spec[$key]) && (float) $spec[$key] !== 0.0) {
                 $components[] = self::component($type, (float) $spec[$key]);
             }
+        }
+        // reiner VK-Aufschlag ohne EK (z. B. Express): 'areaSale' => €/m²
+        if (isset($spec['areaSale']) && (float) $spec['areaSale'] !== 0.0) {
+            $components[] = self::component('per_area', 0.0, (float) $spec['areaSale']);
         }
 
         return $components;

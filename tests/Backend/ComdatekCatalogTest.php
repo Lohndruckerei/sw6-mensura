@@ -62,7 +62,10 @@ final class ComdatekCatalogTest extends TestCase
                 self::assertGreaterThan(0, $definition[2], $material);
             }
             foreach ($calculation['options'] as $group => $options) {
-                self::assertContains($group, $calculation['sets'], "$key: Gruppe $group fehlt im Set");
+                // Lieferzeit-Gruppen (Typ delivery) stehen in keinem Set – der Konfigurator zeigt sie immer als eigenen Schritt
+                if (($groups[$group][1] ?? null) !== 'delivery') {
+                    self::assertContains($group, $calculation['sets'], "$key: Gruppe $group fehlt im Set");
+                }
                 foreach ($options as $value => $spec) {
                     self::assertArrayHasKey($value, $values[$group] ?? [], "$key: Wert $group.$value");
                     foreach (array_merge($spec['only'] ?? [], $spec['except'] ?? []) as $material) {

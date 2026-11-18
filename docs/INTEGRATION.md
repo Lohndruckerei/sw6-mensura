@@ -57,8 +57,13 @@ Kunde ─► Mensura-Konfigurator ─► Warenkorb (Produktposition + Konfigurat
   CartProcessor die Shopware-Lieferinformation der Position (Gewicht je Stück in kg, Breite/Höhe in mm aus der
   Konfiguration). So rechnen Shopware-Versandregeln (z. B. Warenkorbgewicht) und ein späteres Versand-Plugin mit den
   echten Werten statt mit den Produkt-Stammdaten. Ohne Gewicht am Material bleibt `weight` null.
-- `ldDeliveryDate` setzt Mensura, wenn der Kunde eine Lieferzeit gewählt hat. Der `DeliveryDateResolver`
-  des LieferLotse übernimmt den Termin dann in die Lieferantenbestellung.
+- `ldDeliveryDate` setzt Mensura, wenn die Kalkulation eine Lieferzeit-Gruppe hat (Wert mit Werktagen; Annahmeschluss
+  und Arbeitstage-Kalender beachtet). Der `DeliveryDateResolver` des LieferLotse übernimmt den Termin dann in die
+  Lieferantenbestellung („Quelle Termin: lineItem.payload.ldDeliveryDate“). Ohne Lieferzeit-Gruppe fällt der LieferLotse
+  auf das Shopware-Versanddatum zurück – jede Kalkulation sollte deshalb eine Lieferzeit-Gruppe haben (Comdatek-Demo:
+  Standard 5 AT, Express 3 AT). **Offen (Abstimmung mit Vectura):** Vectura plant, aus Fertigstellung + Laufzeit den
+  Zustelltermin zu rechnen (sw6-vectura `docs/UMSETZUNG.md`). Bis dahin ist `ldDeliveryDate` der Liefertermin beim Kunden;
+  wer ihn künftig verantwortet, wird mit Vectura festgelegt.
 - **Positionen, die mit Mensura berechnet wurden, gehen nur zusammen mit ihrer Konfiguration an einen Lieferanten.**
 
 ## 2. Rechenweg-Schnappschuss (intern)
@@ -98,9 +103,11 @@ ohne LieferLotse wird das Ereignis nie ausgelöst) und ergänzt je Position aus 
 
 | Feld der Lieferantenposition | Inhalt |
 |---|---|
-| `options[]` (Text, schon vorhanden) | „Material: Aluverbundplatte 3 mm“, „Format: 1000 × 500 mm“, „Motive: 2 × 5 Stk“, „Farbigkeit: 4/4 …“ |
+| `options[]` (lesbare Zeilen) | „Material: Aluverbund 3 mm [29]“, „Format: 1.000 × 500 mm“, „Auflage: 2 Motiv(e) × 5 Stk = 10 Stk“, „Farbigkeit: 4/4 beidseitig bedruckt“, „Produktion & Lieferung: Express“, „Referenz des Kunden: …“ – in der **Korrespondenzsprache des Lieferanten** (sonst Sprache der Bestellung), Reihenfolge wie im Konfigurator, Lieferantencode in eckigen Klammern. Diese Zeilen gibt die E-Mail-Vorlage `ld_supplier_order` aus. |
 | `supplierProductNumber` | aus den Lieferantencodes zusammengesetzt, falls vorhanden; sonst bleibt die Zuordnung aus dem LieferLotse |
-| **`attributes`** | `{ "mensura": <normalisierte Konfiguration ohne Preise> }` für XML/JSON/CSV (CSV z. B. `attr.mensura.format.width`) |
+| **`attributes`** | `{ "mensura": <normalisierte Konfiguration ohne Preise> + "labels": { material, materialSupplierCode, format, quantity, options[{group, name, value, valueName, supplierCode}] } }` für XML/JSON/CSV (CSV z. B. `attr.mensura.format.width`) |
+
+Umgesetzt (18.11.2026, Testbestellung 10006 geprüft). Gelesen wird nur die Live-Version der Bestellposition.
 
 **Nötige Erweiterung im LieferLotse** (kleiner, eigener Schritt dort): `SupplierOrderItem` bekommt ein
 neutrales Feld `attributes` (Schlüssel/Wert, verschachtelt erlaubt), `toArray()` gibt es aus, und
